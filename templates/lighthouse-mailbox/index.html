@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Love Letters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
    LOVE LETTERS  ·  settings
@@ -22,7 +22,7 @@ const CONFIG = {
   dateLocale:  "en-US",                // how dates are written, e.g. "en-GB", "ja-JP"
   defaults: {
     background: "pink",                // pink | black | white | aqua | cream | navy
-    text:       "burgundy",            // white | black | navy | hotpink | burgundy | plum | teal | mocha
+    text:       "hotpink",             // navy | black | white | cream | mustard | lightpink | hotpink | aqua | brown
     envelope:   "cream",               // cream | white | pink | blue | lavender | mint | grey
     theme:      "hearts"               // galaxy | flowers | hearts
   },
@@ -43,9 +43,8 @@ const CONFIG = {
     onlyOne:     "Just this one. Many more to come.",
     settings:    "Make it yours",
     done:        "Done",
-    names:       "Names",
     partner:     "My name",
-    writer:      "Partner's name",
+    writer:      "Partner",
     background:  "Background",
     textColor:   "Text",
     envelope:    "Envelope",
@@ -242,14 +241,14 @@ const CONFIG = {
     --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
     --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
     --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-    --fancy:'EB Garamond','Cormorant Garamond',serif; --fancy-size:.9; --fancy-style:italic;
+    --fancy:var(--serif); --fancy-size:.9;
   }
   .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a}
-  .fg-white{--fg:#ffffff} .fg-black{--fg:#1a1a1a} .fg-navy{--fg:#1d2a5a} .fg-hotpink{--fg:#c9325f} .fg-burgundy{--fg:#6e1f3a} .fg-plum{--fg:#5a3d6e} .fg-teal{--fg:#1f5e63} .fg-mocha{--fg:#5a3b2e}
+  .fg-navy{--fg:#1d2a5a} .fg-black{--fg:#1a1a1a} .fg-white{--fg:#ffffff} .fg-cream{--fg:#f5e6b3} .fg-mustard{--fg:#c9a227} .fg-lightpink{--fg:#f3b3c4} .fg-hotpink{--fg:#d6336c} .fg-aqua{--fg:#a9d6e5} .fg-brown{--fg:#6b4a36}
   .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
   .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
   .light.th-galaxy{--accent:#c9a24b}
-  .fancy{font-family:var(--fancy);font-style:var(--fancy-style,normal);font-weight:400}
+  .fancy{font-family:var(--serif);font-style:normal;font-weight:400}
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{min-height:100%;background:var(--bg)}
@@ -285,7 +284,7 @@ const CONFIG = {
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
   @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.28)}60%{transform:scale(.94)}100%{transform:scale(1)}}
 
-  #line{min-height:2.4em;margin:6px 10px 18px;font-size:calc(19px * var(--fancy-size));line-height:1.4;opacity:0;transition:opacity 1.2s;letter-spacing:.01em}
+  #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
   #line.show{opacity:.92}
   main.reading #line{opacity:.08}
 
@@ -331,25 +330,24 @@ const CONFIG = {
   .it{display:flex;align-items:flex-start;gap:14px;width:100%;border:0;background:transparent;cursor:pointer;color:var(--fg);text-align:left;padding:12px 4px;border-bottom:1px solid currentColor;border-image:linear-gradient(to right,transparent,rgba(128,128,128,.35),transparent) 1;font-family:var(--serif)}
   .it svg{width:18px;height:18px;flex:none;margin-top:5px;fill:var(--accent)}
   .it .d{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
-  .it .t{font-size:16px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-style:italic}
+  .it .t{font-size:16px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .it.cur .d{opacity:1;color:var(--accent)}
   #onlyOne{font-size:14px;opacity:.6;margin-top:12px;text-align:center}
 
   /* settings */
   #gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7}
   #gear svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
-  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(300px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:14px;padding:16px 18px 18px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
+  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(236px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:12px;padding:12px 14px 14px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
   #sheet.show{opacity:1;transform:none;pointer-events:auto}
-  #sheet h3{font-weight:500;font-size:20px;line-height:1.2}
-  #done{display:block;width:100%;margin-top:18px;font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:uppercase;padding:11px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-  #sheet .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:14px 0 7px}
-  .names{display:flex;flex-direction:column;gap:8px}
-  .names label{flex:1;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
-  .names input{display:block;width:100%;margin-top:3px;font-family:var(--serif);font-size:17px;padding:7px 10px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.04em}
-  .sw{display:flex;gap:9px;flex-wrap:wrap}
-  .sw button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
-  .sw button.on{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #2a2a33;transform:scale(1.08)}
-  .sw.an button{width:auto;height:auto;border-radius:20px;padding:6px 14px;background:#f3f3f6;font-family:var(--serif);font-size:15px;letter-spacing:.06em}
+  #sheet h3{font-weight:500;font-size:15px;line-height:1.2;letter-spacing:.06em}
+  #done{display:block;width:100%;margin-top:14px;font-family:var(--serif);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:8px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  #sheet .lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:11px 0 6px}
+  .names{display:flex;gap:6px;margin-top:10px}
+  .names input{display:block;width:50%;min-width:0;font-family:var(--serif);font-size:14px;padding:5px 8px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.03em}
+  .sw{display:flex;gap:7px;flex-wrap:wrap}
+  .sw button{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
+  .sw button.on{box-shadow:0 0 0 2px #fff,0 0 0 3px #2a2a33;transform:scale(1.06)}
+  .sw.an button{width:auto;height:auto;border-radius:20px;padding:4px 10px;background:#f3f3f6;font-family:var(--serif);font-size:13px;letter-spacing:.06em}
   .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
   #dim{position:fixed;inset:0;z-index:5;background:transparent;display:none}
   #dim.show{display:block}
@@ -362,8 +360,7 @@ const CONFIG = {
 <div id="dim"></div>
 <div id="sheet">
   <h3 id="sTitle" class="fancy"></h3>
-  <div class="lbl" id="sNames"></div>
-  <div class="names"><label><span id="lPartner"></span><input id="inPartner" autocomplete="off"></label><label><span id="lWriter"></span><input id="inWriter" autocomplete="off"></label></div>
+  <div class="names"><input id="inPartner" autocomplete="off"><input id="inWriter" autocomplete="off"></div>
   <div class="lbl" id="sBg"></div><div class="sw" id="swBg"></div>
   <div class="lbl" id="sFg"></div><div class="sw" id="swFg"></div>
   <div class="lbl" id="sEnv"></div><div class="sw" id="swEnv"></div>
@@ -382,7 +379,7 @@ const CONFIG = {
 
 <main>
   <header>
-    <h1><span id="n1"></span><svg viewBox="0 0 20 20"><use href="#i-heart"/></svg><span id="n2"></span></h1>
+    <h1><span id="n1"></span><svg viewBox="0 0 20 20"><use id="hIcon" href="#i-heart"/></svg><span id="n2"></span></h1>
     <p id="date"></p>
     <div class="rule"></div>
   </header>
@@ -440,7 +437,7 @@ const CONFIG = {
 const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
 const KEY='loveletters-look';
 const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a']];
-const FGS=[['white','#ffffff'],['black','#1a1a1a'],['navy','#1d2a5a'],['hotpink','#c9325f'],['burgundy','#6e1f3a'],['plum','#5a3d6e'],['teal','#1f5e63'],['mocha','#5a3b2e']];
+const FGS=[['navy','#1d2a5a'],['black','#1a1a1a'],['white','#ffffff'],['cream','#f5e6b3'],['mustard','#c9a227'],['lightpink','#f3b3c4'],['hotpink','#d6336c'],['aqua','#a9d6e5'],['brown','#6b4a36']];
 const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
 const THS=['galaxy','flowers','hearts'];
 const ICON={galaxy:'#i-star',flowers:'#i-flower',hearts:'#i-heart'};
@@ -461,15 +458,16 @@ function applyLook(){
   const cls='bg-'+look.background+' fg-'+look.text+' env-'+look.envelope+' th-'+look.theme+(isLight()?' light':'');
   document.body.className=document.documentElement.className=cls;
   try{localStorage.setItem(KEY,JSON.stringify(look));}catch(e){}
+  $('hIcon').setAttribute('href',ICON[look.theme]);
   for(const [id,k] of [['swBg','background'],['swFg','text'],['swEnv','envelope'],['swAn','theme']])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===look[k]));
   names(); renderShelf(); pickLine(); resetFx();
 }
 function swatches(el,list,key){for(const [v,hex] of list){const b=document.createElement('button');b.dataset.v=v;b.style.background=hex;b.title=v;b.addEventListener('click',()=>{look[key]=v;applyLook();});el.appendChild(b);}}
 swatches($('swBg'),BGS,'background'); swatches($('swFg'),FGS,'text'); swatches($('swEnv'),ENVS,'envelope');
 for(const v of THS){const b=document.createElement('button');b.dataset.v=v;b.textContent=T[v];b.addEventListener('click',()=>{look.theme=v;applyLook();});$('swAn').appendChild(b);}
-$('sTitle').textContent=T.settings;$('sNames').textContent=T.names;$('lPartner').textContent=T.partner;$('lWriter').textContent=T.writer;
+$('sTitle').textContent=T.settings;
 $('sBg').textContent=T.background;$('sFg').textContent=T.textColor;$('sEnv').textContent=T.envelope;$('sAn').textContent=T.theme;
-$('inPartner').placeholder=C.partnerName;$('inWriter').placeholder=C.yourName;$('inPartner').value=look.partner||'';$('inWriter').value=look.writer||'';
+$('inPartner').placeholder=T.partner;$('inWriter').placeholder=T.writer;$('inPartner').value=look.partner||'';$('inWriter').value=look.writer||'';
 $('inPartner').addEventListener('input',e=>{look.partner=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
 $('inWriter').addEventListener('input',e=>{look.writer=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
 $('gear').addEventListener('click',()=>{$('sheet').classList.toggle('show');$('dim').classList.toggle('show');});
@@ -537,9 +535,9 @@ function heart(x,y,r){cx.beginPath();cx.moveTo(x,y+r*.9);cx.bezierCurveTo(x-r*1.
 function petal(x,y,r,a){cx.save();cx.translate(x,y);cx.rotate(a);cx.beginPath();cx.moveTo(0,-r);cx.bezierCurveTo(r*.7,-r*.6,r*.7,r*.6,0,r);cx.bezierCurveTo(-r*.7,r*.6,-r*.7,-r*.6,0,-r);cx.closePath();cx.restore();}
 function flower5(x,y,r,a){for(let i=0;i<5;i++){petal(x+Math.cos(a+i*1.2566)*r*.75,y+Math.sin(a+i*1.2566)*r*.75,r*.55,a+i*1.2566);cx.fill();}cx.fillStyle='#f9e3a1';cx.beginPath();cx.arc(x,y,r*.3,0,7);cx.fill();}
 function resetFx(){
-  P=[];field=[];const n=reduce?30:(look.theme==='galaxy'?150:0);
+  P=[];field=[];const n=reduce?60:(look.theme==='galaxy'?290:0);
   for(let i=0;i<n;i++){
-    if(look.theme==='galaxy'){const star=i<9;field.push({star,x:Math.random()*W,y:Math.random()*H,r:(star?1.8+Math.random()*2.2:.5+Math.random()*1.3)*dp(),ph:Math.random()*6.28,v:(star?.05+Math.random()*.08:.015+Math.random()*.03)*dp(),sp:.5+Math.random()*1.8,rot:Math.random()*6.28,c:Math.random()<.2?'243,198,107':(Math.random()<.5?'200,210,255':'235,240,255')});}
+    if(look.theme==='galaxy'){const mote=i<28;field.push({mote,x:Math.random()*W,y:Math.random()*H,r:(mote?.5+Math.random()*.9:.4+Math.random()*1.4)*dp(),ph:Math.random()*6.28,v:(mote?.08+Math.random()*.12:0)*dp(),sp:.5+Math.random()*1.8,c:Math.random()<.2?'243,198,107':(Math.random()<.5?'200,210,255':'235,240,255')});}
   }
 }
 const PET=['#f6c3d0','#fde3ea','#f9e3a1','#e4d4f5','#cfe9e0'];
@@ -558,9 +556,15 @@ function glowStar(x,y,r,a,rot,light){
 function loop(ts){
   cx.clearRect(0,0,W,H);const d=dp(),th=look.theme,el=ts/1000,light=isLight();
   if(th==='galaxy'){
-    for(const s of field){s.y+=s.v;if(s.y>H+12*d){s.y=-12*d;s.x=Math.random()*W;}const a=0.25+0.75*Math.abs(Math.sin(el*s.sp+s.ph));
-      if(s.star)glowStar(s.x+Math.sin(el*.6+s.ph)*3*d,s.y,s.r,a,s.rot+el*.12,light);
-      else{cx.fillStyle='rgba('+(light?'120,110,180':s.c)+','+(a*(light?.5:.9))+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();}}
+    if(!light){const wall=cx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.4,Math.max(W,H)*.85);
+      if(look.background==='navy'){wall.addColorStop(0,'#1b1f4a');wall.addColorStop(.6,'#121638');wall.addColorStop(1,'#0b0e26');}
+      else{wall.addColorStop(0,'#1a1a2a');wall.addColorStop(.6,'#111118');wall.addColorStop(1,'#0c0c12');}
+      cx.fillStyle=wall;cx.fillRect(0,0,W,H);}
+    for(const s of field){
+      if(s.mote){s.y-=s.v;s.x+=Math.sin(el+s.ph)*.15*d;if(s.y<-4*d){s.y=H+4*d;s.x=Math.random()*W;}cx.fillStyle='rgba(243,198,107,'+(0.25+0.35*Math.sin(el*2+s.ph))*(light?.8:1)+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();continue;}
+      const tw=0.5+0.5*Math.sin(el*s.sp+s.ph);const c=light?'120,110,180':s.c;
+      cx.fillStyle='rgba('+c+','+(0.15+0.6*tw)*(light?.7:1)+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();
+      if(s.r>1.5*d&&tw>0.85){cx.strokeStyle='rgba('+c+','+(0.5*tw)+')';cx.lineWidth=.7*d;cx.beginPath();cx.moveTo(s.x-5*d,s.y);cx.lineTo(s.x+5*d,s.y);cx.moveTo(s.x,s.y-5*d);cx.lineTo(s.x,s.y+5*d);cx.stroke();}}
   }else if(th==='flowers'){
     if(!reduce&&Math.random()<.1)spawn('flowers',Math.random()*W,-10*d,1);
   }else{ if(!reduce&&Math.random()<.07)spawn('hearts',Math.random()*W,H+10*d,1.3); }
