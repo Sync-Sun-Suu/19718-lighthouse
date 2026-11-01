@@ -440,7 +440,7 @@ const CONFIG = {
 <script>
 (async()=>{
 const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
-const KEY='loveletters-look';
+const KEY='loveletters-look:'+location.pathname; /* one setting per page, even on the same account */
 const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a'],['mint','#e9f3ea'],['lavender','#efeaf7']];
 const FGS=[['navy','#1d2a5a'],['black','#1a1a1a'],['white','#ffffff'],['cream','#f5e6b3'],['mustard','#c9a227'],['lightpink','#f3b3c4'],['hotpink','#d6336c'],['aqua','#a9d6e5'],['brown','#6b4a36'],['lilac','#b39ddb'],['purple','#4a2c6b'],['lightgreen','#9fcfae'],['darkgreen','#1f4d3a']];
 const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
