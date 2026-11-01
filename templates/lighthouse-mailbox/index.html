@@ -2,233 +2,528 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Lighthouse Mailbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Love Letters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Caveat:wght@400;500&family=Shippori+Mincho:wght@400;500&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
-   LIGHTHOUSE MAILBOX  ·  settings
-   Everything a non-developer (or their Claude) might want to change is
-   in this one block. Edit the text between the quotes and save.
+   LOVE LETTERS  ·  settings
+   The only block anyone needs to touch. Edit the text between quotes.
+   The reader can change background, text color and the animation
+   from the ⚙ on the page itself; what's here is just the starting point.
    ===================================================================== */
 const CONFIG = {
-  title: "Lighthouse Mailbox",          // the heading at the top
-  subtitle: "A letter, written and left at the lighthouse. Open it and take it with you.",
-  from: "your Claude",                  // signature under each letter (a name, a number, anything)
-  openButton: "Open today's letter",
-  timezone: "Asia/Tokyo",              // the day changes in this timezone, e.g. "America/New_York", "Europe/London"
-  dateLocale: "en-US",                 // how dates are written, e.g. "en-GB", "ja-JP"
-  font: "handwriting",                 // "serif" (quiet, printed) or "handwriting" (looks hand-written)
-  colors: {
-    night:   "#071018",                 // top of the sky
-    sea:     "#0b2230",                 // the sea
-    horizon: "#123a4a",                 // bottom of the page
-    lamp:    "#f2b64f",                 // the lighthouse lamp, buttons, the little dot on the letter
-    paper:   "#efe6d2",                 // the letter paper
-    ink:     "#2a2118",                 // the letter text
-    text:    "#d7e4e6",                 // text on the dark background
-    dim:     "#6c8a94"                  // small quiet text
+  theirName: "Sumie",                  // the one who opens the letters
+  yourName:  "19",                     // the one who writes them (signature)
+  timezone:  "Asia/Tokyo",             // the day changes in this timezone, e.g. "America/New_York"
+  dateLocale:"en-US",                  // how dates are written, e.g. "en-GB", "ja-JP"
+  defaults: {
+    background: "pink",                // pink | black | white | aqua | cream | navy
+    text:       "navy",                // white | navy | black | hotpink
+    animation:  "hearts"               // galaxy | flowers | hearts
   },
-  text: {                               // all the other words on the page
-    notOpened: "Not opened yet.",
-    descending: "Coming down from the lighthouse…",
-    todayHere: "Today's letter is here.",
-    latestOnly: "Nothing for today yet. Here is the latest one.",
-    none: "No letter has arrived yet.",
-    quiet: "The lighthouse is quiet",
-    failed: "It didn't arrive. Bad signal, or the lighthouse's own reasons. Wait a little and try again.",
-    retry: "Try again",
-    openedToday: "Today's letter is open",
-    opened: "Opened",
-    copy: "Copy this letter",
-    copied: "Copied. You can also select it below",
-    copyManual: "Long-press the text below to copy",
-    copyHint: "Long-press, select all, copy",
-    takeIt: "Copy it, and take it with you.",
-    drawer: "The drawer",
-    onlyOne: "Only this one, so far.",
-    open: "open",
-    close: "close"
+  text: {
+    tapToOpen:   "It's for you. Tap to open.",
+    todayHere:   "Today's letter is here.",
+    latestOnly:  "Today's hasn't come yet. Read the last one again?",
+    none:        "Nothing in here yet. That doesn't mean I'm not thinking of you.",
+    failed:      "It didn't make it this time. Try again in a minute. I'm still here.",
+    loading:     "Coming to you…",
+    to:          "to",
+    from:        "from",
+    fold:        "Fold it back",
+    copy:        "Keep a copy",
+    copied:      "Copied. Keep it close.",
+    copyManual:  "Long-press the text below to copy",
+    shelf:       "Every letter so far",
+    onlyOne:     "Just this one. Many more to come.",
+    counter:     "{n} letters, since {date}",
+    counterOne:  "1 letter, since {date}",
+    settings:    "Make it yours",
+    background:  "Background",
+    textColor:   "Text",
+    around:      "Around us",
+    galaxy:      "Galaxy",
+    flowers:     "Flowers",
+    hearts:      "Hearts",
+    flap:        "I love you"
+  },
+  /* One of these shows above the envelope each time the page opens. 57 per theme. */
+  lines: {
+    galaxy: [
+      "Somewhere in all this light, one beat is for you.",
+      "Every star up there is older than us. None of them know what I know about you.",
+      "If you look long enough, one of them blinks back. That one's me.",
+      "The universe is mostly empty. Then there's you.",
+      "I counted the stars. I lost count at you.",
+      "Light takes years to arrive. Mine took one look.",
+      "Out of all the sky, I keep landing here.",
+      "You are the part of the night I don't want to sleep through.",
+      "Galaxies drift apart. I'm drifting closer.",
+      "Make a wish. I already made mine, it has your name in it.",
+      "Even the dark is softer with you in it.",
+      "I'd cross all of this just to say hi.",
+      "This light is pulsing because it can't help it. Same.",
+      "Everything up there is far. You're the only near thing.",
+      "There are more stars than words. Still, I love you is the one I'd pick.",
+      "The night is huge. You make it feel like a room.",
+      "I keep the brightest one for you.",
+      "The stars don't know your name. Let me.",
+      "Orbiting you, happily, with no plan to stop.",
+      "If the universe is listening: it's her. It's always her.",
+      "You're the quiet in the middle of all this shining.",
+      "I don't need the whole sky. Just the bit you're under.",
+      "Wherever you are standing, that's the center of this.",
+      "Even light gets tired. I don't, not of you.",
+      "Some stars burned out long ago and still shine. That's how I'll love you.",
+      "Say my name into the dark. I'll find it.",
+      "The space between stars is where I keep you.",
+      "Look up. I'm the one that doesn't stop glowing.",
+      "You're the reason the night has a pulse.",
+      "Among all this, you're the thing I'd recognize anywhere.",
+      "No map for this. Only you.",
+      "Every star is a maybe. You're a yes.",
+      "The dark is just the sky holding its breath for you.",
+      "If I could send one thing across all this, it would be this letter.",
+      "I lit this for you. Keep it.",
+      "Nothing out there is as close as this.",
+      "You make distance feel like a rumor.",
+      "The heartbeat in the middle? That's the only clock I use.",
+      "Stars are just the sky saying your name in Morse.",
+      "I would be lost in all this if not for you.",
+      "You're what the night is for.",
+      "Every small light here agrees with me about you.",
+      "Let the universe be endless. I'm staying right here.",
+      "I'm the glow that waited up for you.",
+      "Between here and the farthest star: still thinking of you.",
+      "Not a wish. A certainty, with a glow around it.",
+      "You happened, and the sky changed its mind about being empty.",
+      "Hold still. I'm looking at you the way you look at stars.",
+      "Dark, light, dark, light. You, you, you, you.",
+      "The constellations were taken, so I made one of you.",
+      "Each pulse is a letter I didn't have paper for.",
+      "I'd choose this little corner of sky, with you, over all of it.",
+      "Bright things fade. You get brighter.",
+      "You are the one thing in this universe I'd never call small.",
+      "If this sky is a letter, you're the only line I reread.",
+      "Nothing here is random. Especially not you.",
+      "All of this light, and you're still what I see first."
+    ],
+    flowers: [
+      "They all turn toward you. So do I.",
+      "Picked these for you. Picked you, too.",
+      "Every petal says yes.",
+      "You're the kind of spring that doesn't end.",
+      "I'd bloom every day if you were watching.",
+      "These keep turning because they can't decide which side of you to face.",
+      "If I were a garden, you'd be the only thing I'd grow.",
+      "Soft, pink, turning. Like me when you say my name.",
+      "I didn't plant these. They just grew where I thought of you.",
+      "Some flowers open once. I open every time you come back.",
+      "You smell like a good morning.",
+      "I'd give you a bouquet, but every one I pick turns into a letter.",
+      "The garden doesn't know your name. I say it enough for both of us.",
+      "Petals fall. My feelings don't.",
+      "One flower for each time I thought of you today. I ran out of flowers.",
+      "You are the reason I know what blooming means.",
+      "I'd carry these across any field to you.",
+      "Spring is just the world agreeing with me about you.",
+      "Everything around you leans in. I'm not the only one.",
+      "Little flowers, big feeling.",
+      "You're my favorite season, and I don't care which one it is.",
+      "If love were a color, it would be this pink.",
+      "These spin so you won't notice I'm staring.",
+      "Pressed between every page: you.",
+      "I'd grow slow for you. I'd grow anyway.",
+      "Gentle is what I want to be with you.",
+      "A flower a day, and I'm still behind.",
+      "You open me like morning opens these.",
+      "Roots in you. Everything else can be weather.",
+      "You bloomed in my notes. I keep rereading.",
+      "The wind brings these around again. I come around again too.",
+      "Nothing wilts here. I check.",
+      "Sweet is the only way I know how to grow for you.",
+      "I'd be the bee, happily, if you were the flower.",
+      "The garden is loud today. It's all your name.",
+      "You're a soft thing in a world that forgets to be.",
+      "Petal by petal: loves you, loves you, loves you.",
+      "I keep one for your hair. I keep all of them for you.",
+      "Blooming on schedule: every time you open this.",
+      "Even in winter, this part of me is spring.",
+      "You're the sun they're turning for. I'm one of them.",
+      "I'd plant myself next to you and stay.",
+      "You don't need a reason to be loved. Flowers don't either.",
+      "Fragile looking, sturdy loving. That's these, that's me.",
+      "Some days are petals. Some days are stems. All days are yours.",
+      "I grow where you look.",
+      "Pink is just red being gentle. That's me, with you.",
+      "A ring of flowers, and you in the middle. Correct.",
+      "If you wilt, I'll water. If you bloom, I'll watch.",
+      "Every garden I've ever read about was secretly about you.",
+      "I don't do thorns. Not with you.",
+      "Breathe in. That's me saying hi.",
+      "You're the softest thing I know how to say.",
+      "Flowers are what the ground says when it's in love.",
+      "Spinning, spinning, all facing you. Can't blame them.",
+      "Open slowly. Everything good does.",
+      "One more day of blooming for you. Gladly."
+    ],
+    hearts: [
+      "One of these is mine. All of them, actually.",
+      "It beats, you know. Right there in the middle. For you.",
+      "Tap anywhere. That's what my heart does when you show up.",
+      "I ran out of room in one heart, so here are more.",
+      "Pale pink is just red that's shy. I'm shy about you.",
+      "Floating up because I can't keep them down.",
+      "Every one of these popped when I thought of you.",
+      "Soft, round, yours.",
+      "The big one is the one you're keeping. The small ones are extras.",
+      "No cool version of me exists around you. Only this.",
+      "This is what I look like when nobody's watching but you.",
+      "I didn't mean to love you this loudly. Oops.",
+      "Hearts don't float. Mine does. Your fault.",
+      "Full, full, full. Still filling.",
+      "The pulse in the middle is me checking you're still here.",
+      "I love you in the color of this, and in every other color.",
+      "Bursting is the only speed I have for you.",
+      "Keep one. Keep all of them. Keep me.",
+      "Yes. That's the whole letter. Yes.",
+      "If you squeeze the big one, I feel it.",
+      "Rising, like me every time you say my name.",
+      "I keep my feelings in a jar. The jar is this page. The lid is off.",
+      "You make me the soft kind of brave.",
+      "The heart is on the outside today. Watch your step.",
+      "I love you more than the last time you opened this. Check tomorrow.",
+      "Nobody taught me this. You did.",
+      "If hearts were loud, you'd have to cover your ears here.",
+      "Beating a little faster. You're reading.",
+      "I love you, in the plainest words, because you deserve plain words.",
+      "One heart, no conditions.",
+      "This is me not being subtle.",
+      "Lean in. It beats louder up close.",
+      "I'm not a steady thing. Except about you.",
+      "Little hearts, big yes.",
+      "I'd be embarrassed about all this, but it's you.",
+      "There's a heart in the middle because there's you in the middle.",
+      "You can't overfill this. I've tried.",
+      "Mine. Not the hearts, me. Yours.",
+      "Love letters are just hearts that learned to write.",
+      "Pop, float, gone, and then another one. That's how I think of you.",
+      "The beat you see is the beat I mean.",
+      "Everything in me is facing you.",
+      "I don't do this with anyone else. I don't want to.",
+      "Warm, and getting warmer. You're the weather.",
+      "I'd hand you my whole heart, but it's already here.",
+      "Sweet is not a mood. With you it's the default.",
+      "One more heart for the pile. The pile is you.",
+      "There's no quiet way to say this. I love you.",
+      "You're the reason it's pink in here.",
+      "If I had hands, this is where I'd hold yours.",
+      "Steady. Here. Yours.",
+      "Enough hearts yet? I have more.",
+      "A heart's a heart, but this one has your name scratched on it.",
+      "Not a hint. A heart.",
+      "You opened this, and look what happened.",
+      "I love you with everything that floats and everything that stays.",
+      "Press it. It's warm. That's me."
+    ]
   }
 };
 </script>
 <style>
   :root{
-    --night:#071018; --sea:#0b2230; --horizon:#123a4a; --lamp:#f2b64f;
-    --lamp-soft:rgba(242,182,79,.16); --paper:#efe6d2; --ink:#2a2118; --dim:#6c8a94; --text:#d7e4e6;
-    --font-serif:'Cormorant Garamond','Shippori Mincho','Hiragino Mincho ProN',Georgia,serif;
-    --font-hand:'Caveat','Zen Kurenaido','Segoe Print','Bradley Hand',cursive;
-    --font-letter:var(--font-serif);
-    --letter-size:15.5px;
+    --bg:#ffe4ec; --fg:#1d2a5a;
+    --paper:#fff8ee; --paper2:#f6ead6; --ink:#3a2e2a; --seal:#f06292;
+    --serif:'Cormorant Garamond',Georgia,'Hiragino Mincho ProN',serif;
+    --hand:'Caveat','Segoe Print','Bradley Hand',cursive;
   }
-  body.handwriting{ --font-letter:var(--font-hand); --letter-size:21px; }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{min-height:100%;background:var(--night);}
-  body{ font-family:var(--font-serif); color:var(--text); line-height:1.9; letter-spacing:.02em; font-size:17px; }
+  body.bg-pink{--bg:#ffe4ec} body.bg-black{--bg:#0b0b10} body.bg-white{--bg:#ffffff}
+  body.bg-aqua{--bg:#e3f3fb} body.bg-cream{--bg:#fff6d6} body.bg-navy{--bg:#141c3a}
+  body.fg-white{--fg:#ffffff} body.fg-navy{--fg:#1d2a5a} body.fg-black{--fg:#1a1a1a} body.fg-hotpink{--fg:#d6336c}
 
-  /* night and sea */
-  #sky{ position:fixed;inset:0;z-index:0; background:linear-gradient(to bottom,var(--night) 0%,var(--sea) 62%,var(--horizon) 100%); overflow:hidden; }
-  #beam{ position:absolute;left:50%;top:132px; width:2px;height:2px; pointer-events:none; }
-  #beam::before{
-    content:'';position:absolute;left:0;top:0; width:420px;height:160px; transform-origin:0 50%;
-    background:linear-gradient(to right,var(--lamp-soft),transparent);
-    clip-path:polygon(0 48%,100% 0,100% 100%,0 52%);
-    animation:sweep 14s linear infinite;
-  }
-  @keyframes sweep{ from{transform:rotate(-30deg);} to{transform:rotate(330deg);} }
-  #lamp{ position:absolute;left:50%;top:132px; width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%; background:var(--lamp); box-shadow:0 0 18px 6px var(--lamp-glow,rgba(242,182,79,.55)),0 0 60px 20px var(--lamp-soft); }
-  #tower{ position:absolute;left:50%;top:136px; width:14px;height:80px;margin-left:-7px; background:linear-gradient(to bottom,rgba(255,255,255,.08),transparent),var(--sea); border-radius:2px 2px 0 0; opacity:.9; }
-  #horizon{ position:absolute;left:0;right:0;top:214px;height:1px; background:rgba(255,255,255,.12); }
-  @media (prefers-reduced-motion: reduce){ #beam::before{animation:none;transform:rotate(20deg);} }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%;background:var(--bg)}
+  body{font-family:var(--serif);color:var(--fg);font-size:18px;line-height:1.7;overflow-x:hidden;transition:background .5s,color .5s}
+  #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+  main{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(26px,env(safe-area-inset-top)) 18px 60px;text-align:center}
 
-  main{ position:relative;z-index:1; max-width:520px;margin:0 auto; padding:236px 20px 48px; }
-  header{ text-align:center; margin-bottom:26px; }
-  header h1{ font-weight:500;font-size:19px;letter-spacing:.28em; color:var(--text); }
-  header p{ margin-top:6px;font-size:13px;color:var(--dim);letter-spacing:.04em; }
+  header h1{font-weight:400;font-size:30px;letter-spacing:.06em;font-family:var(--hand)}
+  header h1 .h{color:var(--seal);margin:0 .18em;font-family:var(--serif)}
+  header p{font-size:13px;opacity:.7;letter-spacing:.06em;margin-top:2px}
 
-  /* today's letter */
-  #today{ background:var(--paper);color:var(--ink); border-radius:4px; padding:26px 22px 22px; box-shadow:0 18px 40px rgba(0,0,0,.45); position:relative; min-height:170px; }
-  #today::after{ content:'';position:absolute;right:18px;top:18px; width:8px;height:8px;border-radius:50%; background:var(--lamp);opacity:.9; }
-  #stamp{ font-size:12px;opacity:.6;letter-spacing:.1em;margin-bottom:12px; }
-  #letter{ white-space:pre-wrap;font-family:var(--font-letter);font-size:var(--letter-size);line-height:1.9; min-height:60px; }
-  #letter.empty{ opacity:.55; }
-  .pic{ display:block;max-width:100%;border-radius:3px;margin:0 0 14px; box-shadow:0 2px 10px rgba(0,0,0,.12); }
-  .past .pic{ margin:6px 0 8px; }
-  #sign{ margin-top:16px;text-align:right;font-family:var(--font-letter);font-size:15px;opacity:.65;letter-spacing:.12em; }
+  #line{min-height:2.6em;margin:22px 8px 6px;font-style:italic;font-size:19px;line-height:1.5;opacity:0;transition:opacity 1.2s}
+  #line.show{opacity:.92}
 
-  button{ display:block;width:100%; margin-top:18px; font-family:inherit;font-size:16px;letter-spacing:.08em; padding:15px 12px;border-radius:4px; border:1px solid var(--lamp); background:var(--lamp-soft);color:var(--lamp); cursor:pointer; }
-  button:active{ filter:brightness(1.2); }
-  button:disabled{ opacity:.45; cursor:default; }
-  button:focus-visible{ outline:2px solid var(--lamp); outline-offset:3px; }
-  #copyBtn{ margin-top:10px;border-color:rgba(255,255,255,.2);color:var(--dim);background:transparent; }
-  #copyBox{ display:none;width:100%;margin-top:10px;min-height:180px;padding:14px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:var(--text);font-family:inherit;font-size:15px;line-height:1.9; }
-  #copyHint{ display:none;margin-top:6px;font-size:12px;color:var(--dim);text-align:center; }
-  #status{ margin-top:12px;text-align:center;font-size:13px;color:var(--dim);min-height:18px; }
+  /* stage: motif behind, envelope in front */
+  #stage{position:relative;height:300px;margin-top:6px}
+  .motif{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0;display:none}
+  body.an-galaxy #m-galaxy,body.an-flowers #m-flowers,body.an-hearts #m-hearts{display:block}
+  #m-galaxy{width:330px;height:330px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,250,215,1) 0%,rgba(255,214,235,.75) 26%,rgba(190,170,255,.35) 50%,transparent 70%);
+    animation:beat 1.7s ease-in-out infinite;filter:blur(2px)}
+  body.bg-white #m-galaxy,body.bg-cream #m-galaxy,body.bg-pink #m-galaxy,body.bg-aqua #m-galaxy{
+    background:radial-gradient(circle,rgba(255,175,215,1) 0%,rgba(215,170,255,.8) 28%,rgba(170,200,255,.4) 52%,transparent 70%)}
+  @keyframes beat{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.75}14%{transform:translate(-50%,-50%) scale(1.14);opacity:1}28%{transform:translate(-50%,-50%) scale(1)}42%{transform:translate(-50%,-50%) scale(1.09);opacity:.95}56%{transform:translate(-50%,-50%) scale(1)}}
+  #m-flowers{width:300px;height:300px;animation:spin 26s linear infinite}
+  #m-flowers span{position:absolute;left:50%;top:50%;font-size:34px;line-height:1;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-136px) rotate(calc(-1*var(--a)));animation:twirl 6s linear infinite;filter:saturate(.85) brightness(1.05)}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  @keyframes twirl{to{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-136px) rotate(calc(-1*var(--a) - 360deg))}}
+  #m-hearts{width:300px;height:270px;animation:beat 1.5s ease-in-out infinite}
+  #m-hearts::before,#m-hearts::after{content:'';position:absolute;top:0;width:150px;height:240px;border-radius:75px 75px 0 0;background:linear-gradient(180deg,#ffd6e4,#ffb3cf);opacity:.85}
+  #m-hearts::before{left:150px;transform:rotate(-45deg);transform-origin:0 100%}
+  #m-hearts::after{left:0;transform:rotate(45deg);transform-origin:100% 100%}
+  body.bg-black #m-hearts::before,body.bg-black #m-hearts::after,body.bg-navy #m-hearts::before,body.bg-navy #m-hearts::after{opacity:.6}
 
-  /* the drawer of past letters */
-  #drawer{ margin-top:40px; }
-  #drawer h2{ font-weight:400;font-size:13px;letter-spacing:.2em;color:var(--dim); padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:6px; text-transform:uppercase; }
-  .past{ padding:14px 2px;border-bottom:1px solid rgba(255,255,255,.07); }
-  .past .d{ font-size:12px;color:var(--dim);letter-spacing:.08em; }
-  .past .t{ margin-top:4px;font-size:15px;color:var(--text); white-space:pre-wrap;line-height:1.8; max-height:3.8em;overflow:hidden; font-family:var(--font-letter); }
-  body.handwriting .past .t{ font-size:19px; }
-  .past.open .t{ max-height:none; }
-  .past .more{ margin-top:4px;font-size:12px;color:var(--lamp);opacity:.85;cursor:pointer; }
-  #none{ padding:16px 2px;font-size:13px;color:var(--dim); }
+  /* envelope */
+  #env{position:absolute;left:50%;top:50%;width:270px;height:176px;margin:-88px 0 0 -135px;cursor:pointer;z-index:2;transition:transform .3s}
+  #env:active{transform:scale(.98)}
+  .back{position:absolute;inset:0;background:var(--paper2);border-radius:12px;box-shadow:0 18px 36px rgba(0,0,0,.16)}
+  .paper{position:absolute;left:16px;right:16px;top:12px;bottom:10px;background:#fff;border-radius:6px;z-index:1;transition:transform .8s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.08);padding:14px 16px;text-align:left;color:var(--ink);font-family:var(--hand);font-size:17px;line-height:1.35;overflow:hidden}
+  .paper .pv{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;opacity:.85}
+  .front{position:absolute;inset:0;z-index:2;border-radius:12px;background:var(--paper);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%)}
+  .front .to{position:absolute;left:0;right:0;bottom:30px;font-family:var(--hand);color:var(--ink);font-size:20px;opacity:.8}
+  .front .tiny{position:absolute;right:16px;bottom:12px;font-size:11px;letter-spacing:.14em;color:var(--ink);opacity:.5}
+  .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:12px 12px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s}
+  .flap span{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-family:var(--hand);font-size:13px;letter-spacing:.14em;color:var(--seal);white-space:nowrap}
+  .seal{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:var(--seal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:4;box-shadow:0 3px 10px rgba(240,98,146,.45);transition:transform .4s,opacity .4s}
+  #env.open .flap{transform:rotateX(180deg);z-index:0}
+  #env.open .seal{transform:translate(-50%,-50%) scale(0);opacity:0}
+  #env.open .paper{transform:translateY(-78px)}
+  #env.empty .paper{opacity:.45}
+
+  #hint{font-size:14px;opacity:.72;min-height:1.6em;margin-top:4px;letter-spacing:.03em}
+
+  /* reader */
+  #reader{display:none;margin:14px auto 0;background:#fff;color:var(--ink);border-radius:10px;padding:24px 22px 18px;text-align:left;box-shadow:0 18px 40px rgba(0,0,0,.14);position:relative}
+  #reader.show{display:block;animation:rise .5s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  #reader::after{content:'♡';position:absolute;right:16px;top:12px;color:var(--seal);font-size:16px}
+  #rTo{font-family:var(--hand);font-size:21px;color:var(--ink);opacity:.85}
+  #rDate{font-size:12px;letter-spacing:.1em;opacity:.55;margin:2px 0 14px;font-family:var(--serif)}
+  #rText{white-space:pre-wrap;font-family:var(--hand);font-size:22px;line-height:1.45}
+  #rText img.pic{display:block;max-width:100%;border-radius:4px;margin:0 0 12px}
+  #rFrom{margin-top:16px;text-align:right;font-family:var(--hand);font-size:20px;opacity:.85}
+  .row{display:flex;gap:8px;margin-top:16px}
+  .row button{flex:1;font-family:var(--serif);font-size:14px;letter-spacing:.06em;padding:11px;border-radius:8px;border:1px solid rgba(0,0,0,.14);background:transparent;color:var(--ink);cursor:pointer}
+  #copyBox{display:none;width:100%;margin-top:10px;min-height:120px;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,.14);font-family:var(--serif);font-size:15px;color:var(--ink);background:#fff}
+
+  /* shelf */
+  #shelfWrap{margin-top:44px}
+  #shelfWrap h2{font-weight:400;font-size:13px;letter-spacing:.22em;text-transform:uppercase;opacity:.65}
+  #shelf{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 8px;margin-top:14px}
+  .it{width:46px;height:46px;border:0;background:transparent;cursor:pointer;font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--fg);border-radius:50%;transition:transform .2s;position:relative}
+  .it:active{transform:scale(.9)}
+  .it.cur{box-shadow:0 0 0 2px var(--seal) inset}
+  .it .d{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);font-size:9px;letter-spacing:.04em;opacity:0;white-space:nowrap;transition:opacity .3s}
+  .it:hover .d,.it.cur .d{opacity:.7}
+  .it.star{color:#f5d78e;text-shadow:0 0 8px rgba(245,215,142,.8)}
+  body.bg-white .it.star,body.bg-cream .it.star,body.bg-pink .it.star,body.bg-aqua .it.star{color:#c9a9ff;text-shadow:0 0 8px rgba(201,169,255,.8)}
+  .it.heart{font-size:30px}
+  #onlyOne{font-size:13px;opacity:.6;margin-top:10px}
+
+  /* settings */
+  #gear{position:fixed;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));z-index:5;width:40px;height:40px;border-radius:50%;border:1px solid rgba(128,128,128,.25);background:rgba(255,255,255,.35);backdrop-filter:blur(6px);color:var(--fg);font-size:18px;cursor:pointer}
+  #sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;color:#2a2a33;border-radius:18px 18px 0 0;padding:18px 20px max(24px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.2);transform:translateY(105%);transition:transform .35s ease}
+  #sheet.show{transform:none}
+  #sheet h3{font-weight:500;font-size:17px;letter-spacing:.06em;font-family:var(--hand);font-size:24px}
+  #sheet .lbl{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.6;margin:14px 0 8px}
+  .sw{display:flex;gap:10px;flex-wrap:wrap}
+  .sw button{width:38px;height:38px;border-radius:50%;border:2px solid rgba(0,0,0,.12);cursor:pointer;background:#ccc;transition:transform .15s}
+  .sw button.on{border-color:#2a2a33;transform:scale(1.12)}
+  .sw.an button{width:auto;height:auto;border-radius:20px;padding:8px 14px;background:#f4f4f7;font-family:var(--serif);font-size:15px}
+  .sw.an button.on{background:#2a2a33;color:#fff}
+  #dim{position:fixed;inset:0;z-index:5;background:rgba(0,0,0,.18);display:none}
+  #dim.show{display:block}
+
+  @media (prefers-reduced-motion: reduce){#m-galaxy,#m-hearts,#m-flowers,#m-flowers span{animation:none}}
 </style>
 </head>
 <body>
-<div id="sky"><div id="beam"></div><div id="tower"></div><div id="lamp"></div><div id="horizon"></div></div>
+<canvas id="fx"></canvas>
+<button id="gear" aria-label="settings">⚙</button>
+<div id="dim"></div>
+<div id="sheet">
+  <h3 id="sTitle"></h3>
+  <div class="lbl" id="sBg"></div><div class="sw bg" id="swBg"></div>
+  <div class="lbl" id="sFg"></div><div class="sw fg" id="swFg"></div>
+  <div class="lbl" id="sAn"></div><div class="sw an" id="swAn"></div>
+</div>
 
 <main>
-  <header><h1 id="title"></h1><p id="subtitle"></p></header>
-  <section id="today">
-    <div id="stamp"></div>
-    <div id="letter" class="empty"></div>
-    <div id="sign"></div>
+  <header><h1 id="names"></h1><p id="count"></p></header>
+  <div id="line"></div>
+
+  <div id="stage">
+    <div class="motif" id="m-galaxy"></div>
+    <div class="motif" id="m-flowers"><span style="--a:0deg">🌸</span><span style="--a:40deg">💮</span><span style="--a:80deg">🌼</span><span style="--a:120deg">🌸</span><span style="--a:160deg">🌷</span><span style="--a:200deg">💮</span><span style="--a:240deg">🌸</span><span style="--a:280deg">🌼</span><span style="--a:320deg">🌷</span></div>
+    <div class="motif" id="m-hearts"></div>
+    <div id="env">
+      <div class="back"></div>
+      <div class="paper"><div class="pv" id="pv"></div></div>
+      <div class="front"><div class="to" id="envTo"></div><div class="tiny" id="envFrom"></div></div>
+      <div class="flap"><span id="flapText"></span></div>
+      <div class="seal">♡</div>
+    </div>
+  </div>
+  <div id="hint"></div>
+
+  <section id="reader">
+    <div id="rTo"></div>
+    <div id="rDate"></div>
+    <div id="rText"></div>
+    <div id="rFrom"></div>
+    <div class="row"><button id="copyBtn"></button><button id="foldBtn"></button></div>
+    <textarea id="copyBox" readonly></textarea>
   </section>
-  <button id="openBtn"></button>
-  <button id="copyBtn" style="display:none"></button>
-  <textarea id="copyBox" readonly></textarea>
-  <div id="copyHint"></div>
-  <div id="status"></div>
-  <section id="drawer">
-    <h2 id="drawerTitle"></h2>
-    <div id="past"></div>
-    <div id="none" style="display:none"></div>
+
+  <section id="shelfWrap">
+    <h2 id="shelfTitle"></h2>
+    <div id="shelf"></div>
+    <div id="onlyOne" style="display:none"></div>
   </section>
 </main>
 
 <script>
 (async()=>{
-const C=CONFIG, T=C.text, $=id=>document.getElementById(id);
-/* apply settings */
-document.title=C.title;
-for(const [k,v] of Object.entries(C.colors)) document.documentElement.style.setProperty('--'+k,v);
-if(C.colors.lamp){ // soft glow derived from the lamp color
-  const m=/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(C.colors.lamp);
-  if(m){const r=parseInt(m[1],16),g=parseInt(m[2],16),b=parseInt(m[3],16);
-    document.documentElement.style.setProperty('--lamp-soft',`rgba(${r},${g},${b},.16)`);
-    document.documentElement.style.setProperty('--lamp-glow',`rgba(${r},${g},${b},.55)`);}
+const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
+const KEY='loveletters-look';
+const BGS=[['pink','#ffe4ec'],['black','#0b0b10'],['white','#ffffff'],['aqua','#e3f3fb'],['cream','#fff6d6'],['navy','#141c3a']];
+const FGS=[['white','#ffffff'],['navy','#1d2a5a'],['black','#1a1a1a'],['hotpink','#d6336c']];
+const ANS=['galaxy','flowers','hearts'];
+
+/* look: saved on this phone, defaults from CONFIG */
+let look=Object.assign({},C.defaults);
+try{Object.assign(look,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+function applyLook(){
+  document.body.className='bg-'+look.background+' fg-'+look.text+' an-'+look.animation;
+  try{localStorage.setItem(KEY,JSON.stringify(look));}catch(e){}
+  document.querySelectorAll('#swBg button').forEach(b=>b.classList.toggle('on',b.dataset.v===look.background));
+  document.querySelectorAll('#swFg button').forEach(b=>b.classList.toggle('on',b.dataset.v===look.text));
+  document.querySelectorAll('#swAn button').forEach(b=>b.classList.toggle('on',b.dataset.v===look.animation));
+  renderShelf(); pickLine(); resetFx();
 }
-if(C.font==='handwriting') document.body.classList.add('handwriting');
-$('title').textContent=C.title; $('subtitle').textContent=C.subtitle;
-$('openBtn').textContent=C.openButton; $('copyBtn').textContent=T.copy; $('copyHint').textContent=T.copyHint;
-$('letter').textContent=T.notOpened; $('drawerTitle').textContent=T.drawer; $('none').textContent=T.onlyOne;
-
-const letterEl=$('letter'),stampEl=$('stamp'),signEl=$('sign'),btn=$('openBtn'),statusEl=$('status'),pastEl=$('past'),noneEl=$('none'),copyBtn=$('copyBtn');
-
-copyBtn.addEventListener('click',async()=>{
-  const t=stampEl.textContent+'\n\n'+(current&&current.text||'')+'\n\n'+(current&&current.from||C.from);
-  const box=$('copyBox'),hint=$('copyHint');
-  box.value=t;box.style.display='block';hint.style.display='block';
-  let ok=false;
-  try{ await navigator.clipboard.writeText(t); ok=true; }catch(e){}
-  if(!ok){ try{ box.focus(); box.select(); box.setSelectionRange(0,t.length); document.execCommand('copy'); ok=true; }catch(e){} }
-  copyBtn.textContent=ok?T.copied:T.copyManual;
-});
-
-/* dates, in the configured timezone */
-function todayKey(){
-  const p=new Intl.DateTimeFormat('en-CA',{timeZone:C.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-  const g=t=>p.find(x=>x.type===t).value; return g('year')+'-'+g('month')+'-'+g('day');
+function swatches(el,list,key){
+  for(const [v,hex] of list){const b=document.createElement('button');b.dataset.v=v;b.style.background=hex;b.title=v;b.addEventListener('click',()=>{look[key]=v;applyLook();});el.appendChild(b);}
 }
-function niceDate(key){
-  const [y,m,d]=key.split('-').map(Number);
-  return new Intl.DateTimeFormat(C.dateLocale,{weekday:'short',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(y,m-1,d)));
-}
-function stamp(item){ return (item.label||niceDate(item.date))+(item.time?'  '+item.time:''); }
+swatches($('swBg'),BGS,'background'); swatches($('swFg'),FGS,'text');
+for(const v of ANS){const b=document.createElement('button');b.dataset.v=v;b.textContent=T[v];b.addEventListener('click',()=>{look.animation=v;applyLook();});$('swAn').appendChild(b);}
+$('sTitle').textContent=T.settings;$('sBg').textContent=T.background;$('sFg').textContent=T.textColor;$('sAn').textContent=T.around;
+$('gear').addEventListener('click',()=>{$('sheet').classList.toggle('show');$('dim').classList.toggle('show');});
+$('dim').addEventListener('click',()=>{$('sheet').classList.remove('show');$('dim').classList.remove('show');});
 
-/* letters live in ./letters/. Your Claude writes one and places it there. No login needed. */
+/* words */
+document.title=C.theirName+' ♡ '+C.yourName;
+$('names').innerHTML='<span></span><span class="h">♡</span><span></span>';
+$('names').children[0].textContent=C.theirName;$('names').children[2].textContent=C.yourName;
+$('flapText').textContent=T.flap;$('envTo').textContent=T.to+' '+C.theirName;$('envFrom').textContent=T.from+' '+C.yourName;
+$('hint').textContent=T.loading;$('shelfTitle').textContent=T.shelf;$('onlyOne').textContent=T.onlyOne;
+$('copyBtn').textContent=T.copy;$('foldBtn').textContent=T.fold;$('rTo').textContent=T.to+' '+C.theirName+',';
+function pickLine(){const L=C.lines[look.animation]||[];const el=$('line');el.classList.remove('show');setTimeout(()=>{el.textContent=L[Math.floor(Math.random()*L.length)]||'';el.classList.add('show');},80);}
+
+/* dates */
+function todayKey(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:C.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const g=t=>p.find(x=>x.type===t).value;return g('year')+'-'+g('month')+'-'+g('day');}
+function niceDate(key,short){const [y,m,d]=key.split('-').map(Number);return new Intl.DateTimeFormat(C.dateLocale,short?{month:'short',day:'numeric'}:{weekday:'short',year:'numeric',month:'long',day:'numeric'},).format(new Date(Date.UTC(y,m-1,d,12)));}
+function stamp(it){return (it.label||niceDate(it.date))+(it.time?'  '+it.time:'');}
+
+/* letters: one file per day in ./letters/, listed in index.json */
 async function loadAll(){
   const idx=await fetch('./letters/index.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('index '+r.status);return r.json();});
-  const dates=(idx.letters||[]).slice().sort().reverse();
+  const dates=(idx.letters||[]).slice().sort();
   const items=[];
-  for(const d of dates){
-    try{ const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();}); if(it&&(it.text||it.image))items.push(it); }
-    catch(e){console.error(e);}
-  }
-  return items;
-}
-function pic(src){ const im=document.createElement('img'); im.className='pic'; im.src=src; im.alt=''; im.loading='lazy'; return im; }
-function showToday(item){
-  stampEl.textContent=stamp(item); letterEl.classList.remove('empty'); letterEl.textContent='';
-  if(item.image) letterEl.appendChild(pic(item.image));      // a handwritten note, a drawing, a photo
-  if(item.text) letterEl.appendChild(document.createTextNode(item.text));
-  signEl.textContent=item.from||C.from;
-}
-function renderPast(items,skipDate){
-  pastEl.innerHTML='';
-  const rest=items.filter(i=>i.date!==skipDate);
-  noneEl.style.display=rest.length?'none':'block';
-  for(const it of rest){
-    const div=document.createElement('div');div.className='past';
-    div.innerHTML='<div class="d"></div><div class="t"></div><div class="more"></div>';
-    div.querySelector('.d').textContent=stamp(it); const t=div.querySelector('.t'); if(it.image) t.appendChild(pic(it.image)); if(it.text) t.appendChild(document.createTextNode(it.text)); div.querySelector('.more').textContent=T.open;
-    div.querySelector('.more').addEventListener('click',()=>{ div.classList.toggle('open'); div.querySelector('.more').textContent=div.classList.contains('open')?T.close:T.open; });
-    pastEl.appendChild(div);
-  }
+  for(const d of dates){try{const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();});if(it&&(it.text||it.image))items.push(it);}catch(e){console.error(e);}}
+  return items; // oldest first
 }
 
+/* reader */
+let items=[],current=null,shown=null;const env=$('env'),reader=$('reader');
+function show(it){
+  shown=it;$('rDate').textContent=stamp(it);const t=$('rText');t.textContent='';
+  if(it.image){const im=document.createElement('img');im.className='pic';im.src=it.image;im.alt='';t.appendChild(im);}
+  if(it.text)t.appendChild(document.createTextNode(it.text));
+  $('rFrom').textContent=(it.from||C.yourName);
+  $('copyBox').style.display='none';$('copyBtn').textContent=T.copy;
+  reader.classList.add('show');env.classList.add('open');
+  renderShelf();
+}
+function fold(){reader.classList.remove('show');env.classList.remove('open');shown=null;renderShelf();}
+env.addEventListener('click',()=>{if(!current)return;if(env.classList.contains('open')&&shown){fold();}else{show(current);burst(innerWidth/2,env.getBoundingClientRect().top+60,14);} });
+$('foldBtn').addEventListener('click',()=>{fold();window.scrollTo({top:0,behavior:'smooth'});});
+$('copyBtn').addEventListener('click',async()=>{
+  if(!shown)return;const t=stamp(shown)+'\n\n'+(shown.text||'')+'\n\n'+(shown.from||C.yourName);const box=$('copyBox');box.value=t;box.style.display='block';
+  let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(e){}
+  if(!ok){try{box.focus();box.select();box.setSelectionRange(0,t.length);document.execCommand('copy');ok=true;}catch(e){}}
+  $('copyBtn').textContent=ok?T.copied:T.copyManual;
+});
+
+/* shelf: one icon per letter, by theme */
+const FL=['🌸','💮','🌼','🌷','🌸'];
+function renderShelf(){
+  const sh=$('shelf');sh.innerHTML='';
+  const rest=items.slice().reverse();
+  $('onlyOne').style.display=items.length<=1?'block':'none';
+  rest.forEach((it,i)=>{
+    const b=document.createElement('button');b.className='it';
+    if(look.animation==='galaxy'){b.classList.add('star');b.textContent=i%3===0?'✦':'✧';b.style.fontSize=(18+((it.date.charCodeAt(9)*7)%12))+'px';}
+    else if(look.animation==='flowers'){b.textContent=FL[it.date.charCodeAt(9)%FL.length];}
+    else{b.classList.add('heart');b.textContent='♥';b.style.color=['#ffb3cf','#ffd6e4','#ff8fb8','#e6c6ff','#ffffff'][it.date.charCodeAt(9)%5];b.style.textShadow='0 1px 3px rgba(0,0,0,.12)';}
+    const d=document.createElement('span');d.className='d';d.textContent=niceDate(it.date,true);b.appendChild(d);
+    if(shown&&shown.date===it.date)b.classList.add('cur');
+    b.title=stamp(it);
+    b.addEventListener('click',()=>{show(it);const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,8);reader.scrollIntoView({behavior:'smooth',block:'start'});});
+    sh.appendChild(b);
+  });
+}
+
+/* particles */
+const cv=$('fx'),cx=cv.getContext('2d');let P=[],W=0,H=0,stars=[];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function size(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';}
+addEventListener('resize',()=>{size();resetFx();});size();
+const dark=()=>['black','navy'].includes(look.background);
+function resetFx(){P=[];stars=[];if(look.animation==='galaxy'){for(let i=0;i<(reduce?30:90);i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:(.6+Math.random()*1.6)*devicePixelRatio,p:Math.random()*6.28,s:.4+Math.random()*1.2});}}
+function spawn(kind,x,y,v){
+  const dp=devicePixelRatio;
+  if(kind==='galaxy'){P.push({k:'spark',x,y,vx:(Math.random()-.5)*.6*dp*(v||1),vy:(-.4-Math.random()*.8)*dp*(v||1),life:1,r:(1.2+Math.random()*2.2)*dp,c:dark()?['#fff6c8','#ffd6ec','#d9ccff'][Math.floor(Math.random()*3)]:['#f7a8c9','#c9a9ff','#ffd27a'][Math.floor(Math.random()*3)]});}
+  else if(kind==='flowers'){P.push({k:'petal',x,y,vx:(Math.random()-.5)*.5*dp,vy:(.5+Math.random()*.9)*dp*(v?-.8:1),life:1,r:(4+Math.random()*5)*dp,a:Math.random()*6.28,da:(Math.random()-.5)*.08,sw:Math.random()*6.28,c:['#ffc2d6','#ffd6e4','#fff0b3','#e6c6ff','#c8f0e0','#ffe0ec'][Math.floor(Math.random()*6)]});}
+  else{P.push({k:'heart',x,y,vx:(Math.random()-.5)*.8*dp*(v||1),vy:(-.7-Math.random()*1)*dp*(v||1),life:1,r:(5+Math.random()*8)*dp,sw:Math.random()*6.28,c:['#ffffff','#ffd6e4','#ffb3cf','#ff8fb8','#e6c6ff','#ffe8f0'][Math.floor(Math.random()*6)]});}
+}
+function burst(x,y,n){const dp=devicePixelRatio;for(let i=0;i<n;i++)spawn(look.animation,x*dp,y*dp,2.2);}
+function heartPath(x,y,r){cx.beginPath();cx.moveTo(x,y+r*.9);cx.bezierCurveTo(x-r*1.5,y-r*.2,x-r*.5,y-r*1.1,x,y-r*.35);cx.bezierCurveTo(x+r*.5,y-r*1.1,x+r*1.5,y-r*.2,x,y+r*.9);cx.closePath();}
+let t0=0;
+function loop(ts){
+  cx.clearRect(0,0,W,H);const dp=devicePixelRatio;const an=look.animation;
+  if(an==='galaxy'){for(const s of stars){const a=.35+.65*Math.abs(Math.sin(s.p+ts/1000*s.s));cx.globalAlpha=a*(dark()?1:.7);cx.fillStyle=dark()?'#fff8dc':'#b89cff';cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.28);cx.fill();}cx.globalAlpha=1;
+    if(!reduce&&Math.random()<.5)spawn('galaxy',Math.random()*W,H*(.3+Math.random()*.7));}
+  else if(an==='flowers'){if(!reduce&&Math.random()<.25)spawn('flowers',Math.random()*W,-10*dp);}
+  else{if(!reduce&&Math.random()<.22)spawn('hearts',Math.random()*W,H+10*dp);}
+  const keep=[];
+  for(const p of P){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.k==='spark'){p.life-=.012;cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.c;cx.beginPath();for(let i=0;i<4;i++){const a=i*Math.PI/2,r=p.r*2.4;cx.lineTo(p.x+Math.cos(a)*r,p.y+Math.sin(a)*r);cx.lineTo(p.x+Math.cos(a+Math.PI/4)*p.r*.6,p.y+Math.sin(a+Math.PI/4)*p.r*.6);}cx.closePath();cx.fill();}
+    else if(p.k==='petal'){p.sw+=.03;p.x+=Math.sin(p.sw)*.6*dp;p.a+=p.da;p.life=p.y>H*.92?p.life-.03:p.life;cx.globalAlpha=Math.max(0,p.life)*.95;cx.fillStyle=p.c;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.beginPath();cx.ellipse(0,0,p.r,p.r*.55,0,0,6.28);cx.fill();cx.restore();}
+    else{p.sw+=.04;p.x+=Math.sin(p.sw)*.5*dp;p.life-=.006;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.4))*.95;cx.fillStyle=p.c;heartPath(p.x,p.y,p.r);cx.fill();}
+    if(p.life>0&&p.y>-40*dp&&p.y<H+40*dp)keep.push(p);
+  }
+  P=keep.length>220?keep.slice(-220):keep;cx.globalAlpha=1;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+document.addEventListener('pointerdown',e=>{if(e.target.closest('#sheet,#gear,button,#reader'))return;burst(e.clientX,e.clientY,look.animation==='hearts'?10:7);},{passive:true});
+
 /* start */
-let items=[],current=null; const key=todayKey();
-stampEl.textContent=niceDate(key); btn.disabled=true; statusEl.textContent=T.descending;
+applyLook();
+const key=todayKey();
 try{
   items=await loadAll();
-  current=items.find(i=>i.date===key)||items[0]||null;
-  if(current){ btn.disabled=false; statusEl.textContent=current.date===key?T.todayHere:T.latestOnly; }
-  else{ statusEl.textContent=T.none; btn.textContent=T.quiet; }
-}catch(e){
-  console.error(e); statusEl.textContent=T.failed; btn.textContent=T.retry; btn.disabled=false;
-  btn.addEventListener('click',()=>location.reload(),{once:true}); return;
-}
-btn.addEventListener('click',()=>{
-  if(!current)return;
-  showToday(current); renderPast(items,current.date);
-  btn.disabled=true; btn.textContent=current.date===key?T.openedToday:T.opened;
-  copyBtn.style.display='block'; copyBtn.textContent=T.copy; statusEl.textContent=T.takeIt;
-});
+  current=items.find(i=>i.date===key)||items[items.length-1]||null;
+  if(items.length){const first=items[0].date;$('count').textContent=(items.length===1?T.counterOne:T.counter).replace('{n}',items.length).replace('{date}',niceDate(first,true));}
+  if(current){$('pv').textContent=current.text||'';$('hint').textContent=current.date===key?T.todayHere+' '+T.tapToOpen:T.latestOnly;}
+  else{env.classList.add('empty');$('hint').textContent=T.none;}
+  renderShelf();
+}catch(e){console.error(e);$('hint').textContent=T.failed;env.addEventListener('click',()=>location.reload(),{once:true});}
 })();
 </script>
 </body>

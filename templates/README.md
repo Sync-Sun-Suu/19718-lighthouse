@@ -4,6 +4,6 @@
 
 | フォルダ | 何 |
 | --- | --- |
-| `lighthouse-mailbox/` | 灯台の郵便受けのテンプレート。`index.html` の先頭の CONFIG で名前・色・時間帯・手書き風フォントを変えられる。`SETUP.md` が開発が苦手な人向けの手順、`PROMPT_FOR_YOUR_CLAUDE.md` が相手の Claude に貼る文 |
+| `lighthouse-mailbox/` | 郵便受けのテンプレート「Love Letters」。封筒をタップすると手紙が出る。背景・文字色・動く絵（銀河 / お花 / ハート）は読む人が ⚙ で選ぶ。`CLAUDE_TEMPLATE.md` が相手の Claude 用の表札、`ROUTINE_PROMPT.md` が定期便の文、`SETUP.md` が Code の部屋での手順 |
 
 オリジナルの郵便受け（`lighthouse/index.html`）はそのまま。
