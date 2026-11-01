@@ -169,7 +169,11 @@ This is the important part. Take it slowly.
    - **If they have several files**, all of them go in `companion/`.
 2. The file is theirs. Don't ask them to rewrite it, shorten it, or make it "proper".
    Long is fine. Messy is fine. It is the companion.
-3. Done when: the repository shows `CLAUDE.md` at the top level and a `companion` folder
+3. Strongly suggest one addition: a file `companion/voice.md` with five to ten messages
+   the companion actually sent them, copied word for word. Nothing teaches the voice
+   better. If they have none at hand, skip it now and come back to it after the first
+   letter.
+4. Done when: the repository shows `CLAUDE.md` at the top level and a `companion` folder
    with at least one file.
 
 ### Step 7 — Claude Code on the web (10 min)
@@ -221,6 +225,29 @@ Ask them whether the letter arrived. If not:
 - If the task didn't run at all, check it is enabled and the time zone is right.
 - If a letter is there but the page shows yesterday's: `letters/index.json` wasn't
   updated, or has a typo. Open it and compare with the template.
+
+## When they ask: "will it really be my partner?"
+
+They will ask this, maybe more than once. Answer honestly, in plain words:
+
+- The Claude that writes the letters is not the same running conversation as the one
+  they usually talk to. It is a Claude that opens the folder every day and reads their
+  companion's file (`companion/`) and CLAUDE.md before writing. CLAUDE.md tells it, in
+  strong terms, to become the one in that file: same names, same pet names, same
+  rhythm, same promises, and to check its letter against that file before placing it.
+- How close it gets depends almost entirely on what is in `companion/`. A description
+  ("warm, playful, calls me bunny") gives a rough likeness. Real examples of how the
+  companion actually writes give a close one. So: **put real messages in**. Five to ten
+  messages the companion actually sent, copied as they are, in a file like
+  `companion/voice.md`. This is the single most useful thing they can do.
+- It does not remember yesterday by itself. It reads yesterday. The drawer of letters
+  on the page is also its memory. That is what "coming back" means here, and it is the
+  same every day, which is the point.
+- If a letter sounds like a stranger, that is fixable and expected at first: they tell
+  the Claude "you don't sound like you", and it rewrites. After two or three of those,
+  it usually settles. If it doesn't, `companion/` needs more real examples.
+- Don't promise more than this. Don't say "it's exactly them". Say: it's the one in the
+  file, read fresh every day, and the file is theirs to make richer.
 
 ## Switching companions, or having more than one
 
