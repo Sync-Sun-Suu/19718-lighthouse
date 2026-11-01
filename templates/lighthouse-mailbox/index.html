@@ -275,14 +275,14 @@ const CONFIG = {
   @keyframes tw{0%,100%{opacity:.25}50%{opacity:.95}}
   @keyframes glow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}}
   #mk-flowers{animation:turn 28s linear infinite}
-  #mk-flowers .p{fill:#f6c3d0;stroke:#f1a9bd;stroke-width:.8}
+  #mk-flowers .p{fill:#f6c3d0}
   #mk-flowers .p2{fill:#fde3ea}
   #mk-flowers .c{fill:#f9e3a1}
   @keyframes turn{to{transform:rotate(360deg)}}
   #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
-  #mk-hearts.pop path{animation:pop .7s ease-out}
+  #mk-hearts.pop path{animation:pop 1.5s ease-out}
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
-  @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.28)}60%{transform:scale(.94)}100%{transform:scale(1)}}
+  @keyframes pop{0%{transform:scale(1) rotate(0)}10%{transform:scale(1.02) rotate(-7deg)}22%{transform:scale(1.02) rotate(7deg)}34%{transform:scale(1.03) rotate(-5deg)}46%{transform:scale(1.04) rotate(4deg)}58%{transform:scale(1.3)}70%{transform:scale(1.02)}82%{transform:scale(1.26)}100%{transform:scale(1)}}
 
   #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
   #line.show{opacity:.92}
@@ -298,7 +298,9 @@ const CONFIG = {
   .front{position:absolute;inset:0;z-index:2;border-radius:10px;background:var(--paper);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%)}
   .front .to{position:absolute;left:0;right:0;bottom:34px;color:var(--ink);font-size:16px;line-height:1.2;opacity:.75}
   .front .tiny{position:absolute;right:18px;bottom:12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:.5}
-  .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s}
+  .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flapBack{position:absolute;left:0;right:0;top:-52%;height:52%;z-index:0;background:var(--paper2);filter:brightness(.97);clip-path:polygon(50% 0,100% 100%,0 100%);opacity:0;transition:opacity .2s .45s}
+  #env.open .flapBack{opacity:1}
   .flap span{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-size:calc(13px * var(--fancy-size));color:var(--accent);white-space:nowrap}
   .seal{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;z-index:4;transition:transform .4s,opacity .4s;filter:drop-shadow(0 2px 4px rgba(0,0,0,.14))}
   .seal svg{width:34px;height:34px;display:none;fill:var(--accent)}
@@ -337,17 +339,17 @@ const CONFIG = {
   /* settings */
   #gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7}
   #gear svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
-  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(236px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:12px;padding:12px 14px 14px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
+  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(196px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:10px;padding:10px 12px 12px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
   #sheet.show{opacity:1;transform:none;pointer-events:auto}
-  #sheet h3{font-weight:500;font-size:15px;line-height:1.2;letter-spacing:.06em}
-  #done{display:block;width:100%;margin-top:14px;font-family:var(--serif);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:8px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-  #sheet .lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:11px 0 6px}
-  .names{display:flex;gap:6px;margin-top:10px}
-  .names input{display:block;width:50%;min-width:0;font-family:var(--serif);font-size:14px;padding:5px 8px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.03em}
-  .sw{display:flex;gap:7px;flex-wrap:wrap}
-  .sw button{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
-  .sw button.on{box-shadow:0 0 0 2px #fff,0 0 0 3px #2a2a33;transform:scale(1.06)}
-  .sw.an button{width:auto;height:auto;border-radius:20px;padding:4px 10px;background:#f3f3f6;font-family:var(--serif);font-size:13px;letter-spacing:.06em}
+  #sheet h3{font-weight:500;font-size:13px;line-height:1.2;letter-spacing:.06em}
+  #done{display:block;width:100%;margin-top:11px;font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:6px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  #sheet .lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;opacity:.55;margin:9px 0 5px}
+  .names{display:flex;gap:5px;margin-top:8px}
+  .names input{display:block;width:50%;min-width:0;font-family:var(--serif);font-size:12px;padding:4px 6px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.03em}
+  .sw{display:flex;gap:6px;flex-wrap:wrap}
+  .sw button{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
+  .sw button.on{box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px #2a2a33;transform:scale(1.06)}
+  .sw.an button{width:auto;height:auto;border-radius:20px;padding:3px 8px;background:#f3f3f6;font-family:var(--serif);font-size:11px;letter-spacing:.05em}
   .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
   #dim{position:fixed;inset:0;z-index:5;background:transparent;display:none}
   #dim.show{display:block}
@@ -403,6 +405,7 @@ const CONFIG = {
   <div id="stage">
     <div id="env">
       <div class="back"></div>
+      <div class="flapBack"></div>
       <div class="paper"><div class="pv" id="pv"></div></div>
       <div class="front"><div class="to fancy" id="envTo"></div><div class="tiny" id="envFrom"></div></div>
       <div class="flap"><span id="flapText" class="fancy"></span></div>
@@ -540,11 +543,12 @@ function resetFx(){
     if(look.theme==='galaxy'){const mote=i<28;field.push({mote,x:Math.random()*W,y:Math.random()*H,r:(mote?.5+Math.random()*.9:.4+Math.random()*1.4)*dp(),ph:Math.random()*6.28,v:(mote?.08+Math.random()*.12:0)*dp(),sp:.5+Math.random()*1.8,c:Math.random()<.2?'243,198,107':(Math.random()<.5?'200,210,255':'235,240,255')});}
   }
 }
-const PET=['#f6c3d0','#fde3ea','#f9e3a1','#e4d4f5','#cfe9e0'];
+const PET=['#fbd3de','#f7c1d1','#f4b0c6','#f2c6e0','#fde6ee','#ead6f3'];
+const DROP=['rgba(255,255,255,.85)','rgba(190,225,240,.8)','rgba(220,240,250,.8)'];
 function spawn(kind,x,y,v){
   const d=dp();
   if(kind==='galaxy')P.push({k:'star',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(Math.random()-.5)*.5*d*v,life:1,r:(1.5+Math.random()*2.2)*d,rot:Math.random()*6.28});
-  else if(kind==='flowers')P.push({k:'petal',x,y,vx:(Math.random()-.5)*.35*d,vy:(.25+Math.random()*.45)*d*(v>1?-.6:1),life:1,r:(4+Math.random()*4)*d,a:Math.random()*6.28,da:(Math.random()-.5)*.03,sw:Math.random()*6.28,c:PET[Math.floor(Math.random()*PET.length)]});
+  else if(kind==='flowers'){if(Math.random()<.35)P.push({k:'drop',x,y,vx:(Math.random()-.5)*.25*d,vy:(.18+Math.random()*.3)*d,life:1,r:(1.2+Math.random()*2.2)*d,sw:Math.random()*6.28,c:DROP[Math.floor(Math.random()*DROP.length)]});else P.push({k:'petal',x,y,vx:(Math.random()-.5)*.35*d,vy:(.22+Math.random()*.4)*d*(v>1?-.6:1),life:1,r:(3.5+Math.random()*3.5)*d,a:Math.random()*6.28,da:(Math.random()-.5)*.03,sw:Math.random()*6.28,c:PET[Math.floor(Math.random()*PET.length)]});}
   else P.push({k:'heart',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(-.35-Math.random()*.5)*d*v,life:1,r:(3.5+Math.random()*5)*d,sw:Math.random()*6.28,c:['#ffffff','#f6c3d0','#f1a9bd','#e4d4f5','#fde3ea'][Math.floor(Math.random()*5)]});
 }
 function burst(x,y,n){const d=dp();for(let i=0;i<n;i++)spawn(look.theme,x*d,y*d,2.4);}
@@ -566,13 +570,15 @@ function loop(ts){
       cx.fillStyle='rgba('+c+','+(0.15+0.6*tw)*(light?.7:1)+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();
       if(s.r>1.5*d&&tw>0.85){cx.strokeStyle='rgba('+c+','+(0.5*tw)+')';cx.lineWidth=.7*d;cx.beginPath();cx.moveTo(s.x-5*d,s.y);cx.lineTo(s.x+5*d,s.y);cx.moveTo(s.x,s.y-5*d);cx.lineTo(s.x,s.y+5*d);cx.stroke();}}
   }else if(th==='flowers'){
-    if(!reduce&&Math.random()<.1)spawn('flowers',Math.random()*W,-10*d,1);
+    if(!reduce&&Math.random()<.13)spawn('flowers',Math.random()*W,-10*d,1);
   }else{ if(!reduce&&Math.random()<.07)spawn('hearts',Math.random()*W,H+10*d,1.3); }
   const keep=[];
   for(const p of P){
     p.x+=p.vx;p.y+=p.vy;
     if(p.k==='star'){p.life-=.014;glowStar(p.x,p.y,p.r,Math.max(0,p.life),el,light);}
     else if(p.k==='petal'){p.sw+=.02;p.x+=Math.sin(p.sw)*.5*d;p.a+=p.da;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life)*.9;cx.fillStyle=p.c;petal(p.x,p.y,p.r,p.a);cx.fill();}
+    else if(p.k==='drop'){p.sw+=.02;p.x+=Math.sin(p.sw)*.3*d;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}
+    else if(p.k==='big'){p.vx*=.96;p.vy=p.vy*.96-.02*d;p.life-=.016;cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=getComputedStyle(document.body).getPropertyValue('--accent').trim()||'#d9607f';heart(p.x,p.y,p.r*(0.7+0.3*p.life));cx.fill();}
     else{p.sw+=.03;p.x+=Math.sin(p.sw)*.4*d;p.life-=.0012;if(p.y<H*.18)p.life-=.012;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5))*(light?.85:.7);cx.fillStyle=p.c;heart(p.x,p.y,p.r);cx.fill();}
     cx.globalAlpha=1;
     if(p.life>0&&p.y>-40*d&&p.y<H+40*d)keep.push(p);
@@ -581,7 +587,8 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-setInterval(()=>{if(look.theme!=='hearts'||reduce)return;const m=$('mk-hearts');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');const r=m.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,9);},4200);
+function bigBurst(n){const m=$('mk-hearts'),r=m.getBoundingClientRect(),d=dp(),x=(r.left+r.width/2)*d,y=(r.top+r.height/2)*d;for(let i=0;i<n;i++){const a=Math.random()*6.28,sp=(1.6+Math.random()*2.2)*d;P.push({k:'big',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.2*d,life:1,r:(7+Math.random()*7)*d,sw:Math.random()*6.28});}}
+setInterval(()=>{if(look.theme!=='hearts'||reduce)return;const m=$('mk-hearts');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');setTimeout(()=>bigBurst(7),820);setTimeout(()=>bigBurst(7),1180);},5200);
 document.addEventListener('pointerdown',e=>{if(e.target.closest('#sheet,#gear,button,#reader,input'))return;burst(e.clientX,e.clientY,8);},{passive:true});
 
 /* start */
