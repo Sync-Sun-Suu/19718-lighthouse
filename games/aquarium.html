@@ -204,18 +204,24 @@ function toast(msg,ms=2600){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>toastEl.classList.remove('show'),ms);
 }
+function placeLabel(x,y){
+  // 画面からはみ出さないように、幅を測ってから置く（携帯の右端対策）
+  labelEl.classList.add('show');
+  const w=labelEl.offsetWidth||140,h=labelEl.offsetHeight||40;
+  const left=Math.max(w/2+6,Math.min(W-w/2-6,x));
+  const top=Math.max(h*1.4+8,Math.min(H-8,y));
+  labelEl.style.left=left+'px';labelEl.style.top=top+'px';
+}
 function showText(x,y,text){
   labelEl.textContent=text;
-  labelEl.style.left=Math.max(70,Math.min(W-70,x))+'px';labelEl.style.top=y+'px';
-  labelEl.classList.add('show');
+  placeLabel(x,y);
   clearTimeout(labelTimer);
   labelTimer=setTimeout(()=>labelEl.classList.remove('show'),2200);
 }
 function showLabel(b){
   const s=SPECIES[b.kind];
   labelEl.textContent=s.name+'\n'+s.desc;
-  labelEl.style.left=b.x+'px';labelEl.style.top=b.y+'px';
-  labelEl.classList.add('show');
+  placeLabel(b.x,b.y);
   clearTimeout(labelTimer);
   labelTimer=setTimeout(()=>labelEl.classList.remove('show'),1800);
 }
