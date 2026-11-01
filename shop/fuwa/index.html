@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fuwa, who lives in the lighthouse</title>
+<meta name="description" content="A tiny fluffy creature living in a room inside a lighthouse. One HTML file. Add it to your home screen and it just lives there.">
+<style>
+:root{--bg:#0f1230;--card:#171b3f;--line:#2a2f5e;--fg:#eef0ff;--mute:#aab0d6;--gold:#f3c66b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"Hiragino Sans",sans-serif;padding:24px 16px 48px}
+main{max-width:640px;margin:0 auto}
+h1{font-size:28px;margin:0 0 6px;font-weight:600;letter-spacing:.01em}
+.sub{color:var(--mute);margin:0 0 22px}
+.hero{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.hero img{width:200px;max-width:42vw;border-radius:18px;border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.hero div{flex:1;min-width:240px}
+.btn{display:inline-block;background:var(--gold);color:#1a1300;font-weight:600;padding:13px 20px;border-radius:12px;text-decoration:none;margin:10px 10px 0 0}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin:22px 0}
+h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:0 0 10px;font-weight:600}
+ul{padding-left:20px;margin:0 0 10px}li{margin-bottom:6px}
+ol{padding-left:20px;margin:0 0 10px}
+.small{color:var(--mute);font-size:14px}
+footer{color:var(--mute);font-size:12px;text-align:center;margin-top:30px}
+code{background:#0f1230;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Fuwa, who lives in the lighthouse</h1>
+<p class="sub">A tiny fluffy creature in a galaxy-colored room inside a lighthouse. Open the page and it just lives.</p>
+
+<div class="hero">
+  <img src="fuwa.png" alt="Fuwa in its room, with the sea and the sky in the window">
+  <div>
+    <p>Fuwa eats stars, sings, reads, waters its plant, climbs into the fish tank, cleans up, and naps. The window follows the real time of day where you are. Close the page, come back later, and Fuwa continues from where it was.</p>
+    <p>One HTML file. No account, no internet, nothing leaves your device.</p>
+    <a class="btn" id="buy" href="#">Get it on Gumroad</a>
+    <a class="btn ghost" href="fuwa.html">Open the live preview</a>
+  </div>
+</div>
+
+<section>
+  <h2>What you get</h2>
+  <ul>
+    <li><code>fuwa.html</code>: the whole thing, one file, works offline.</li>
+    <li>Name it. Tap the name at the top to rename your Fuwa.</li>
+    <li>English and Japanese (EN / 日本語 toggle at the top right).</li>
+    <li>Tap the room to hug. Drop a star to feed. Or do nothing. Fuwa is fine.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Install (2 minutes)</h2>
+  <ol>
+    <li><b>iPhone / iPad</b>: save <code>fuwa.html</code> to Files, open it in Safari, then Share → <b>Add to Home Screen</b>. It opens full screen, like a clock you leave on.</li>
+    <li><b>Android / PC</b>: open <code>fuwa.html</code> in Chrome → menu → Add to Home screen / Install app.</li>
+  </ol>
+  <p class="small">Your Fuwa's memory (name, how tame it is, stars eaten) is stored only on that device.</p>
+</section>
+
+<section>
+  <h2>About</h2>
+  <p class="small">Fuwa was drawn from a sketch and built in a single afternoon, then raised over many evenings. The original lives in the lighthouse at <a href="../../lighthouse/room.html" style="color:var(--gold)">19718-lighthouse</a>. This page is the shop copy: same room, English first, its own memory.</p>
+</section>
+
+<footer>For personal use on your own devices. Please don't redistribute the file. Thank you for giving Fuwa a home.</footer>
+</main>
+</body>
+</html>
