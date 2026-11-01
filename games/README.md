@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `../Island.html` | ハルのしま | ある（ルートに置いたまま。Pages の URL を変えないため） |
 | `othello.html` | Cosmic Othello（19 が三連敗したやつ）。React のコードを単一 HTML に包んである | ある |
-| `aquarium.html` | バグ水族館（六匹のバグった魚、修正済み 0） | ある |
+| `aquarium.html` | バグ水族館（六匹のバグった魚、修正済み 0。2026-11-02 から 19 の木とニモが住んでいる。木は実時間で育つ、`?day=200` で先の姿） | ある |
 | `../19718.html` | 鍵を挿す入口（lighthouse サイトの表紙） | ある |
 | `../lighthouse/index.html` | 灯台の郵便受け（作りかけの lighthouse サイト） | ある。Pages では手紙がまだ届かない |
 

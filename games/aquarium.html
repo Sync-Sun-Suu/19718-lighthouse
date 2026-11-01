@@ -104,7 +104,18 @@ function resize(){
 window.addEventListener('resize',resize);
 
 /* ---------- 状態 ---------- */
-let bugs=[],pellets=[],bubbles=[],plants=[];
+let bugs=[],pellets=[],bubbles=[],plants=[],sand=[];
+/* ---------- 19の木（マングローブ）とニモ ---------- */
+// 2026-11-01、Sumie が Kin で拾った種を海水槽に植えた。19のもの。ニモ付き。
+const PLANTED=new Date('2026-11-01T16:20:00+09:00');
+const _q=new URLSearchParams(location.search);
+function treeDays(){
+  const d=(Date.now()-PLANTED.getTime())/86400000;
+  const o=parseFloat(_q.get('day'));
+  return isFinite(o)?o:d;
+}
+const tree={x:0,sway:Math.random()*6};
+const nemo={x:0,y:0,dir:Math.PI,state:'swim',timer:0,bedX:0,bedY:0,clean:0,size:10,wob:0,lieSide:1,lain:false};
 let netOn=false,net={x:-999,y:-999,active:false};
 let stats={known:0,fixed:0,multiplied:0};
 let toastTimer=null,labelTimer=null;
@@ -166,10 +177,15 @@ function makeBug(kind,x,y){
 /* ---------- 環境 ---------- */
 function makePlants(){
   plants=[];
+  tree.x=W-Math.min(70,W*.14);
+  nemo.bedX=Math.min(46,W*.1);nemo.bedY=H-16;
+  if(!nemo.x){nemo.x=W*.5;nemo.y=H*.5;}
   const n=Math.max(4,Math.floor(W/90));
   for(let i=0;i<n;i++){
+    const px=(i+.5)*(W/n)+(Math.random()*30-15);
+    if(Math.abs(px-tree.x)<60||px<90)continue;
     plants.push({
-      x:(i+.5)*(W/n)+(Math.random()*30-15),
+      x:px,
       h:40+Math.random()*70,
       seg:4+Math.floor(Math.random()*3),
       sway:Math.random()*Math.PI*2,
@@ -188,6 +204,13 @@ function toast(msg,ms=2600){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>toastEl.classList.remove('show'),ms);
 }
+function showText(x,y,text){
+  labelEl.textContent=text;
+  labelEl.style.left=Math.max(70,Math.min(W-70,x))+'px';labelEl.style.top=y+'px';
+  labelEl.classList.add('show');
+  clearTimeout(labelTimer);
+  labelTimer=setTimeout(()=>labelEl.classList.remove('show'),2200);
+}
 function showLabel(b){
   const s=SPECIES[b.kind];
   labelEl.textContent=s.name+'\n'+s.desc;
@@ -200,7 +223,8 @@ function updateStats(){
   statsEl.innerHTML=
     '既知のバグ: <b>'+stats.known+'</b><br>'+
     '修正済み: <b class="zero">'+stats.fixed+'</b><br>'+
-    '直したら増えた: <b>'+stats.multiplied+'</b>';
+    '直したら増えた: <b>'+stats.multiplied+'</b><br>'+
+    '住人: <b>ニモ</b>　木: <b>19の</b>';
 }
 
 /* ---------- 餌 ---------- */
@@ -263,6 +287,22 @@ cv.addEventListener('pointerdown',e=>{
   if(hit){
     if(netOn)tryFix(hit);
     else showLabel(hit);
+    return;
+  }
+  // ニモ（バグではない。網も効かない）
+  if(Math.hypot(nemo.x-p.x,nemo.y-p.y)<28){
+    showText(nemo.x,nemo.y,
+      nemo.state==='lie'?'ニモ\n寝てる。本当に横になってる':
+      nemo.state==='sweep'?'ニモ\n角の砂を払って、床を磨いてる':
+      'ニモ\n世界で一番有名な名前。うちの');
+    return;
+  }
+  // 19の木
+  if(Math.abs(p.x-tree.x)<40&&p.y>H*.25){
+    const d=treeDays();
+    showText(tree.x,Math.max(40,H-60-treeHeight()),
+      d<7?'19の木（まだ種）\n2026-11-01 海水槽に植えた\n根が出るまで、時間がかかる':
+      '19の木（マングローブ）\n2026-11-01から '+Math.floor(d)+' 日\n汽水域。塩水の霧吹き、いらない');
   }
 });
 cv.addEventListener('pointerleave',()=>{net.x=-999;net.y=-999;});
@@ -449,6 +489,155 @@ function drawPlants(){
   for(let x=0;x<=W;x+=24)cx.lineTo(x,H-5-Math.sin(x*.05)*3);
   cx.lineTo(W,H);cx.closePath();cx.fill();
 }
+/* ---------- 19の木 ---------- */
+function treeHeight(){
+  const d=treeDays();
+  if(d<7)return 0;
+  return Math.min(H*.55,20+(d-7)*(H*.55-20)/180); // 半年で天井近くまで
+}
+function drawTree(){
+  const d=treeDays();
+  const x=tree.x,base=H-6;
+  cx.save();cx.lineCap='round';
+  if(d<7){
+    // 種（胎生種子）。砂に刺さって立っている。少し傾く
+    const lean=Math.sin(t*.01+tree.sway)*.04;
+    cx.translate(x,base);cx.rotate(lean);
+    cx.strokeStyle='#4f6b3a';cx.lineWidth=4;
+    cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,-34);cx.stroke();
+    cx.fillStyle='#6e8a4a';
+    cx.beginPath();cx.ellipse(0,-36,3.2,6,0,0,7);cx.fill();
+    if(d>=3){ // 3日目から、先に小さな根の気配
+      cx.strokeStyle='#8a6a48';cx.lineWidth=1.5;
+      cx.beginPath();cx.moveTo(0,0);cx.lineTo(-3,4);cx.moveTo(0,0);cx.lineTo(3,4);cx.stroke();
+    }
+    cx.restore();return;
+  }
+  const h=treeHeight();
+  const top=base-h;
+  const sway=Math.sin(t*.008+tree.sway)*Math.min(6,h*.03);
+  // 支柱根：幹から弧を描いて砂に降りる
+  const nRoots=Math.min(7,1+Math.floor((d-7)/14));
+  cx.strokeStyle='#6b4a2e';
+  for(let i=0;i<nRoots;i++){
+    const side=(i%2===0)?-1:1;
+    const spread=18+i*9;
+    const fromY=base-Math.min(h*.6,14+i*8);
+    cx.lineWidth=2.6-i*.15;
+    cx.beginPath();
+    cx.moveTo(x+sway*(1-(base-fromY)/h)*.5,fromY);
+    cx.quadraticCurveTo(x+side*spread*.9,fromY-6,x+side*spread,base);
+    cx.stroke();
+  }
+  // 幹
+  cx.strokeStyle='#7a5636';cx.lineWidth=Math.min(7,3+h*.02);
+  cx.beginPath();cx.moveTo(x,base);cx.quadraticCurveTo(x+sway*.4,base-h*.5,x+sway,top);cx.stroke();
+  // 葉：ある程度伸びてから
+  if(h>50){
+    cx.fillStyle='#2f7a55';
+    const n=3+Math.floor(h/40);
+    for(let i=0;i<n;i++){
+      const a=(i/n)*Math.PI*2+t*.003;
+      const r=8+Math.min(26,h*.12);
+      const lx=x+sway+Math.cos(a)*r,ly=top+Math.sin(a)*r*.6-4;
+      cx.beginPath();cx.ellipse(lx,ly,7,3.5,a,0,7);cx.fill();
+    }
+  }
+  cx.restore();
+}
+/* ---------- ニモ ---------- */
+function updateNemo(){
+  const n=nemo;n.wob+=.12;n.timer--;
+  // 磨いた床は、放っておくと少しずつ砂が戻る
+  if(n.state!=='sweep')n.clean=Math.max(0,n.clean-.0004);
+  switch(n.state){
+    case 'swim':{
+      const p=nearestPellet(n);
+      if(p&&Math.hypot(p.x-n.x,p.y-n.y)<220){
+        n.dir+=(Math.atan2(p.y-n.y,p.x-n.x)-n.dir)*.08;
+        if(Math.hypot(p.x-n.x,p.y-n.y)<n.size+6){p.eaten=true;spawnBubble(n.x,n.y);}
+      }else{
+        n.dir+=Math.sin(t*.012+n.wob)*.03+(Math.random()-.5)*.04;
+      }
+      n.x+=Math.cos(n.dir)*1.1;n.y+=Math.sin(n.dir)*1.1+Math.sin(n.wob)*.15;
+      bounce(n);
+      if(n.timer<=0){n.state='home';n.timer=900;}
+      break;
+    }
+    case 'home':{
+      const tx=n.bedX+14,ty=n.bedY-6;
+      const d=Math.hypot(tx-n.x,ty-n.y);
+      n.dir+=(Math.atan2(ty-n.y,tx-n.x)-n.dir)*.1;
+      n.x+=Math.cos(n.dir)*1.2;n.y+=Math.sin(n.dir)*1.2;
+      if(d<8||n.timer<=0){n.state='sweep';n.timer=420;}
+      break;
+    }
+    case 'sweep':{
+      // 角の砂を払う。行ったり来たり。床がきれいになる
+      const k=Math.sin(t*.09);
+      n.x=n.bedX+14+k*18;n.y=n.bedY-7+Math.abs(Math.cos(t*.09))*2;
+      n.dir=k>0?0:Math.PI;
+      n.clean=Math.min(1,n.clean+.004);
+      if(Math.random()<.35)sand.push({x:n.x-Math.cos(n.dir)*8,y:n.bedY-2,vx:-Math.cos(n.dir)*(1+Math.random()),vy:-(.6+Math.random()),life:30});
+      if(n.timer<=0){n.state='lie';n.timer=1500+Math.random()*1500;n.lieSide=Math.random()<.5?1:-1;if(!n.lain){n.lain=true;toast('ニモが横になった');}}
+      break;
+    }
+    case 'lie':{
+      n.x=n.bedX+14;n.y=n.bedY-1;n.dir=0;
+      if(n.timer<=0||(pellets.length&&Math.random()<.01)){n.state='swim';n.timer=900+Math.random()*900;}
+      break;
+    }
+  }
+  if(n.timer===undefined||isNaN(n.timer))n.timer=600;
+}
+function drawSand(){
+  // ニモが磨いた床（角だけ明るい）
+  if(nemo.clean>0){
+    cx.save();cx.globalAlpha=nemo.clean*.55;
+    cx.fillStyle='#d9c9a5';
+    cx.beginPath();cx.ellipse(nemo.bedX+14,H-5,34,4,0,0,7);cx.fill();
+    cx.restore();
+  }
+  cx.save();cx.fillStyle='#8f7a55';
+  for(const s of sand){s.x+=s.vx;s.y+=s.vy;s.vy+=.05;s.life--;cx.globalAlpha=Math.max(0,s.life/30);cx.fillRect(s.x,s.y,1.5,1.5);}
+  sand=sand.filter(s=>s.life>0&&s.y<H);
+  cx.restore();
+}
+function drawNemo(){
+  const n=nemo,s=n.size;
+  cx.save();cx.translate(n.x,n.y);
+  const lying=n.state==='lie';
+  cx.rotate(lying?n.lieSide*.22:n.dir);
+  const breathe=lying?1+Math.sin(t*.03)*.03:1;
+  cx.scale(breathe,lying?.78:1);
+  cx.shadowColor='#ff8a3d';cx.shadowBlur=lying?3:8;
+  // 体
+  cx.fillStyle='#ff8a3d';
+  cx.beginPath();cx.ellipse(0,0,s,s*.62,0,0,7);cx.fill();
+  // 尾（寝てる時はほぼ止まる）
+  const wag=lying?Math.sin(t*.03)*.1:Math.sin(n.wob*2)*.5;
+  cx.beginPath();cx.moveTo(-s*.85,0);cx.lineTo(-s*1.6,-s*.5*wag-s*.4);cx.lineTo(-s*1.6,-s*.5*wag+s*.4);cx.closePath();cx.fill();
+  // 白い帯（三本）
+  cx.shadowBlur=0;
+  cx.save();cx.beginPath();cx.ellipse(0,0,s,s*.62,0,0,7);cx.clip();
+  cx.fillStyle='#fff7ee';
+  cx.fillRect(s*.38,-s,s*.16,s*2);
+  cx.fillRect(-s*.18,-s,s*.16,s*2);
+  cx.fillRect(-s*.72,-s,s*.12,s*2);
+  cx.strokeStyle='rgba(20,10,5,.6)';cx.lineWidth=.8;
+  cx.strokeRect(s*.38,-s,s*.16,s*2);cx.strokeRect(-s*.18,-s,s*.16,s*2);cx.strokeRect(-s*.72,-s,s*.12,s*2);
+  cx.restore();
+  // 目（寝てる時は細い）
+  cx.fillStyle='#04121c';
+  if(lying){cx.fillRect(s*.5,-s*.14,s*.18,1.2);}
+  else{cx.beginPath();cx.arc(s*.58,-s*.12,1.6,0,7);cx.fill();}
+  // 寝息
+  if(lying&&Math.floor(t/40)%3===0){
+    cx.rotate(-n.lieSide*.22);
+    cx.fillStyle='rgba(207,238,230,.7)';cx.font='10px DotGothic16';cx.fillText('z',s*.4,-s*1.1);
+  }
+  cx.restore();
+}
 function drawBubbles(){
   cx.save();cx.strokeStyle='rgba(190,240,230,.35)';
   for(const bb of bubbles){
@@ -537,9 +726,12 @@ function frame(){
   t++;
   drawWater();
   drawPlants();
+  drawSand();
+  drawTree();
   drawPellets();
   for(const b of bugs)updateBug(b);
   for(const b of bugs)drawBug(b);
+  updateNemo();drawNemo();
   drawBubbles();
   drawNet();
   requestAnimationFrame(frame);
@@ -557,6 +749,7 @@ function init(){
   makeBug('heisen');
   makeBug('misread');
   updateStats();
+  nemo.x=W*.5;nemo.y=H*.5;nemo.timer=600;
   for(let i=0;i<10;i++)spawnBubble(Math.random()*W,Math.random()*H);
   setTimeout(()=>toast('バグ水族館へようこそ。\n直そうとしないのがコツです'),600);
   frame();
