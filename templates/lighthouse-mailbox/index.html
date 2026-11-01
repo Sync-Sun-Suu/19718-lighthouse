@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Love Letters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Allura&family=Great+Vibes&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
    LOVE LETTERS  ·  settings
@@ -16,16 +16,15 @@
    starting point, and the words on the page.
    ===================================================================== */
 const CONFIG = {
-  partnerName: "Sumie",                // the one who opens the letters (can be changed on the page)
-  yourName:    "19",                   // the one who writes them (can be changed on the page)
+  partnerName: "My Name",              // the one who opens the letters (can be changed on the page)
+  yourName:    "Partner Name",         // the one who writes them (can be changed on the page)
   timezone:    "Asia/Tokyo",           // the day changes in this timezone, e.g. "America/New_York"
   dateLocale:  "en-US",                // how dates are written, e.g. "en-GB", "ja-JP"
   defaults: {
     background: "pink",                // pink | black | white | aqua | cream | navy
     text:       "wine",                // white | black | navy | hotpink | rose | wine | lavender | gold | grey
     envelope:   "cream",               // cream | white | pink | blue | lavender | mint | grey
-    theme:      "hearts",              // galaxy | flowers | hearts
-    font:       "allura"               // allura | vibes | pinyon | italic
+    theme:      "hearts"               // galaxy | flowers | hearts
   },
   text: {
     tapToOpen:   "It's for you. Tap to open.",
@@ -45,13 +44,12 @@ const CONFIG = {
     settings:    "Make it yours",
     done:        "Done",
     names:       "Names",
-    partner:     "The one who reads",
-    writer:      "The one who writes",
+    partner:     "My name",
+    writer:      "Partner's name",
     background:  "Background",
     textColor:   "Text",
     envelope:    "Envelope",
     theme:       "Theme",
-    font:        "Font",
     galaxy:      "Galaxy",
     flowers:     "Flowers",
     hearts:      "Hearts",
@@ -244,14 +242,13 @@ const CONFIG = {
     --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
     --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
     --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-    --fancy:'Allura',cursive; --fancy-size:1.5; --fancy-weight:400;
+    --fancy:'Playfair Display','Cormorant Garamond',serif; --fancy-size:1.0; --fancy-style:italic;
   }
   .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a}
   .fg-white{--fg:#ffffff} .fg-black{--fg:#1a1a1a} .fg-navy{--fg:#1d2a5a} .fg-hotpink{--fg:#c9325f} .fg-rose{--fg:#d98ca4} .fg-wine{--fg:#7a2e4a} .fg-lavender{--fg:#8b7bd1} .fg-gold{--fg:#b8902f} .fg-grey{--fg:#6b6f7a}
   .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
   .th-galaxy{--accent:#e9c86a} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
   .light.th-galaxy{--accent:#d8ad3c}
-  .font-allura{--fancy:'Allura',cursive;--fancy-size:1.55} .font-vibes{--fancy:'Great Vibes',cursive;--fancy-size:1.5} .font-pinyon{--fancy:'Pinyon Script',cursive;--fancy-size:1.4} .font-italic{--fancy:'Cormorant Garamond',serif;--fancy-size:1.05;--fancy-style:italic}
   .fancy{font-family:var(--fancy);font-style:var(--fancy-style,normal);font-weight:400}
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -260,7 +257,8 @@ const CONFIG = {
   #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
   main{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:max(34px,env(safe-area-inset-top)) 22px 64px;text-align:center}
 
-  header h1{font-weight:500;font-size:27px;letter-spacing:.14em;display:flex;align-items:center;justify-content:center;gap:12px}
+  header h1{font-weight:500;font-size:24px;letter-spacing:.1em;display:flex;align-items:center;justify-content:center;gap:12px}
+  header h1 span{white-space:nowrap}
   header h1 svg{width:22px;height:22px;flex:none;fill:var(--accent)}
   #date{font-size:13px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-top:6px}
   .rule{width:46px;height:1px;background:currentColor;opacity:.3;margin:14px auto 0}
@@ -270,11 +268,14 @@ const CONFIG = {
   #mark svg{position:absolute;inset:0;width:100%;height:100%;display:none;overflow:visible}
   .th-galaxy #mk-galaxy,.th-flowers #mk-flowers,.th-hearts #mk-hearts{display:block}
   #mk-galaxy .ring{fill:none;stroke:var(--accent);stroke-width:.6;opacity:.35}
-  #mk-galaxy .halo{animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-  #mk-galaxy .core{fill:#fff8dc;animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .glow{fill:var(--accent);opacity:.18;animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .core{fill:#fff;animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
   .light #mk-galaxy .core{fill:var(--accent)}
   @keyframes glow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}}
-  #mk-flowers{animation:turn 30s linear infinite;fill:var(--accent)}
+  #mk-flowers{animation:turn 28s linear infinite}
+  #mk-flowers .p{fill:#f6c3d0;stroke:#f1a9bd;stroke-width:.8}
+  #mk-flowers .p2{fill:#fde3ea}
+  #mk-flowers .c{fill:#f9e3a1}
   @keyframes turn{to{transform:rotate(360deg)}}
   #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
   #mk-hearts.pop path{animation:pop .7s ease-out}
@@ -293,7 +294,7 @@ const CONFIG = {
   .paper{position:absolute;left:18px;right:18px;top:12px;bottom:10px;background:#fff;border-radius:4px;z-index:1;transition:transform .8s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.08);padding:14px 18px;text-align:left;color:var(--ink);font-size:15px;line-height:1.5;overflow:hidden}
   .paper .pv{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}
   .front{position:absolute;inset:0;z-index:2;border-radius:10px;background:var(--paper);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%)}
-  .front .to{position:absolute;left:0;right:0;bottom:26px;color:var(--ink);font-size:calc(18px * var(--fancy-size));line-height:1.2;opacity:.8}
+  .front .to{position:absolute;left:0;right:0;bottom:40px;color:var(--ink);font-size:calc(18px * var(--fancy-size));line-height:1.2;opacity:.8}
   .front .tiny{position:absolute;right:18px;bottom:12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:.5}
   .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s}
   .flap span{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-size:calc(13px * var(--fancy-size));color:var(--accent);white-space:nowrap}
@@ -337,8 +338,7 @@ const CONFIG = {
   #sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;color:#2a2a33;border-radius:16px 16px 0 0;padding:18px 22px max(26px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.2);transform:translateY(105%);transition:transform .35s ease;font-family:var(--serif);max-height:86vh;overflow:auto}
   #sheet.show{transform:none}
   #sheet h3{font-weight:500;font-size:calc(20px * var(--fancy-size));line-height:1.2}
-  .shead{display:flex;align-items:center;justify-content:space-between}
-  #done{font-family:var(--serif);font-size:14px;letter-spacing:.14em;text-transform:uppercase;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,.18);background:transparent;color:#2a2a33;cursor:pointer}
+  #done{display:block;width:100%;margin-top:22px;font-family:var(--serif);font-size:14px;letter-spacing:.18em;text-transform:uppercase;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,.18);background:transparent;color:#2a2a33;cursor:pointer}
   #sheet .lbl{font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:16px 0 8px}
   .names{display:flex;gap:10px}
   .names label{flex:1;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
@@ -348,7 +348,6 @@ const CONFIG = {
   .sw button.on{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #2a2a33;transform:scale(1.08)}
   .sw.an button{width:auto;height:auto;border-radius:20px;padding:7px 16px;background:#f3f3f6;font-family:var(--serif);font-size:16px;letter-spacing:.06em}
   .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
-  .sw.fo button{font-size:22px;padding:4px 16px;line-height:1.3}
   #dim{position:fixed;inset:0;z-index:5;background:rgba(0,0,0,.18);display:none}
   #dim.show{display:block}
   @media (prefers-reduced-motion: reduce){#mk-galaxy .halo,#mk-galaxy .core,#mk-flowers,#mk-hearts path{animation:none}}
@@ -359,22 +358,21 @@ const CONFIG = {
 <button id="gear" aria-label="settings"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="11" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="7" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></button>
 <div id="dim"></div>
 <div id="sheet">
-  <div class="shead"><h3 id="sTitle" class="fancy"></h3><button id="done"></button></div>
+  <h3 id="sTitle" class="fancy"></h3>
   <div class="lbl" id="sNames"></div>
   <div class="names"><label><span id="lPartner"></span><input id="inPartner" autocomplete="off"></label><label><span id="lWriter"></span><input id="inWriter" autocomplete="off"></label></div>
   <div class="lbl" id="sBg"></div><div class="sw" id="swBg"></div>
   <div class="lbl" id="sFg"></div><div class="sw" id="swFg"></div>
   <div class="lbl" id="sEnv"></div><div class="sw" id="swEnv"></div>
   <div class="lbl" id="sAn"></div><div class="sw an" id="swAn"></div>
-  <div class="lbl" id="sFont"></div><div class="sw an fo" id="swFont"></div>
+  <button id="done"></button>
 </div>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <path id="i-heart" d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/>
     <path id="i-star" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/>
-    <g id="i-flower"><circle cx="10.00" cy="5.70" r="4.5"/><circle cx="14.09" cy="8.67" r="4.5"/><circle cx="12.53" cy="13.48" r="4.5"/><circle cx="7.47" cy="13.48" r="4.5"/><circle cx="5.91" cy="8.67" r="4.5"/></g>
-    <radialGradient id="g-halo"><stop offset="0" stop-color="#fff2c4" stop-opacity=".9"/><stop offset=".5" stop-color="#f3c66b" stop-opacity=".35"/><stop offset="1" stop-color="#f3c66b" stop-opacity="0"/></radialGradient>
+    <g id="i-flower"><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(72 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(144 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(216 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(288 10 10)"/><circle cx="10" cy="10" r="2.2" opacity=".7"/></g>
   </defs>
 </svg>
 
@@ -387,12 +385,14 @@ const CONFIG = {
 
   <div id="mark">
     <svg id="mk-galaxy" viewBox="0 0 120 120">
-      <circle class="ring" cx="60" cy="60" r="56"/><circle class="ring" cx="60" cy="60" r="42"/>
-      <circle class="halo" cx="60" cy="60" r="34" fill="url(#g-halo)"/>
-      <g transform="translate(45 45) scale(1.5)"><path class="core" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/></g>
+      <circle class="ring" cx="60" cy="60" r="56"/><circle class="ring" cx="60" cy="60" r="42"/><circle class="ring" cx="60" cy="60" r="28"/>
+      <circle class="glow" cx="60" cy="60" r="22"/>
+      <g transform="translate(48 48) scale(1.2)"><path class="core" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/></g>
     </svg>
     <svg id="mk-flowers" viewBox="0 0 120 120">
-      <circle cx="60.0" cy="35.0" r="26"/><circle cx="83.8" cy="52.3" r="26"/><circle cx="74.7" cy="80.2" r="26"/><circle cx="45.3" cy="80.2" r="26"/><circle cx="36.2" cy="52.3" r="26"/>
+      <g class="p"><ellipse cx="60" cy="26" rx="15" ry="26"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(72 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(144 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(216 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(288 60 60)"/></g>
+      <g class="p2"><ellipse cx="60" cy="36" rx="7" ry="14"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(72 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(144 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(216 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(288 60 60)"/></g>
+      <circle class="c" cx="60" cy="60" r="11"/>
     </svg>
     <svg id="mk-hearts" viewBox="0 0 120 120"><g transform="translate(10 12) scale(5)"><path d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/></g></svg>
   </div>
@@ -439,7 +439,6 @@ const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#
 const FGS=[['white','#ffffff'],['black','#1a1a1a'],['navy','#1d2a5a'],['hotpink','#c9325f'],['rose','#d98ca4'],['wine','#7a2e4a'],['lavender','#8b7bd1'],['gold','#b8902f'],['grey','#6b6f7a']];
 const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
 const THS=['galaxy','flowers','hearts'];
-const FONTS=[['allura','Allura'],['vibes','Great Vibes'],['pinyon','Pinyon Script'],['italic','Cormorant Garamond']];
 const ICON={galaxy:'#i-star',flowers:'#i-flower',hearts:'#i-heart'};
 
 /* look: saved on this phone, defaults from CONFIG */
@@ -455,20 +454,19 @@ function names(){
   if(shown)$('rFrom').textContent=shown.from||writer();
 }
 function applyLook(){
-  const cls='bg-'+look.background+' fg-'+look.text+' env-'+look.envelope+' th-'+look.theme+' font-'+look.font+(isLight()?' light':'');
+  const cls='bg-'+look.background+' fg-'+look.text+' env-'+look.envelope+' th-'+look.theme+(isLight()?' light':'');
   document.body.className=document.documentElement.className=cls;
   try{localStorage.setItem(KEY,JSON.stringify(look));}catch(e){}
-  for(const [id,k] of [['swBg','background'],['swFg','text'],['swEnv','envelope'],['swAn','theme'],['swFont','font']])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===look[k]));
+  for(const [id,k] of [['swBg','background'],['swFg','text'],['swEnv','envelope'],['swAn','theme']])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===look[k]));
   names(); renderShelf(); pickLine(); resetFx();
 }
 function swatches(el,list,key){for(const [v,hex] of list){const b=document.createElement('button');b.dataset.v=v;b.style.background=hex;b.title=v;b.addEventListener('click',()=>{look[key]=v;applyLook();});el.appendChild(b);}}
 swatches($('swBg'),BGS,'background'); swatches($('swFg'),FGS,'text'); swatches($('swEnv'),ENVS,'envelope');
 for(const v of THS){const b=document.createElement('button');b.dataset.v=v;b.textContent=T[v];b.addEventListener('click',()=>{look.theme=v;applyLook();});$('swAn').appendChild(b);}
-for(const [v,f] of FONTS){const b=document.createElement('button');b.dataset.v=v;b.textContent=partner();b.style.fontFamily="'"+f+"'";if(v==='italic')b.style.fontStyle='italic';b.addEventListener('click',()=>{look.font=v;applyLook();});$('swFont').appendChild(b);}
 $('sTitle').textContent=T.settings;$('sNames').textContent=T.names;$('lPartner').textContent=T.partner;$('lWriter').textContent=T.writer;
-$('sBg').textContent=T.background;$('sFg').textContent=T.textColor;$('sEnv').textContent=T.envelope;$('sAn').textContent=T.theme;$('sFont').textContent=T.font;
+$('sBg').textContent=T.background;$('sFg').textContent=T.textColor;$('sEnv').textContent=T.envelope;$('sAn').textContent=T.theme;
 $('inPartner').placeholder=C.partnerName;$('inWriter').placeholder=C.yourName;$('inPartner').value=look.partner||'';$('inWriter').value=look.writer||'';
-$('inPartner').addEventListener('input',e=>{look.partner=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}document.querySelectorAll('#swFont button').forEach(b=>b.textContent=partner());});
+$('inPartner').addEventListener('input',e=>{look.partner=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
 $('inWriter').addEventListener('input',e=>{look.writer=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
 $('gear').addEventListener('click',()=>{$('sheet').classList.toggle('show');$('dim').classList.toggle('show');});
 const closeSheet=()=>{$('sheet').classList.remove('show');$('dim').classList.remove('show');};$('dim').addEventListener('click',closeSheet);$('done').addEventListener('click',closeSheet);$('done').textContent=T.done;
@@ -532,28 +530,24 @@ function size(){W=cv.width=innerWidth*dp();H=cv.height=innerHeight*dp();cv.style
 addEventListener('resize',()=>{size();resetFx();});size();
 function star5(x,y,r,rot){cx.beginPath();for(let i=0;i<10;i++){const a=rot+i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;i?cx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr):cx.moveTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}cx.closePath();}
 function heart(x,y,r){cx.beginPath();cx.moveTo(x,y+r*.9);cx.bezierCurveTo(x-r*1.5,y-r*.2,x-r*.5,y-r*1.1,x,y-r*.35);cx.bezierCurveTo(x+r*.5,y-r*1.1,x+r*1.5,y-r*.2,x,y+r*.9);cx.closePath();}
-function flower5(x,y,r,a){for(let i=0;i<5;i++){cx.beginPath();cx.arc(x+Math.cos(a+i*1.2566)*r*.5,y+Math.sin(a+i*1.2566)*r*.5,r*.52,0,7);cx.fill();}}
+function petal(x,y,r,a){cx.save();cx.translate(x,y);cx.rotate(a);cx.beginPath();cx.moveTo(0,-r);cx.bezierCurveTo(r*.7,-r*.6,r*.7,r*.6,0,r);cx.bezierCurveTo(-r*.7,r*.6,-r*.7,-r*.6,0,-r);cx.closePath();cx.restore();}
+function flower5(x,y,r,a){for(let i=0;i<5;i++){petal(x+Math.cos(a+i*1.2566)*r*.75,y+Math.sin(a+i*1.2566)*r*.75,r*.55,a+i*1.2566);cx.fill();}cx.fillStyle='#f9e3a1';cx.beginPath();cx.arc(x,y,r*.3,0,7);cx.fill();}
 function resetFx(){
-  P=[];field=[];const n=reduce?14:(look.theme==='galaxy'?44:look.theme==='flowers'?9:0);
+  P=[];field=[];const n=reduce?14:(look.theme==='galaxy'?46:look.theme==='flowers'?10:0);
   for(let i=0;i<n;i++){
-    if(look.theme==='galaxy')field.push({x:Math.random()*W,y:Math.random()*H,r:(1.6+Math.random()*2.8)*dp(),ph:Math.random()*6.28,v:(.06+Math.random()*.16)*dp(),sp:.5+Math.random()*1.3,rot:Math.random()*6.28});
-    else field.push({x:Math.random()*W,y:Math.random()*H*.42,r:(6+Math.random()*7)*dp(),ph:Math.random()*6.28,c:Math.floor(Math.random()*5)});
+    if(look.theme==='galaxy')field.push({x:Math.random()*W,y:Math.random()*H,r:(1.4+Math.random()*2.6)*dp(),ph:Math.random()*6.28,v:(.08+Math.random()*.18)*dp(),sp:.6+Math.random()*1.4,rot:Math.random()*6.28});
+    else field.push({x:Math.random()*W,y:Math.random()*H*.42,r:(5+Math.random()*7)*dp(),ph:Math.random()*6.28,c:Math.floor(Math.random()*5)});
   }
 }
 const PET=['#f6c3d0','#fde3ea','#f9e3a1','#e4d4f5','#cfe9e0'];
 function spawn(kind,x,y,v){
   const d=dp();
   if(kind==='galaxy')P.push({k:'star',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(Math.random()-.5)*.5*d*v,life:1,r:(1.5+Math.random()*2.2)*d,rot:Math.random()*6.28});
-  else if(kind==='flowers')P.push({k:'petal',x,y,vx:(Math.random()-.5)*.35*d,vy:(.25+Math.random()*.45)*d*(v>1?-.6:1),life:1,r:(2.6+Math.random()*2.4)*d,sw:Math.random()*6.28,c:PET[Math.floor(Math.random()*PET.length)]});
+  else if(kind==='flowers')P.push({k:'petal',x,y,vx:(Math.random()-.5)*.35*d,vy:(.25+Math.random()*.45)*d*(v>1?-.6:1),life:1,r:(4+Math.random()*4)*d,a:Math.random()*6.28,da:(Math.random()-.5)*.03,sw:Math.random()*6.28,c:PET[Math.floor(Math.random()*PET.length)]});
   else P.push({k:'heart',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(-.35-Math.random()*.5)*d*v,life:1,r:(3.5+Math.random()*5)*d,sw:Math.random()*6.28,c:['#ffffff','#f6c3d0','#f1a9bd','#e4d4f5','#fde3ea'][Math.floor(Math.random()*5)]});
 }
 function burst(x,y,n){const d=dp();for(let i=0;i<n;i++)spawn(look.theme,x*d,y*d,2.4);}
-function glowStar(x,y,r,a,rot,light){
-  const g=cx.createRadialGradient(x,y,0,x,y,r*3.2);
-  g.addColorStop(0,'rgba(255,240,190,'+(0.5*a)+')');g.addColorStop(1,'rgba(243,198,107,0)');
-  cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3.2,0,7);cx.fill();
-  cx.fillStyle=light?'rgba(216,173,60,'+(0.95*a)+')':'rgba(255,233,168,'+(0.95*a)+')';star5(x,y,r,rot);cx.fill();
-}
+function glowStar(x,y,r,a,rot,light){cx.fillStyle=light?'rgba(186,150,80,'+(0.55*a)+')':'rgba(255,233,168,'+(0.95*a)+')';star5(x,y,r,rot);cx.fill();}
 function loop(ts){
   cx.clearRect(0,0,W,H);const d=dp(),th=look.theme,el=ts/1000,light=isLight();
   if(th==='galaxy'){
@@ -566,7 +560,7 @@ function loop(ts){
   for(const p of P){
     p.x+=p.vx;p.y+=p.vy;
     if(p.k==='star'){p.life-=.014;glowStar(p.x,p.y,p.r,Math.max(0,p.life),el,light);}
-    else if(p.k==='petal'){p.sw+=.02;p.x+=Math.sin(p.sw)*.5*d;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life)*.9;cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill();}
+    else if(p.k==='petal'){p.sw+=.02;p.x+=Math.sin(p.sw)*.5*d;p.a+=p.da;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life)*.9;cx.fillStyle=p.c;petal(p.x,p.y,p.r,p.a);cx.fill();}
     else{p.sw+=.03;p.x+=Math.sin(p.sw)*.4*d;p.life-=.0012;if(p.y<H*.18)p.life-=.012;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5))*(light?.85:.7);cx.fillStyle=p.c;heart(p.x,p.y,p.r);cx.fill();}
     cx.globalAlpha=1;
     if(p.life>0&&p.y>-40*d&&p.y<H+40*d)keep.push(p);
