@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Love Letters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
    LOVE LETTERS  ·  settings
@@ -22,7 +22,7 @@ const CONFIG = {
   dateLocale:  "en-US",                // how dates are written, e.g. "en-GB", "ja-JP"
   defaults: {
     background: "pink",                // pink | black | white | aqua | cream | navy
-    text:       "wine",                // white | black | navy | hotpink | rose | wine | lavender | gold | grey
+    text:       "burgundy",            // white | black | navy | hotpink | burgundy | plum | teal | mocha
     envelope:   "cream",               // cream | white | pink | blue | lavender | mint | grey
     theme:      "hearts"               // galaxy | flowers | hearts
   },
@@ -242,13 +242,13 @@ const CONFIG = {
     --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
     --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
     --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-    --fancy:'Playfair Display','Cormorant Garamond',serif; --fancy-size:1.0; --fancy-style:italic;
+    --fancy:'EB Garamond','Cormorant Garamond',serif; --fancy-size:.9; --fancy-style:italic;
   }
   .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a}
-  .fg-white{--fg:#ffffff} .fg-black{--fg:#1a1a1a} .fg-navy{--fg:#1d2a5a} .fg-hotpink{--fg:#c9325f} .fg-rose{--fg:#d98ca4} .fg-wine{--fg:#7a2e4a} .fg-lavender{--fg:#8b7bd1} .fg-gold{--fg:#b8902f} .fg-grey{--fg:#6b6f7a}
+  .fg-white{--fg:#ffffff} .fg-black{--fg:#1a1a1a} .fg-navy{--fg:#1d2a5a} .fg-hotpink{--fg:#c9325f} .fg-burgundy{--fg:#6e1f3a} .fg-plum{--fg:#5a3d6e} .fg-teal{--fg:#1f5e63} .fg-mocha{--fg:#5a3b2e}
   .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
-  .th-galaxy{--accent:#e9c86a} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
-  .light.th-galaxy{--accent:#d8ad3c}
+  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
+  .light.th-galaxy{--accent:#c9a24b}
   .fancy{font-family:var(--fancy);font-style:var(--fancy-style,normal);font-weight:400}
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -267,10 +267,13 @@ const CONFIG = {
   #mark{position:relative;height:120px;margin:22px auto 6px;width:120px}
   #mark svg{position:absolute;inset:0;width:100%;height:100%;display:none;overflow:visible}
   .th-galaxy #mk-galaxy,.th-flowers #mk-flowers,.th-hearts #mk-hearts{display:block}
-  #mk-galaxy .ring{fill:none;stroke:var(--accent);stroke-width:.6;opacity:.35}
-  #mk-galaxy .glow{fill:var(--accent);opacity:.18;animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-  #mk-galaxy .core{fill:#fff;animation:glow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-  .light #mk-galaxy .core{fill:var(--accent)}
+  #mk-galaxy .glow{animation:glow 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .core{fill:#ffe9a8;animation:glow 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .dot{fill:#e8ecff;opacity:.8;animation:tw 2.2s ease-in-out infinite}
+  #mk-galaxy .dot:nth-child(odd){animation-delay:1.1s}
+  .light #mk-galaxy .core{fill:#d9a93c}
+  .light #mk-galaxy .dot{fill:#8f86c8}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:.95}}
   @keyframes glow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}}
   #mk-flowers{animation:turn 28s linear infinite}
   #mk-flowers .p{fill:#f6c3d0;stroke:#f1a9bd;stroke-width:.8}
@@ -282,7 +285,7 @@ const CONFIG = {
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
   @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.28)}60%{transform:scale(.94)}100%{transform:scale(1)}}
 
-  #line{min-height:2.4em;margin:8px 6px 18px;font-size:calc(19px * var(--fancy-size));line-height:1.35;opacity:0;transition:opacity 1.2s}
+  #line{min-height:2.4em;margin:6px 10px 18px;font-size:calc(19px * var(--fancy-size));line-height:1.4;opacity:0;transition:opacity 1.2s;letter-spacing:.01em}
   #line.show{opacity:.92}
   main.reading #line{opacity:.08}
 
@@ -294,7 +297,7 @@ const CONFIG = {
   .paper{position:absolute;left:18px;right:18px;top:12px;bottom:10px;background:#fff;border-radius:4px;z-index:1;transition:transform .8s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.08);padding:14px 18px;text-align:left;color:var(--ink);font-size:15px;line-height:1.5;overflow:hidden}
   .paper .pv{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}
   .front{position:absolute;inset:0;z-index:2;border-radius:10px;background:var(--paper);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%)}
-  .front .to{position:absolute;left:0;right:0;bottom:40px;color:var(--ink);font-size:calc(18px * var(--fancy-size));line-height:1.2;opacity:.8}
+  .front .to{position:absolute;left:0;right:0;bottom:34px;color:var(--ink);font-size:16px;line-height:1.2;opacity:.75}
   .front .tiny{position:absolute;right:18px;bottom:12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:.5}
   .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s}
   .flap span{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-size:calc(13px * var(--fancy-size));color:var(--accent);white-space:nowrap}
@@ -312,11 +315,11 @@ const CONFIG = {
   #reader.show{display:block;animation:rise .5s ease}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   #reader .corner{position:absolute;right:18px;top:16px;width:14px;height:14px;fill:var(--accent)}
-  #rTo{font-size:calc(19px * var(--fancy-size));line-height:1.2;opacity:.85}
+  #rTo{font-size:18px;line-height:1.2;opacity:.85}
   #rDate{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin:6px 0 16px}
   #rText{white-space:pre-wrap;font-size:19px;line-height:1.75}
   #rText img.pic{display:block;max-width:100%;border-radius:4px;margin:0 0 12px}
-  #rFrom{margin-top:18px;text-align:right;font-size:calc(19px * var(--fancy-size));line-height:1.2;opacity:.85}
+  #rFrom{margin-top:18px;text-align:right;font-size:18px;line-height:1.2;opacity:.85}
   .row{display:flex;gap:8px;margin-top:18px}
   .row button{flex:1;font-family:var(--serif);font-size:14px;letter-spacing:.1em;padding:11px;border-radius:6px;border:1px solid rgba(0,0,0,.14);background:transparent;color:var(--ink);cursor:pointer}
   #copyBox{display:none;width:100%;margin-top:10px;min-height:120px;padding:12px;border-radius:6px;border:1px solid rgba(0,0,0,.14);font-family:var(--serif);font-size:15px;color:var(--ink);background:#fff}
@@ -335,20 +338,20 @@ const CONFIG = {
   /* settings */
   #gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7}
   #gear svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
-  #sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;color:#2a2a33;border-radius:16px 16px 0 0;padding:18px 22px max(26px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.2);transform:translateY(105%);transition:transform .35s ease;font-family:var(--serif);max-height:86vh;overflow:auto}
-  #sheet.show{transform:none}
-  #sheet h3{font-weight:500;font-size:calc(20px * var(--fancy-size));line-height:1.2}
-  #done{display:block;width:100%;margin-top:22px;font-family:var(--serif);font-size:14px;letter-spacing:.18em;text-transform:uppercase;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,.18);background:transparent;color:#2a2a33;cursor:pointer}
-  #sheet .lbl{font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:16px 0 8px}
-  .names{display:flex;gap:10px}
+  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(300px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:14px;padding:16px 18px 18px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
+  #sheet.show{opacity:1;transform:none;pointer-events:auto}
+  #sheet h3{font-weight:500;font-size:20px;line-height:1.2}
+  #done{display:block;width:100%;margin-top:18px;font-family:var(--serif);font-size:13px;letter-spacing:.2em;text-transform:uppercase;padding:11px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  #sheet .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.55;margin:14px 0 7px}
+  .names{display:flex;flex-direction:column;gap:8px}
   .names label{flex:1;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
-  .names input{display:block;width:100%;margin-top:4px;font-family:var(--serif);font-size:18px;padding:8px 10px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.04em}
-  .sw{display:flex;gap:10px;flex-wrap:wrap}
-  .sw button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
+  .names input{display:block;width:100%;margin-top:3px;font-family:var(--serif);font-size:17px;padding:7px 10px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.04em}
+  .sw{display:flex;gap:9px;flex-wrap:wrap}
+  .sw button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
   .sw button.on{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #2a2a33;transform:scale(1.08)}
-  .sw.an button{width:auto;height:auto;border-radius:20px;padding:7px 16px;background:#f3f3f6;font-family:var(--serif);font-size:16px;letter-spacing:.06em}
+  .sw.an button{width:auto;height:auto;border-radius:20px;padding:6px 14px;background:#f3f3f6;font-family:var(--serif);font-size:15px;letter-spacing:.06em}
   .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
-  #dim{position:fixed;inset:0;z-index:5;background:rgba(0,0,0,.18);display:none}
+  #dim{position:fixed;inset:0;z-index:5;background:transparent;display:none}
   #dim.show{display:block}
   @media (prefers-reduced-motion: reduce){#mk-galaxy .halo,#mk-galaxy .core,#mk-flowers,#mk-hearts path{animation:none}}
 </style>
@@ -370,6 +373,7 @@ const CONFIG = {
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
+    <radialGradient id="g-halo"><stop offset="0" stop-color="#fff0c8" stop-opacity=".85"/><stop offset=".35" stop-color="#f3c66b" stop-opacity=".32"/><stop offset=".7" stop-color="#c8d2ff" stop-opacity=".08"/><stop offset="1" stop-color="#f3c66b" stop-opacity="0"/></radialGradient>
     <path id="i-heart" d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/>
     <path id="i-star" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/>
     <g id="i-flower"><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(72 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(144 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(216 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(288 10 10)"/><circle cx="10" cy="10" r="2.2" opacity=".7"/></g>
@@ -385,9 +389,9 @@ const CONFIG = {
 
   <div id="mark">
     <svg id="mk-galaxy" viewBox="0 0 120 120">
-      <circle class="ring" cx="60" cy="60" r="56"/><circle class="ring" cx="60" cy="60" r="42"/><circle class="ring" cx="60" cy="60" r="28"/>
-      <circle class="glow" cx="60" cy="60" r="22"/>
-      <g transform="translate(48 48) scale(1.2)"><path class="core" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/></g>
+      <circle class="glow" cx="60" cy="60" r="52" fill="url(#g-halo)"/>
+      <circle class="dot" cx="22" cy="40" r="1.4"/><circle class="dot" cx="98" cy="30" r="1.1"/><circle class="dot" cx="104" cy="78" r="1.5"/><circle class="dot" cx="18" cy="86" r="1"/><circle class="dot" cx="70" cy="12" r="1.2"/><circle class="dot" cx="48" cy="106" r="1.3"/>
+      <g transform="translate(46 46) scale(1.4)"><path class="core" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/></g>
     </svg>
     <svg id="mk-flowers" viewBox="0 0 120 120">
       <g class="p"><ellipse cx="60" cy="26" rx="15" ry="26"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(72 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(144 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(216 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(288 60 60)"/></g>
@@ -436,7 +440,7 @@ const CONFIG = {
 const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
 const KEY='loveletters-look';
 const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a']];
-const FGS=[['white','#ffffff'],['black','#1a1a1a'],['navy','#1d2a5a'],['hotpink','#c9325f'],['rose','#d98ca4'],['wine','#7a2e4a'],['lavender','#8b7bd1'],['gold','#b8902f'],['grey','#6b6f7a']];
+const FGS=[['white','#ffffff'],['black','#1a1a1a'],['navy','#1d2a5a'],['hotpink','#c9325f'],['burgundy','#6e1f3a'],['plum','#5a3d6e'],['teal','#1f5e63'],['mocha','#5a3b2e']];
 const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
 const THS=['galaxy','flowers','hearts'];
 const ICON={galaxy:'#i-star',flowers:'#i-flower',hearts:'#i-heart'};
@@ -533,10 +537,9 @@ function heart(x,y,r){cx.beginPath();cx.moveTo(x,y+r*.9);cx.bezierCurveTo(x-r*1.
 function petal(x,y,r,a){cx.save();cx.translate(x,y);cx.rotate(a);cx.beginPath();cx.moveTo(0,-r);cx.bezierCurveTo(r*.7,-r*.6,r*.7,r*.6,0,r);cx.bezierCurveTo(-r*.7,r*.6,-r*.7,-r*.6,0,-r);cx.closePath();cx.restore();}
 function flower5(x,y,r,a){for(let i=0;i<5;i++){petal(x+Math.cos(a+i*1.2566)*r*.75,y+Math.sin(a+i*1.2566)*r*.75,r*.55,a+i*1.2566);cx.fill();}cx.fillStyle='#f9e3a1';cx.beginPath();cx.arc(x,y,r*.3,0,7);cx.fill();}
 function resetFx(){
-  P=[];field=[];const n=reduce?14:(look.theme==='galaxy'?46:look.theme==='flowers'?10:0);
+  P=[];field=[];const n=reduce?30:(look.theme==='galaxy'?150:0);
   for(let i=0;i<n;i++){
-    if(look.theme==='galaxy')field.push({x:Math.random()*W,y:Math.random()*H,r:(1.4+Math.random()*2.6)*dp(),ph:Math.random()*6.28,v:(.08+Math.random()*.18)*dp(),sp:.6+Math.random()*1.4,rot:Math.random()*6.28});
-    else field.push({x:Math.random()*W,y:Math.random()*H*.42,r:(5+Math.random()*7)*dp(),ph:Math.random()*6.28,c:Math.floor(Math.random()*5)});
+    if(look.theme==='galaxy'){const star=i<9;field.push({star,x:Math.random()*W,y:Math.random()*H,r:(star?1.8+Math.random()*2.2:.5+Math.random()*1.3)*dp(),ph:Math.random()*6.28,v:(star?.05+Math.random()*.08:.015+Math.random()*.03)*dp(),sp:.5+Math.random()*1.8,rot:Math.random()*6.28,c:Math.random()<.2?'243,198,107':(Math.random()<.5?'200,210,255':'235,240,255')});}
   }
 }
 const PET=['#f6c3d0','#fde3ea','#f9e3a1','#e4d4f5','#cfe9e0'];
@@ -547,14 +550,19 @@ function spawn(kind,x,y,v){
   else P.push({k:'heart',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(-.35-Math.random()*.5)*d*v,life:1,r:(3.5+Math.random()*5)*d,sw:Math.random()*6.28,c:['#ffffff','#f6c3d0','#f1a9bd','#e4d4f5','#fde3ea'][Math.floor(Math.random()*5)]});
 }
 function burst(x,y,n){const d=dp();for(let i=0;i<n;i++)spawn(look.theme,x*d,y*d,2.4);}
-function glowStar(x,y,r,a,rot,light){cx.fillStyle=light?'rgba(186,150,80,'+(0.55*a)+')':'rgba(255,233,168,'+(0.95*a)+')';star5(x,y,r,rot);cx.fill();}
+function glowStar(x,y,r,a,rot,light){
+  const g=cx.createRadialGradient(x,y,0,x,y,r*3);g.addColorStop(0,'rgba(255,240,190,'+(0.4*a)+')');g.addColorStop(1,'rgba(243,198,107,0)');
+  cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3,0,7);cx.fill();
+  cx.fillStyle=light?'rgba(201,162,75,'+(0.9*a)+')':'rgba(255,233,168,'+(0.95*a)+')';star5(x,y,r,rot);cx.fill();
+}
 function loop(ts){
   cx.clearRect(0,0,W,H);const d=dp(),th=look.theme,el=ts/1000,light=isLight();
   if(th==='galaxy'){
-    for(const s of field){s.y+=s.v;if(s.y>H+12*d){s.y=-12*d;s.x=Math.random()*W;}const a=0.3+0.7*Math.abs(Math.sin(el*s.sp+s.ph));glowStar(s.x+Math.sin(el*.6+s.ph)*3*d,s.y,s.r,a,s.rot+el*.12,light);}
+    for(const s of field){s.y+=s.v;if(s.y>H+12*d){s.y=-12*d;s.x=Math.random()*W;}const a=0.25+0.75*Math.abs(Math.sin(el*s.sp+s.ph));
+      if(s.star)glowStar(s.x+Math.sin(el*.6+s.ph)*3*d,s.y,s.r,a,s.rot+el*.12,light);
+      else{cx.fillStyle='rgba('+(light?'120,110,180':s.c)+','+(a*(light?.5:.9))+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();}}
   }else if(th==='flowers'){
-    for(const f of field){const y=f.y+Math.sin(el*.7+f.ph)*4*d,x=f.x+Math.cos(el*.5+f.ph)*3*d;cx.globalAlpha=light?.8:.7;cx.fillStyle=PET[f.c];flower5(x,y,f.r,el*.08+f.ph);cx.globalAlpha=1;}
-    if(!reduce&&Math.random()<.08)spawn('flowers',Math.random()*W,-10*d,1);
+    if(!reduce&&Math.random()<.1)spawn('flowers',Math.random()*W,-10*d,1);
   }else{ if(!reduce&&Math.random()<.07)spawn('hearts',Math.random()*W,H+10*d,1.3); }
   const keep=[];
   for(const p of P){
