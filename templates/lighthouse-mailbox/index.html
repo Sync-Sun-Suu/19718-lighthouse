@@ -238,7 +238,7 @@ const CONFIG = {
 </script>
 <style>
   :root{
-    --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
+    --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d2889a;
     --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
     --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
     --fancy:var(--serif); --fancy-size:.9;
@@ -246,7 +246,7 @@ const CONFIG = {
   .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a}
   .fg-navy{--fg:#1d2a5a} .fg-black{--fg:#1a1a1a} .fg-white{--fg:#ffffff} .fg-cream{--fg:#f5e6b3} .fg-mustard{--fg:#c9a227} .fg-lightpink{--fg:#f3b3c4} .fg-hotpink{--fg:#d6336c} .fg-aqua{--fg:#a9d6e5} .fg-brown{--fg:#6b4a36}
   .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
-  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
+  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d2889a}
   .light.th-galaxy{--accent:#c9a24b}
   .fancy{font-family:var(--serif);font-style:normal;font-weight:400}
 
@@ -281,9 +281,9 @@ const CONFIG = {
   #mk-flowers .c{fill:#f9e3a1}
   @keyframes turn{to{transform:rotate(360deg)}}
   #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
-  #mk-hearts.pop path{animation:pop 1.5s ease-out}
+  #mk-hearts.pop path{animation:pop 1.9s ease-out}
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
-  @keyframes pop{0%{transform:scale(1) rotate(0)}10%{transform:scale(1.02) rotate(-7deg)}22%{transform:scale(1.02) rotate(7deg)}34%{transform:scale(1.03) rotate(-5deg)}46%{transform:scale(1.04) rotate(4deg)}58%{transform:scale(1.3)}70%{transform:scale(1.02)}82%{transform:scale(1.26)}100%{transform:scale(1)}}
+  @keyframes pop{0%{transform:scale(1) rotate(0)}8%{transform:scale(1.01) rotate(-6deg)}18%{transform:scale(1.01) rotate(6deg)}28%{transform:scale(1.02) rotate(-5deg)}38%{transform:scale(1.02) rotate(4deg)}46%{transform:scale(1.02) rotate(0)}52%{transform:scale(1.28)}60%{transform:scale(1.02)}66%{transform:scale(1.26)}74%{transform:scale(1.02)}80%{transform:scale(1.24)}90%{transform:scale(1)}100%{transform:scale(1)}}
 
   #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
   #line.show{opacity:.92}
@@ -581,7 +581,7 @@ function loop(ts){
     if(p.k==='star'){p.life-=.014;glowStar(p.x,p.y,p.r,Math.max(0,p.life),el,light);}
     else if(p.k==='petal'){p.sw+=.02;p.x+=Math.sin(p.sw)*.5*d;p.a+=p.da;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life)*.62;cx.fillStyle=p.c;petal(p.x,p.y,p.r,p.a);cx.fill();}
     else if(p.k==='big'){p.vx*=.96;p.vy=p.vy*.96-.02*d;p.life-=.016;cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=getComputedStyle(document.body).getPropertyValue('--accent').trim()||'#d9607f';heart(p.x,p.y,p.r*(0.7+0.3*p.life));cx.fill();}
-    else{p.sw+=.03;p.x+=Math.sin(p.sw)*.4*d;p.life-=.0012;if(p.y<H*.18)p.life-=.012;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5))*(light?.85:.7);cx.fillStyle=p.c;heart(p.x,p.y,p.r);cx.fill();}
+    else{p.sw+=.03;p.x+=Math.sin(p.sw)*.4*d;p.life-=.0008;if(p.y<H*.07)p.life-=.02;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5))*(light?.85:.7);cx.fillStyle=p.c;heart(p.x,p.y,p.r);cx.fill();}
     cx.globalAlpha=1;
     if(p.life>0&&p.y>-40*d&&p.y<H+40*d)keep.push(p);
   }
@@ -590,7 +590,7 @@ function loop(ts){
 }
 requestAnimationFrame(loop);
 function bigBurst(n){const m=$('mk-hearts'),r=m.getBoundingClientRect(),d=dp(),x=(r.left+r.width/2)*d,y=(r.top+r.height/2)*d;for(let i=0;i<n;i++){const a=Math.random()*6.28,sp=(1.6+Math.random()*2.2)*d;P.push({k:'big',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.2*d,life:1,r:(7+Math.random()*7)*d,sw:Math.random()*6.28});}}
-setInterval(()=>{if(look.theme!=='hearts'||reduce)return;const m=$('mk-hearts');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');setTimeout(()=>bigBurst(7),820);setTimeout(()=>bigBurst(7),1180);},5200);
+setInterval(()=>{if(look.theme!=='hearts'||reduce)return;const m=$('mk-hearts');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');setTimeout(()=>bigBurst(6),980);setTimeout(()=>bigBurst(6),1250);setTimeout(()=>bigBurst(6),1520);},5600);
 document.addEventListener('pointerdown',e=>{if(e.target.closest('#sheet,#gear,button,#reader,input'))return;burst(e.clientX,e.clientY,8);},{passive:true});
 
 /* start */
