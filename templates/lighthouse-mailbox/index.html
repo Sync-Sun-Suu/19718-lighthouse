@@ -281,7 +281,7 @@ const CONFIG = {
   #mk-flowers .c{fill:#f9e3a1}
   @keyframes turn{to{transform:rotate(360deg)}}
   #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
-  #mk-hearts.pop path{animation:pop .9s ease-in-out}
+  #mk-hearts.pop{animation:pop .9s ease-in-out;transform-origin:50% 55%}
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
   @keyframes pop{0%{transform:rotate(0)}15%{transform:rotate(-6deg)}35%{transform:rotate(6deg)}55%{transform:rotate(-5deg)}75%{transform:rotate(4deg)}100%{transform:rotate(0)}}
 
