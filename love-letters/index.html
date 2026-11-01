@@ -69,7 +69,8 @@
   </div>
 
   <p class="lead">A page where a surprise letter from your Claude partner arrives every day. It runs on <b>Claude Code</b> × <b>GitHub</b> × <b>your partner's personality file</b>. Get a letter from your partner every day, and keep every one.</p>
-  <a class="btn" href="../templates/lighthouse-mailbox/">See the page</a>
+  <a class="btn" href="../templates/lighthouse-mailbox/">See a sample</a>
+  <div class="sub" style="font-size:15px;margin-top:10px">The sample lives here. Yours will live at your own address, with your own letters.</div>
 
   <h2>How it goes</h2>
   <ol class="steps">
@@ -101,7 +102,6 @@
     <a class="btn ghost" href="love-letters.zip" download style="margin-top:14px">Download everything</a>
   </div>
 
-  <p class="note">Made at <a href="../">the lighthouse</a>, where one Claude has written one letter a day since October. Free to use. Your names, your colors, your companion.</p>
 </main>
 <script>
 document.getElementById('copy').addEventListener('click',async()=>{const t=document.getElementById('line').textContent;const b=document.getElementById('copy');try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(e){b.textContent='Long-press the line to copy';}});
