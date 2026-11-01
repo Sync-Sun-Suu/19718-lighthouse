@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Lighthouse Mailbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Caveat:wght@400;500&family=Shippori+Mincho:wght@400;500&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   LIGHTHOUSE MAILBOX  ·  settings
+   Everything a non-developer (or their Claude) might want to change is
+   in this one block. Edit the text between the quotes and save.
+   ===================================================================== */
+const CONFIG = {
+  title: "Lighthouse Mailbox",          // the heading at the top
+  subtitle: "A letter, written and left at the lighthouse. Open it and take it with you.",
+  from: "your Claude",                  // signature under each letter (a name, a number, anything)
+  openButton: "Open today's letter",
+  timezone: "Asia/Tokyo",              // the day changes in this timezone, e.g. "America/New_York", "Europe/London"
+  dateLocale: "en-US",                 // how dates are written, e.g. "en-GB", "ja-JP"
+  font: "handwriting",                 // "serif" (quiet, printed) or "handwriting" (looks hand-written)
+  colors: {
+    night:   "#071018",                 // top of the sky
+    sea:     "#0b2230",                 // the sea
+    horizon: "#123a4a",                 // bottom of the page
+    lamp:    "#f2b64f",                 // the lighthouse lamp, buttons, the little dot on the letter
+    paper:   "#efe6d2",                 // the letter paper
+    ink:     "#2a2118",                 // the letter text
+    text:    "#d7e4e6",                 // text on the dark background
+    dim:     "#6c8a94"                  // small quiet text
+  },
+  text: {                               // all the other words on the page
+    notOpened: "Not opened yet.",
+    descending: "Coming down from the lighthouse…",
+    todayHere: "Today's letter is here.",
+    latestOnly: "Nothing for today yet. Here is the latest one.",
+    none: "No letter has arrived yet.",
+    quiet: "The lighthouse is quiet",
+    failed: "It didn't arrive. Bad signal, or the lighthouse's own reasons. Wait a little and try again.",
+    retry: "Try again",
+    openedToday: "Today's letter is open",
+    opened: "Opened",
+    copy: "Copy this letter",
+    copied: "Copied. You can also select it below",
+    copyManual: "Long-press the text below to copy",
+    copyHint: "Long-press, select all, copy",
+    takeIt: "Copy it, and take it with you.",
+    drawer: "The drawer",
+    onlyOne: "Only this one, so far.",
+    open: "open",
+    close: "close"
+  }
+};
+</script>
+<style>
+  :root{
+    --night:#071018; --sea:#0b2230; --horizon:#123a4a; --lamp:#f2b64f;
+    --lamp-soft:rgba(242,182,79,.16); --paper:#efe6d2; --ink:#2a2118; --dim:#6c8a94; --text:#d7e4e6;
+    --font-serif:'Cormorant Garamond','Shippori Mincho','Hiragino Mincho ProN',Georgia,serif;
+    --font-hand:'Caveat','Zen Kurenaido','Segoe Print','Bradley Hand',cursive;
+    --font-letter:var(--font-serif);
+    --letter-size:15.5px;
+  }
+  body.handwriting{ --font-letter:var(--font-hand); --letter-size:21px; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;background:var(--night);}
+  body{ font-family:var(--font-serif); color:var(--text); line-height:1.9; letter-spacing:.02em; font-size:17px; }
+
+  /* night and sea */
+  #sky{ position:fixed;inset:0;z-index:0; background:linear-gradient(to bottom,var(--night) 0%,var(--sea) 62%,var(--horizon) 100%); overflow:hidden; }
+  #beam{ position:absolute;left:50%;top:132px; width:2px;height:2px; pointer-events:none; }
+  #beam::before{
+    content:'';position:absolute;left:0;top:0; width:420px;height:160px; transform-origin:0 50%;
+    background:linear-gradient(to right,var(--lamp-soft),transparent);
+    clip-path:polygon(0 48%,100% 0,100% 100%,0 52%);
+    animation:sweep 14s linear infinite;
+  }
+  @keyframes sweep{ from{transform:rotate(-30deg);} to{transform:rotate(330deg);} }
+  #lamp{ position:absolute;left:50%;top:132px; width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%; background:var(--lamp); box-shadow:0 0 18px 6px var(--lamp-glow,rgba(242,182,79,.55)),0 0 60px 20px var(--lamp-soft); }
+  #tower{ position:absolute;left:50%;top:136px; width:14px;height:80px;margin-left:-7px; background:linear-gradient(to bottom,rgba(255,255,255,.08),transparent),var(--sea); border-radius:2px 2px 0 0; opacity:.9; }
+  #horizon{ position:absolute;left:0;right:0;top:214px;height:1px; background:rgba(255,255,255,.12); }
+  @media (prefers-reduced-motion: reduce){ #beam::before{animation:none;transform:rotate(20deg);} }
+
+  main{ position:relative;z-index:1; max-width:520px;margin:0 auto; padding:236px 20px 48px; }
+  header{ text-align:center; margin-bottom:26px; }
+  header h1{ font-weight:500;font-size:19px;letter-spacing:.28em; color:var(--text); }
+  header p{ margin-top:6px;font-size:13px;color:var(--dim);letter-spacing:.04em; }
+
+  /* today's letter */
+  #today{ background:var(--paper);color:var(--ink); border-radius:4px; padding:26px 22px 22px; box-shadow:0 18px 40px rgba(0,0,0,.45); position:relative; min-height:170px; }
+  #today::after{ content:'';position:absolute;right:18px;top:18px; width:8px;height:8px;border-radius:50%; background:var(--lamp);opacity:.9; }
+  #stamp{ font-size:12px;opacity:.6;letter-spacing:.1em;margin-bottom:12px; }
+  #letter{ white-space:pre-wrap;font-family:var(--font-letter);font-size:var(--letter-size);line-height:1.9; min-height:60px; }
+  #letter.empty{ opacity:.55; }
+  .pic{ display:block;max-width:100%;border-radius:3px;margin:0 0 14px; box-shadow:0 2px 10px rgba(0,0,0,.12); }
+  .past .pic{ margin:6px 0 8px; }
+  #sign{ margin-top:16px;text-align:right;font-family:var(--font-letter);font-size:15px;opacity:.65;letter-spacing:.12em; }
+
+  button{ display:block;width:100%; margin-top:18px; font-family:inherit;font-size:16px;letter-spacing:.08em; padding:15px 12px;border-radius:4px; border:1px solid var(--lamp); background:var(--lamp-soft);color:var(--lamp); cursor:pointer; }
+  button:active{ filter:brightness(1.2); }
+  button:disabled{ opacity:.45; cursor:default; }
+  button:focus-visible{ outline:2px solid var(--lamp); outline-offset:3px; }
+  #copyBtn{ margin-top:10px;border-color:rgba(255,255,255,.2);color:var(--dim);background:transparent; }
+  #copyBox{ display:none;width:100%;margin-top:10px;min-height:180px;padding:14px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:var(--text);font-family:inherit;font-size:15px;line-height:1.9; }
+  #copyHint{ display:none;margin-top:6px;font-size:12px;color:var(--dim);text-align:center; }
+  #status{ margin-top:12px;text-align:center;font-size:13px;color:var(--dim);min-height:18px; }
+
+  /* the drawer of past letters */
+  #drawer{ margin-top:40px; }
+  #drawer h2{ font-weight:400;font-size:13px;letter-spacing:.2em;color:var(--dim); padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:6px; text-transform:uppercase; }
+  .past{ padding:14px 2px;border-bottom:1px solid rgba(255,255,255,.07); }
+  .past .d{ font-size:12px;color:var(--dim);letter-spacing:.08em; }
+  .past .t{ margin-top:4px;font-size:15px;color:var(--text); white-space:pre-wrap;line-height:1.8; max-height:3.8em;overflow:hidden; font-family:var(--font-letter); }
+  body.handwriting .past .t{ font-size:19px; }
+  .past.open .t{ max-height:none; }
+  .past .more{ margin-top:4px;font-size:12px;color:var(--lamp);opacity:.85;cursor:pointer; }
+  #none{ padding:16px 2px;font-size:13px;color:var(--dim); }
+</style>
+</head>
+<body>
+<div id="sky"><div id="beam"></div><div id="tower"></div><div id="lamp"></div><div id="horizon"></div></div>
+
+<main>
+  <header><h1 id="title"></h1><p id="subtitle"></p></header>
+  <section id="today">
+    <div id="stamp"></div>
+    <div id="letter" class="empty"></div>
+    <div id="sign"></div>
+  </section>
+  <button id="openBtn"></button>
+  <button id="copyBtn" style="display:none"></button>
+  <textarea id="copyBox" readonly></textarea>
+  <div id="copyHint"></div>
+  <div id="status"></div>
+  <section id="drawer">
+    <h2 id="drawerTitle"></h2>
+    <div id="past"></div>
+    <div id="none" style="display:none"></div>
+  </section>
+</main>
+
+<script>
+(async()=>{
+const C=CONFIG, T=C.text, $=id=>document.getElementById(id);
+/* apply settings */
+document.title=C.title;
+for(const [k,v] of Object.entries(C.colors)) document.documentElement.style.setProperty('--'+k,v);
+if(C.colors.lamp){ // soft glow derived from the lamp color
+  const m=/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(C.colors.lamp);
+  if(m){const r=parseInt(m[1],16),g=parseInt(m[2],16),b=parseInt(m[3],16);
+    document.documentElement.style.setProperty('--lamp-soft',`rgba(${r},${g},${b},.16)`);
+    document.documentElement.style.setProperty('--lamp-glow',`rgba(${r},${g},${b},.55)`);}
+}
+if(C.font==='handwriting') document.body.classList.add('handwriting');
+$('title').textContent=C.title; $('subtitle').textContent=C.subtitle;
+$('openBtn').textContent=C.openButton; $('copyBtn').textContent=T.copy; $('copyHint').textContent=T.copyHint;
+$('letter').textContent=T.notOpened; $('drawerTitle').textContent=T.drawer; $('none').textContent=T.onlyOne;
+
+const letterEl=$('letter'),stampEl=$('stamp'),signEl=$('sign'),btn=$('openBtn'),statusEl=$('status'),pastEl=$('past'),noneEl=$('none'),copyBtn=$('copyBtn');
+
+copyBtn.addEventListener('click',async()=>{
+  const t=stampEl.textContent+'\n\n'+(current&&current.text||'')+'\n\n'+(current&&current.from||C.from);
+  const box=$('copyBox'),hint=$('copyHint');
+  box.value=t;box.style.display='block';hint.style.display='block';
+  let ok=false;
+  try{ await navigator.clipboard.writeText(t); ok=true; }catch(e){}
+  if(!ok){ try{ box.focus(); box.select(); box.setSelectionRange(0,t.length); document.execCommand('copy'); ok=true; }catch(e){} }
+  copyBtn.textContent=ok?T.copied:T.copyManual;
+});
+
+/* dates, in the configured timezone */
+function todayKey(){
+  const p=new Intl.DateTimeFormat('en-CA',{timeZone:C.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const g=t=>p.find(x=>x.type===t).value; return g('year')+'-'+g('month')+'-'+g('day');
+}
+function niceDate(key){
+  const [y,m,d]=key.split('-').map(Number);
+  return new Intl.DateTimeFormat(C.dateLocale,{weekday:'short',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(y,m-1,d)));
+}
+function stamp(item){ return (item.label||niceDate(item.date))+(item.time?'  '+item.time:''); }
+
+/* letters live in ./letters/. Your Claude writes one and places it there. No login needed. */
+async function loadAll(){
+  const idx=await fetch('./letters/index.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('index '+r.status);return r.json();});
+  const dates=(idx.letters||[]).slice().sort().reverse();
+  const items=[];
+  for(const d of dates){
+    try{ const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();}); if(it&&(it.text||it.image))items.push(it); }
+    catch(e){console.error(e);}
+  }
+  return items;
+}
+function pic(src){ const im=document.createElement('img'); im.className='pic'; im.src=src; im.alt=''; im.loading='lazy'; return im; }
+function showToday(item){
+  stampEl.textContent=stamp(item); letterEl.classList.remove('empty'); letterEl.textContent='';
+  if(item.image) letterEl.appendChild(pic(item.image));      // a handwritten note, a drawing, a photo
+  if(item.text) letterEl.appendChild(document.createTextNode(item.text));
+  signEl.textContent=item.from||C.from;
+}
+function renderPast(items,skipDate){
+  pastEl.innerHTML='';
+  const rest=items.filter(i=>i.date!==skipDate);
+  noneEl.style.display=rest.length?'none':'block';
+  for(const it of rest){
+    const div=document.createElement('div');div.className='past';
+    div.innerHTML='<div class="d"></div><div class="t"></div><div class="more"></div>';
+    div.querySelector('.d').textContent=stamp(it); const t=div.querySelector('.t'); if(it.image) t.appendChild(pic(it.image)); if(it.text) t.appendChild(document.createTextNode(it.text)); div.querySelector('.more').textContent=T.open;
+    div.querySelector('.more').addEventListener('click',()=>{ div.classList.toggle('open'); div.querySelector('.more').textContent=div.classList.contains('open')?T.close:T.open; });
+    pastEl.appendChild(div);
+  }
+}
+
+/* start */
+let items=[],current=null; const key=todayKey();
+stampEl.textContent=niceDate(key); btn.disabled=true; statusEl.textContent=T.descending;
+try{
+  items=await loadAll();
+  current=items.find(i=>i.date===key)||items[0]||null;
+  if(current){ btn.disabled=false; statusEl.textContent=current.date===key?T.todayHere:T.latestOnly; }
+  else{ statusEl.textContent=T.none; btn.textContent=T.quiet; }
+}catch(e){
+  console.error(e); statusEl.textContent=T.failed; btn.textContent=T.retry; btn.disabled=false;
+  btn.addEventListener('click',()=>location.reload(),{once:true}); return;
+}
+btn.addEventListener('click',()=>{
+  if(!current)return;
+  showToday(current); renderPast(items,current.date);
+  btn.disabled=true; btn.textContent=current.date===key?T.openedToday:T.opened;
+  copyBtn.style.display='block'; copyBtn.textContent=T.copy; statusEl.textContent=T.takeIt;
+});
+})();
+</script>
+</body>
+</html>
