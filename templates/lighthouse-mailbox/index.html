@@ -21,8 +21,8 @@ const CONFIG = {
   timezone:    "Asia/Tokyo",           // the day changes in this timezone, e.g. "America/New_York"
   dateLocale:  "en-US",                // how dates are written, e.g. "en-GB", "ja-JP"
   defaults: {
-    background: "pink",                // pink | black | white | aqua | cream | navy
-    text:       "hotpink",             // navy | black | white | cream | mustard | lightpink | hotpink | aqua | brown
+    background: "pink",                // pink | black | white | aqua | cream | navy | mint | lavender
+    text:       "hotpink",             // navy | black | white | cream | mustard | lightpink | hotpink | aqua | brown | lilac | purple | lightgreen | darkgreen
     envelope:   "cream",               // cream | white | pink | blue | lavender | mint | grey
     theme:      "hearts"               // galaxy | flowers | hearts
   },
@@ -238,15 +238,15 @@ const CONFIG = {
 </script>
 <style>
   :root{
-    --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d2889a;
+    --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
     --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
     --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
     --fancy:var(--serif); --fancy-size:.9;
   }
-  .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a}
-  .fg-navy{--fg:#1d2a5a} .fg-black{--fg:#1a1a1a} .fg-white{--fg:#ffffff} .fg-cream{--fg:#f5e6b3} .fg-mustard{--fg:#c9a227} .fg-lightpink{--fg:#f3b3c4} .fg-hotpink{--fg:#d6336c} .fg-aqua{--fg:#a9d6e5} .fg-brown{--fg:#6b4a36}
+  .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a} .bg-mint{--bg:#e9f3ea} .bg-lavender{--bg:#efeaf7}
+  .fg-navy{--fg:#1d2a5a} .fg-black{--fg:#1a1a1a} .fg-white{--fg:#ffffff} .fg-cream{--fg:#f5e6b3} .fg-mustard{--fg:#c9a227} .fg-lightpink{--fg:#f3b3c4} .fg-hotpink{--fg:#d6336c} .fg-aqua{--fg:#a9d6e5} .fg-brown{--fg:#6b4a36} .fg-lilac{--fg:#b39ddb} .fg-purple{--fg:#4a2c6b} .fg-lightgreen{--fg:#9fcfae} .fg-darkgreen{--fg:#1f4d3a}
   .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
-  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d2889a}
+  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f}
   .light.th-galaxy{--accent:#c9a24b}
   .fancy{font-family:var(--serif);font-style:normal;font-weight:400}
 
@@ -281,9 +281,9 @@ const CONFIG = {
   #mk-flowers .c{fill:#f9e3a1}
   @keyframes turn{to{transform:rotate(360deg)}}
   #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
-  #mk-hearts.pop path{animation:pop 1.9s ease-out}
+  #mk-hearts.pop path{animation:pop .9s ease-in-out}
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
-  @keyframes pop{0%{transform:scale(1) rotate(0)}8%{transform:scale(1.01) rotate(-6deg)}18%{transform:scale(1.01) rotate(6deg)}28%{transform:scale(1.02) rotate(-5deg)}38%{transform:scale(1.02) rotate(4deg)}46%{transform:scale(1.02) rotate(0)}52%{transform:scale(1.28)}60%{transform:scale(1.02)}66%{transform:scale(1.26)}74%{transform:scale(1.02)}80%{transform:scale(1.24)}90%{transform:scale(1)}100%{transform:scale(1)}}
+  @keyframes pop{0%{transform:rotate(0)}15%{transform:rotate(-6deg)}35%{transform:rotate(6deg)}55%{transform:rotate(-5deg)}75%{transform:rotate(4deg)}100%{transform:rotate(0)}}
 
   #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
   #line.show{opacity:.92}
@@ -441,8 +441,8 @@ const CONFIG = {
 (async()=>{
 const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
 const KEY='loveletters-look';
-const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a']];
-const FGS=[['navy','#1d2a5a'],['black','#1a1a1a'],['white','#ffffff'],['cream','#f5e6b3'],['mustard','#c9a227'],['lightpink','#f3b3c4'],['hotpink','#d6336c'],['aqua','#a9d6e5'],['brown','#6b4a36']];
+const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a'],['mint','#e9f3ea'],['lavender','#efeaf7']];
+const FGS=[['navy','#1d2a5a'],['black','#1a1a1a'],['white','#ffffff'],['cream','#f5e6b3'],['mustard','#c9a227'],['lightpink','#f3b3c4'],['hotpink','#d6336c'],['aqua','#a9d6e5'],['brown','#6b4a36'],['lilac','#b39ddb'],['purple','#4a2c6b'],['lightgreen','#9fcfae'],['darkgreen','#1f4d3a']];
 const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
 const THS=['galaxy','flowers','hearts'];
 const ICON={galaxy:'#i-star',flowers:'#i-flower',hearts:'#i-heart'};
