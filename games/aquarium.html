@@ -115,7 +115,8 @@ function treeDays(){
   return isFinite(o)?o:d;
 }
 const tree={x:0,sway:Math.random()*6};
-const nemo={x:0,y:0,dir:Math.PI,state:'swim',timer:0,bedX:0,bedY:0,clean:0,size:10,wob:0,lieSide:1,lain:false};
+const nemo={x:0,y:0,dir:Math.PI,state:'swim',timer:0,bedX:0,bedY:0,clean:0,size:10,wob:0,lieSide:1,lain:false,lieUntil:0};
+let zz=[]; // ニモの寝息（💤）
 let netOn=false,net={x:-999,y:-999,active:false};
 let stats={known:0,fixed:0,multiplied:0};
 let toastTimer=null,labelTimer=null;
@@ -585,12 +586,15 @@ function updateNemo(){
       n.dir=k>0?0:Math.PI;
       n.clean=Math.min(1,n.clean+.004);
       if(Math.random()<.35)sand.push({x:n.x-Math.cos(n.dir)*8,y:n.bedY-2,vx:-Math.cos(n.dir)*(1+Math.random()),vy:-(.6+Math.random()),life:30});
-      if(n.timer<=0){n.state='lie';n.timer=1500+Math.random()*1500;n.lieSide=Math.random()<.5?1:-1;if(!n.lain){n.lain=true;toast('ニモが横になった');}}
+      if(n.timer<=0){n.state='lie';n.lieUntil=Date.now()+30000+Math.random()*20000;n.lieSide=Math.random()<.5?1:-1;if(!n.lain){n.lain=true;toast('ニモが横になった');}}
       break;
     }
     case 'lie':{
       n.x=n.bedX+14;n.y=n.bedY-1;n.dir=0;
-      if(n.timer<=0||(pellets.length&&Math.random()<.01)){n.state='swim';n.timer=900+Math.random()*900;}
+      // 💤 が時々のぼる
+      if(t%110===0)zz.push({x:n.x+6,y:n.y-14,life:150});
+      // 最低 30 秒は寝る（実時間）。そのあと起きる。餌があれば少し早く気づく
+      if(Date.now()>=n.lieUntil||(Date.now()>=n.lieUntil-8000&&pellets.length&&Math.random()<.01)){n.state='swim';n.timer=900+Math.random()*900;}
       break;
     }
   }
@@ -637,12 +641,18 @@ function drawNemo(){
   cx.fillStyle='#04121c';
   if(lying){cx.fillRect(s*.5,-s*.14,s*.18,1.2);}
   else{cx.beginPath();cx.arc(s*.58,-s*.12,1.6,0,7);cx.fill();}
-  // 寝息
-  if(lying&&Math.floor(t/40)%3===0){
-    cx.rotate(-n.lieSide*.22);
-    cx.fillStyle='rgba(207,238,230,.7)';cx.font='10px DotGothic16';cx.fillText('z',s*.4,-s*1.1);
-  }
   cx.restore();
+  // 寝息（💤）。横になっている間、のぼって消える
+  if(zz.length){
+    cx.save();cx.textAlign='center';
+    for(const z of zz){
+      z.y-=.22;z.x+=Math.sin(z.life*.08)*.25;z.life--;
+      const a=Math.min(1,z.life/40)*.9;
+      cx.globalAlpha=a;cx.font=(11+(150-z.life)*.04)+'px sans-serif';cx.fillText('💤',z.x,z.y);
+    }
+    zz=zz.filter(z=>z.life>0);
+    cx.restore();
+  }
 }
 function drawBubbles(){
   cx.save();cx.strokeStyle='rgba(190,240,230,.35)';
