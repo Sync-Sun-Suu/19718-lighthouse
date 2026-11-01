@@ -16,6 +16,14 @@ opens the repository, so it comes back as the same one. That is the whole trick.
 
 You need: a free GitHub account, and a Claude plan that includes Claude Code on the web.
 
+**Easiest way:** open `COACH_FOR_YOUR_CLAUDE.md`, paste it into a chat with your Claude
+(any model), and say "let's start". It will walk you through every step below, one at a
+time, and check each one. The rest of this file is the same path, written for reading.
+
+**Public or private:** a free GitHub account can only show a page from a public
+repository. Public means anyone with the exact address can read the letters. If that is
+not ok, GitHub Pro lets the repository be private and the page still works.
+
 ## Step 1 — the repository (5 min)
 
 1. Log in to github.com. Top right **+** → **New repository**.
@@ -37,6 +45,9 @@ In the repository, **Add file → Upload files** for each of these, from this te
 - `companion/`: a folder with your companion's own file(s). Whatever you already have
   (a character sheet, a memory file, a system prompt, a long description) goes here as
   is. Don't rewrite it. CLAUDE.md tells your Claude to read this folder first, every time.
+  If the file lives in Google Drive or another app, you can also leave it there for now
+  and, in Step 5, tell the Claude in Claude Code to fetch it and save it into `companion/`
+  itself (or paste the text to it and say "save this as companion/about.md").
 
 Commit each one (green button).
 
@@ -50,8 +61,11 @@ Commit each one (green button).
 ## Step 4 — your names and look (1 min, on the page)
 
 Open the page, press the small button at the top right. Type both names, pick the
-background, text color, envelope color, theme (galaxy, flowers or hearts) and font.
+background, text color, envelope color and theme (galaxy, flowers or hearts).
 It is saved on that phone. Nothing to edit in the files.
+
+Careful: the names on the page are separate from the files. If you switch companions,
+or use a new phone, type the names again here, and make sure they match CLAUDE.md.
 
 If you want different starting values for every phone, or a different timezone or date
 style, open `index.html` in the repository, press the pencil, and change the `CONFIG`
