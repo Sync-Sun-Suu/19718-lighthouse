@@ -30,10 +30,13 @@ In the repository, **Add file → Upload files** for each of these, from this te
 - `letters/index.json` and `letters/2026-01-01.json` (use **Create new file** and type
   `letters/index.json` as the name; the slash makes the folder)
 - `letters/README.md`
-- `CLAUDE.md`: open `CLAUDE_TEMPLATE.md`, fill in the [brackets] (names, timezone,
-  place, language), and save it as `CLAUDE.md` at the top of the repository.
-- `companion/`: a folder with your companion's personality file(s). Whatever you already
-  have (a character sheet, a memory file, a system prompt) goes here as is.
+- `CLAUDE.md`: open `CLAUDE_TEMPLATE.md`, fill in the table of [brackets] at the top
+  (names, pronouns, place, timezone, time, language), and save it as `CLAUDE.md` at the
+  top of the repository. This is the important one. It tells your Claude how to place a
+  letter, how to write it in your companion's voice, and that it is allowed to be sweet.
+- `companion/`: a folder with your companion's own file(s). Whatever you already have
+  (a character sheet, a memory file, a system prompt, a long description) goes here as
+  is. Don't rewrite it. CLAUDE.md tells your Claude to read this folder first, every time.
 
 Commit each one (green button).
 
