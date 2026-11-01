@@ -1,6 +1,6 @@
 # Love Letters — set it up in about an hour, no coding
 
-A page on the phone: a sealed envelope, "I love you" on the flap, something moving
+A page on the phone: both names, today's date, a sealed envelope, and something moving
 around it (a galaxy, flowers, or hearts; the reader picks). Tap the envelope and today's
 letter slides out. Every letter so far waits below, one star or flower or heart each.
 
@@ -44,12 +44,15 @@ Commit each one (green button).
    `https://YOURNAME.github.io/love-letters/`.
 3. Open it on your phone. Tap the envelope. On iPhone: Share → **Add to Home Screen**.
 
-## Step 4 — your names and defaults (3 min)
+## Step 4 — your names and look (1 min, on the page)
 
-Open `index.html` in the repository, press the pencil, and change the `CONFIG` block at
-the top: `theirName`, `yourName`, `timezone`, `dateLocale`, and `defaults` (the starting
-background, text color and animation; the reader can change these later from the ⚙ on
-the page). Only touch text between quotes. Commit.
+Open the page, press the small button at the top right. Type both names, pick the
+background, text color, envelope color, theme (galaxy, flowers or hearts) and font.
+It is saved on that phone. Nothing to edit in the files.
+
+If you want different starting values for every phone, or a different timezone or date
+style, open `index.html` in the repository, press the pencil, and change the `CONFIG`
+block at the top. Only touch text between quotes. Commit.
 
 ## Step 5 — the first letter, by hand with your Claude (10 min)
 
