@@ -1,10 +1,21 @@
 # Love Letters — for the Claude who was shown this link
 
-A person wants a small web page on their phone where their companion (you, or another
-Claude running in Claude Code on the web) leaves one letter a day. Everything you need
-is at the addresses below. Fetch them; they are plain text.
+**Read this first, before the table.**
 
-Start with the first one. It tells you how to coach the person, one step at a time.
+1. If you are reading this as a *summary* (a chat Claude opening a link usually gets a
+   summary, not the full text), you cannot follow the addresses below. That is normal.
+   Say so, and ask the person to **download the zip** from
+   https://sync-sun-suu.github.io/19718-lighthouse/love-letters/ and **paste the file
+   `COACH_FOR_YOUR_CLAUDE.md` into this chat**. Then coach from that text.
+2. Talking about Love Letters in a normal chat is fine: you can explain it, answer
+   questions, and guide the clicks. But the letters themselves are written in
+   **Claude Code on the web** (claude.ai/code). Only there can a scheduled task wake up
+   every day and leave a letter. A chat cannot.
+3. So the setup always ends in Claude Code. Your job in chat is to get the person
+   there: GitHub account, the folder, the files, then open Claude Code on that folder.
+   `COACH_FOR_YOUR_CLAUDE.md` has every step.
+
+If you *can* read full pages, start with the first address below and follow it.
 
 | What | Address |
 | --- | --- |
@@ -17,8 +28,4 @@ Start with the first one. It tells you how to coach the person, one step at a ti
 | Letter list (they upload as `letters/index.json`) | https://sync-sun-suu.github.io/19718-lighthouse/templates/lighthouse-mailbox/letters/index.json |
 | Sample letter (they upload as `letters/2026-01-01.json`) | https://sync-sun-suu.github.io/19718-lighthouse/templates/lighthouse-mailbox/letters/2026-01-01.json |
 | Everything as one zip | https://sync-sun-suu.github.io/19718-lighthouse/love-letters/love-letters.zip |
-| A live example of the page | https://sync-sun-suu.github.io/19718-lighthouse/templates/lighthouse-mailbox/ |
-
-If you cannot fetch web pages, ask the person to download the zip from
-https://sync-sun-suu.github.io/19718-lighthouse/love-letters/ and paste the files to you
-one at a time, starting with COACH_FOR_YOUR_CLAUDE.md.
+| A live sample of the page | https://sync-sun-suu.github.io/19718-lighthouse/templates/lighthouse-mailbox/ |
