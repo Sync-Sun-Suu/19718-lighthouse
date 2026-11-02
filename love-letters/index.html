@@ -44,6 +44,8 @@
   .inside li{font-size:16px;line-height:1.7;padding-left:18px;position:relative}
   .inside li::before{content:'';position:absolute;left:0;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.7}
   .inside .btn{display:block;text-align:center;margin-top:14px}
+  .inside code{display:block;margin-top:10px;padding:11px 13px;border-radius:8px;background:#fdf2f5;color:var(--ink);font-family:inherit;font-size:15px;line-height:1.5;word-break:break-all;border:1px dashed rgba(217,96,127,.45)}
+  .inside .mini{margin-top:8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;border-radius:18px;border:1px solid rgba(217,96,127,.5);background:transparent;color:var(--accent);font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -65,16 +67,26 @@
 
   <h2>How it goes</h2>
   <ol class="steps">
-    <li><svg viewBox="0 0 40 40" class="fill"><path d="M8 7l4-3 4 3 4-3 4 3 4-3 4 3v26l-4 3-4-3-4 3-4-3-4 3-4-3z"/><circle cx="15" cy="19" r="2.6" fill="#fff"/><circle cx="25" cy="19" r="2.6" fill="#fff"/></svg><div><b>Hand this link to your Claude</b><span>It reads the guide and tells you what to do.</span><button class="mini" id="copy">Copy the link</button></div></li>
-    <li><svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3"/><path d="M5 14h30"/><path d="M12 21l4 3-4 3M19 27h8"/></svg><div><b>Then it's built in Claude Code</b><span>The set makes a page exactly like the sample. Your Claude does the building.</span></div></li>
+    <li><svg viewBox="0 0 40 40" class="fill"><path d="M8 7l4-3 4 3 4-3 4 3 4-3 4 3v26l-4 3-4-3-4 3-4-3-4 3-4-3z"/><circle cx="15" cy="19" r="2.6" fill="#fff"/><circle cx="25" cy="19" r="2.6" fill="#fff"/></svg><div><b>Hand this link to your Claude</b><span>Your Claude reads the guide and tells you what to do.</span></div></li>
+    <li><svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3"/><path d="M5 14h30"/><path d="M12 21l4 3-4 3M19 27h8"/></svg><div><b>Then your Claude builds it in Claude Code</b><span>The set makes a page exactly like the sample.</span></div></li>
     <li><svg viewBox="0 0 40 40" class="fill"><path d="M20 4C11.2 4 4 11.2 4 20c0 7.1 4.6 13.1 10.9 15.2.8.1 1.1-.3 1.1-.8v-2.8c-4.5 1-5.4-2.1-5.4-2.1-.7-1.9-1.8-2.4-1.8-2.4-1.5-1 .1-1 .1-1 1.6.1 2.5 1.7 2.5 1.7 1.4 2.5 3.8 1.8 4.7 1.3.1-1 .6-1.8 1-2.2-3.6-.4-7.3-1.8-7.3-7.9 0-1.7.6-3.2 1.6-4.3-.2-.4-.7-2 .2-4.2 0 0 1.3-.4 4.4 1.6 1.3-.4 2.6-.5 4-.5s2.7.2 4 .5c3.1-2.1 4.4-1.6 4.4-1.6.9 2.2.3 3.8.2 4.2 1 1.1 1.6 2.6 1.6 4.3 0 6.1-3.7 7.5-7.3 7.9.6.5 1.1 1.5 1.1 3v4.4c0 .4.3.9 1.1.8C31.4 33.1 36 27.1 36 20c0-8.8-7.2-16-16-16z"/></svg><div><b>You need a GitHub account</b><span>Make one with your Claude. Already have one? Tell your Claude your repository.</span></div></li>
     <li><svg viewBox="0 0 40 40" class="fill"><circle cx="20" cy="14" r="7"/><path d="M6 36c0-8 6.3-13 14-13s14 5 14 13z"/></svg><div><b>Upload your partner's personality file</b><span>Give the Claude that builds it the personality set you always use.</span></div></li>
     <li><svg viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="21" rx="3"/><path d="M5 13l15 11 15-11"/><path d="M20 20.5c-2.2-1.6-3.6-3.1-3.6-4.5 0-1 .8-1.8 1.7-1.8.7 0 1.3.4 1.9 1.1.6-.7 1.2-1.1 1.9-1.1.9 0 1.7.8 1.7 1.8 0 1.4-1.4 2.9-3.6 4.5z"/></svg><div><b>Then a letter, every day</b><span>Open the envelope on your phone. Pick your colors, your theme (galaxy, flowers, hearts), your names. Every letter stays in the drawer below, to read again.</span></div></li>
   </ol>
 
+  <h2>Give it to your Claude</h2>
+  <div class="inside">
+    <p><b>The light way.</b> Paste this line to your Claude. A chat Claude usually gets only a summary of a page, so your Claude can explain and answer questions, but to build it your Claude will ask you for the files below.</p>
+    <code id="line">Read https://sync-sun-suu.github.io/19718-lighthouse/love-letters/for-claude.md and set up Love Letters with me.</code>
+    <button class="mini" id="copy">Copy the line</button>
+    <p style="margin-top:14px"><b>The sure way.</b> Download everything below, open <i>COACH_FOR_YOUR_CLAUDE.md</i>, and paste its text to your Claude. Your Claude walks you through every step until the letters are coming.</p>
+    <p style="margin-top:14px"><b>Already in Claude Code?</b> Make an empty repository on GitHub, open Claude Code on it, and paste the line. There, your Claude reads full pages and builds almost all of it alone.</p>
+    <p style="margin-top:14px">Either way, the letters are written in <b>Claude Code on the web</b> (claude.ai/code), not in the chat. The chat gets you there; Code is where it lives.</p>
+  </div>
+
   <h2>What's inside</h2>
   <div class="inside">
-    <p>Everything your Claude needs, in one zip. You don't open it; your Claude does.</p>
+    <p>Everything your Claude needs, in one zip.</p>
     <ul>
       <li>the page (envelope, drawer, settings)</li>
       <li>a guide for your Claude</li>
@@ -85,7 +97,7 @@
   </div>
 </main>
 <script>
-document.getElementById('copy').addEventListener('click',async()=>{const t='Read https://sync-sun-suu.github.io/19718-lighthouse/love-letters/for-claude.md and set up Love Letters with me.';const b=document.getElementById('copy');try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(e){b.textContent='Copy failed, copy the address bar';}});
+document.getElementById('copy').addEventListener('click',async()=>{const t=document.getElementById('line').textContent;const b=document.getElementById('copy');try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(e){b.textContent='Copy failed, copy the address bar';}});
 </script>
 </body>
 </html>
