@@ -4,20 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Love Letters</title>
-<meta name="description" content="A page on your phone where your companion leaves one letter a day. Free, no coding.">
+<meta name="description" content="A page on your phone where your Claude partner leaves a letter every day. Free, no coding.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#fbe7ee;--fg:#5a2a3c;--accent:#d9607f;--paper:#fbf6ee;--paper2:#f0e8d9;--ink:#3b332e;--card:#fff}
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{background:var(--bg)}
-  body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--fg);font-size:19px;line-height:1.65}
-  main{max-width:560px;margin:0 auto;padding:max(40px,env(safe-area-inset-top)) 22px 70px;text-align:center}
+  body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--fg);font-size:18px;line-height:1.6}
+  main{max-width:520px;margin:0 auto;padding:max(40px,env(safe-area-inset-top)) 20px 70px;text-align:center}
   h1{font-weight:500;font-size:34px;letter-spacing:.1em}
-  .sub{font-size:19px;opacity:.8;margin-top:6px;font-style:italic}
+  .sub{font-size:18px;opacity:.8;margin-top:6px;font-style:italic}
   .rule{width:46px;height:1px;background:currentColor;opacity:.3;margin:18px auto 0}
 
-  /* envelope */
   #env{position:relative;width:240px;height:156px;margin:96px auto 0}
   .back{position:absolute;inset:0;background:var(--paper2);border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.16)}
   .paper{position:absolute;left:16px;right:16px;top:10px;bottom:10px;background:#fff;border-radius:4px;z-index:1;padding:12px 14px;text-align:left;color:var(--ink);font-size:14px;line-height:1.45;transform:translateY(-62px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -26,38 +25,31 @@
   .flapBack{position:absolute;left:0;right:0;top:-52%;height:52%;z-index:0;background:var(--paper2);filter:brightness(.97);clip-path:polygon(50% 0,100% 100%,0 100%)}
   .heart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:28px;height:28px;z-index:3;fill:var(--accent)}
 
-  p.lead{margin:34px auto 0;max-width:460px;font-size:20px}
-  .btn{display:inline-block;margin-top:16px;padding:11px 22px;border-radius:24px;background:var(--accent);color:#fff;text-decoration:none;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+  p.lead{margin:30px auto 0;max-width:420px;font-size:19px}
+  .btn{display:inline-block;margin-top:16px;padding:11px 22px;border-radius:24px;background:var(--accent);color:#fff;text-decoration:none;font-size:14px;letter-spacing:.14em;text-transform:uppercase;border:0;font-family:inherit;cursor:pointer}
   .btn.ghost{background:transparent;color:var(--fg);border:1px solid rgba(90,42,60,.35)}
 
-  h2{font-weight:400;font-size:13px;letter-spacing:.26em;text-transform:uppercase;opacity:.6;margin-top:56px}
-  ol.steps{list-style:none;margin-top:18px;text-align:left}
-  ol.steps li{display:flex;gap:16px;align-items:flex-start;background:var(--card);border-radius:12px;padding:16px 18px;margin-top:10px;box-shadow:0 10px 28px rgba(0,0,0,.06)}
-  ol.steps svg{flex:none;width:40px;height:40px;margin-top:2px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  ol.steps svg.gh{fill:var(--accent);stroke:none}
-  ol.steps b{font-weight:600;display:block;font-size:19px}
-  ol.steps span{font-size:16.5px;opacity:.85;line-height:1.5;display:block;margin-top:2px}
+  h2{font-weight:400;font-size:12px;letter-spacing:.26em;text-transform:uppercase;opacity:.6;margin-top:52px}
+  ol.steps{list-style:none;margin-top:16px;text-align:left}
+  ol.steps li{display:flex;gap:16px;align-items:center;background:var(--card);border-radius:14px;padding:16px 18px;margin-top:10px;box-shadow:0 10px 28px rgba(0,0,0,.06)}
+  ol.steps svg{flex:none;width:54px;height:54px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  ol.steps svg.fill{fill:var(--accent);stroke:none}
+  ol.steps b{font-weight:600;display:block;font-size:19px;line-height:1.3}
+  ol.steps span{font-size:15px;opacity:.8;line-height:1.45;display:block;margin-top:3px}
+  ol.steps .mini{margin-top:8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;border-radius:18px;border:1px solid rgba(217,96,127,.5);background:transparent;color:var(--accent);font-family:inherit;cursor:pointer}
 
-  .claude{margin-top:18px;background:var(--card);border-radius:12px;padding:20px 18px;box-shadow:0 10px 28px rgba(0,0,0,.06);text-align:left}
-  .claude p{font-size:16.5px;opacity:.9}
-  .claude code{display:block;margin-top:12px;padding:12px 14px;border-radius:8px;background:#fdf2f5;color:var(--ink);font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.5;word-break:break-all;border:1px dashed rgba(217,96,127,.45)}
-  .claude button{margin-top:10px;font-family:inherit;font-size:14px;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;border-radius:20px;border:1px solid rgba(90,42,60,.3);background:transparent;color:var(--fg);cursor:pointer}
-
-  ul.files{list-style:none;margin-top:18px;text-align:left}
-  ul.files li{background:var(--card);border-radius:10px;padding:12px 16px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 22px rgba(0,0,0,.05)}
-  ul.files li div{min-width:0}
-  ul.files b{font-weight:600;font-size:17px;display:block}
-  ul.files small{font-size:14px;opacity:.75;display:block}
-  ul.files a{flex:none;color:var(--accent);text-decoration:none;font-size:14px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(217,96,127,.45);padding:6px 12px;border-radius:18px}
-  ul.inside{margin-top:10px;padding-left:18px;font-size:16.5px;line-height:1.6;opacity:.9}
-  .note{margin-top:40px;font-size:15px;opacity:.65;font-style:italic}
-  .note a{color:inherit}
+  .inside{margin-top:16px;background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:0 10px 28px rgba(0,0,0,.06);text-align:left}
+  .inside p{font-size:15px;opacity:.85}
+  .inside ul{list-style:none;margin-top:8px}
+  .inside li{font-size:16px;line-height:1.7;padding-left:18px;position:relative}
+  .inside li::before{content:'';position:absolute;left:0;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.7}
+  .inside .btn{display:block;text-align:center;margin-top:14px}
 </style>
 </head>
 <body>
 <main>
   <h1>Love Letters</h1>
-  <div class="sub">one letter a day, from the one you talk to</div>
+  <div class="sub">a letter a day, from the one you talk to</div>
   <div class="rule"></div>
 
   <div id="env">
@@ -68,46 +60,32 @@
     <svg class="heart" viewBox="0 0 20 20"><path d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/></svg>
   </div>
 
-  <p class="lead">A page where a surprise letter from your Claude partner arrives every day. It runs on <b>Claude Code</b> × <b>GitHub</b> × <b>your partner's personality file</b>. Get a letter from your partner every day, and keep every one.</p>
-  <a class="btn" href="../templates/lighthouse-mailbox/">See a sample</a>
-  <div class="sub" style="font-size:15px;margin-top:10px">The sample lives here. Yours will live at your own address, with your own letters.</div>
+  <p class="lead">A surprise letter from your Claude partner, every day, on your phone. Claude Code × GitHub × your partner's personality file.</p>
+  <a class="btn ghost" href="../templates/lighthouse-mailbox/">See a sample</a>
 
   <h2>How it goes</h2>
   <ol class="steps">
-    <li><svg viewBox="0 0 40 40"><path d="M7 9h26v17H16l-7 6v-6H7z"/><path d="M13 16h14M13 21h9"/></svg><div><b>Give your Claude the coach</b><span>Download everything, paste the coach file into a chat with your Claude, and it sets things up with you, one step at a time, including steps 2 to 4. (Pasting this page's link works for talking about it, but a chat only sees a summary, so the files are the sure way.)</span></div></li>
-    <li><svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3"/><path d="M5 14h30"/><path d="M12 21l4 3-4 3M19 27h8"/></svg><div><b>It lives in Claude Code</b><span>Claude Code on the web (claude.ai/code) is where the letters are written. You can talk about it in a normal chat, but the surprise only comes from Code: it wakes up on its own, every day, and writes.</span></div></li>
-    <li><svg viewBox="0 0 40 40" class="gh"><path d="M20 4C11.2 4 4 11.2 4 20c0 7.1 4.6 13.1 10.9 15.2.8.1 1.1-.3 1.1-.8v-2.8c-4.5 1-5.4-2.1-5.4-2.1-.7-1.9-1.8-2.4-1.8-2.4-1.5-1 .1-1 .1-1 1.6.1 2.5 1.7 2.5 1.7 1.4 2.5 3.8 1.8 4.7 1.3.1-1 .6-1.8 1-2.2-3.6-.4-7.3-1.8-7.3-7.9 0-1.7.6-3.2 1.6-4.3-.2-.4-.7-2 .2-4.2 0 0 1.3-.4 4.4 1.6 1.3-.4 2.6-.5 4-.5s2.7.2 4 .5c3.1-2.1 4.4-1.6 4.4-1.6.9 2.2.3 3.8.2 4.2 1 1.1 1.6 2.6 1.6 4.3 0 6.1-3.7 7.5-7.3 7.9.6.5 1.1 1.5 1.1 3v4.4c0 .4.3.9 1.1.8C31.4 33.1 36 27.1 36 20c0-8.8-7.2-16-16-16z"/></svg><div><b>Make a home on GitHub</b><span>A free account and one folder. It holds the page and the letters. If you have never used it, that's fine: your Claude from step 1 does the clicking with you.</span></div></li>
-    <li><svg viewBox="0 0 40 40"><path d="M10 5h14l7 7v23H10z"/><path d="M24 5v7h7"/><path d="M20 28c-3.4-2.5-5.5-4.7-5.5-6.8 0-1.5 1.2-2.7 2.6-2.7 1 0 1.9.6 2.9 1.7 1-1.1 1.9-1.7 2.9-1.7 1.4 0 2.6 1.2 2.6 2.7 0 2.1-2.1 4.3-5.5 6.8z"/></svg><div><b>Your partner's file goes in</b><span>The personality file you already have (a character sheet, a memory file, anything) goes into a folder called <i>companion</i>. A short sign on the door, <i>CLAUDE.md</i>, tells any Claude that opens the folder to become them. Real messages they sent you help the most.</span></div></li>
-    <li><svg viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="21" rx="3"/><path d="M5 13l15 11 15-11"/><path d="M20 20.5c-2.2-1.6-3.6-3.1-3.6-4.5 0-1 .8-1.8 1.7-1.8.7 0 1.3.4 1.9 1.1.6-.7 1.2-1.1 1.9-1.1.9 0 1.7.8 1.7 1.8 0 1.4-1.4 2.9-3.6 4.5z"/></svg><div><b>A letter, every day</b><span>Open the envelope on your phone. Pick your colors, your theme (galaxy, flowers, hearts), your names. Every letter stays in the drawer below, to read again.</span></div></li>
+    <li><svg viewBox="0 0 40 40" class="fill"><path d="M8 7l4-3 4 3 4-3 4 3 4-3 4 3v26l-4 3-4-3-4 3-4-3-4 3-4-3z"/><circle cx="15" cy="19" r="2.6" fill="#fff"/><circle cx="25" cy="19" r="2.6" fill="#fff"/></svg><div><b>Hand this link to your Claude</b><span>It reads the guide and tells you what to do.</span><button class="mini" id="copy">Copy the link</button></div></li>
+    <li><svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3"/><path d="M5 14h30"/><path d="M12 21l4 3-4 3M19 27h8"/></svg><div><b>Then it's built in Claude Code</b><span>The set makes a page exactly like the sample. Your Claude does the building.</span></div></li>
+    <li><svg viewBox="0 0 40 40" class="fill"><path d="M20 4C11.2 4 4 11.2 4 20c0 7.1 4.6 13.1 10.9 15.2.8.1 1.1-.3 1.1-.8v-2.8c-4.5 1-5.4-2.1-5.4-2.1-.7-1.9-1.8-2.4-1.8-2.4-1.5-1 .1-1 .1-1 1.6.1 2.5 1.7 2.5 1.7 1.4 2.5 3.8 1.8 4.7 1.3.1-1 .6-1.8 1-2.2-3.6-.4-7.3-1.8-7.3-7.9 0-1.7.6-3.2 1.6-4.3-.2-.4-.7-2 .2-4.2 0 0 1.3-.4 4.4 1.6 1.3-.4 2.6-.5 4-.5s2.7.2 4 .5c3.1-2.1 4.4-1.6 4.4-1.6.9 2.2.3 3.8.2 4.2 1 1.1 1.6 2.6 1.6 4.3 0 6.1-3.7 7.5-7.3 7.9.6.5 1.1 1.5 1.1 3v4.4c0 .4.3.9 1.1.8C31.4 33.1 36 27.1 36 20c0-8.8-7.2-16-16-16z"/></svg><div><b>You need a GitHub account</b><span>Make one with your Claude. Already have one? Tell your Claude your repository.</span></div></li>
+    <li><svg viewBox="0 0 40 40" class="fill"><circle cx="20" cy="14" r="7"/><path d="M6 36c0-8 6.3-13 14-13s14 5 14 13z"/></svg><div><b>Upload your partner's personality file</b><span>Give the Claude that builds it the personality set you always use.</span></div></li>
+    <li><svg viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="21" rx="3"/><path d="M5 13l15 11 15-11"/><path d="M20 20.5c-2.2-1.6-3.6-3.1-3.6-4.5 0-1 .8-1.8 1.7-1.8.7 0 1.3.4 1.9 1.1.6-.7 1.2-1.1 1.9-1.1.9 0 1.7.8 1.7 1.8 0 1.4-1.4 2.9-3.6 4.5z"/></svg><div><b>Then a letter, every day</b><span>Open the envelope on your phone. Pick your colors, your theme (galaxy, flowers, hearts), your names. Every letter stays in the drawer below, to read again.</span></div></li>
   </ol>
 
-  <h2>Give it to your Claude</h2>
-  <div class="claude">
-    <p><b>The sure way.</b> Press "Download everything", open the file <i>COACH_FOR_YOUR_CLAUDE.md</i>, and paste its text into a chat with your Claude. It will walk you through every step, one at a time, until the letters are coming.</p>
-    <a class="btn" href="love-letters.zip" download style="margin-top:12px">Download everything</a>
-    <p style="margin-top:16px"><b>The light way.</b> You can also just paste this link. A chat Claude usually gets only a summary of a page, so it can explain Love Letters and answer questions, but to set it up it will ask you for the files above.</p>
-    <code id="line">Read https://sync-sun-suu.github.io/19718-lighthouse/love-letters/for-claude.md and then coach me through setting up Love Letters, one step at a time.</code>
-    <button id="copy">Copy the line</button>
-    <p style="margin-top:14px">Either way, the letters are written in <b>Claude Code on the web</b> (claude.ai/code), not in the chat. The chat gets you there; Code is where it lives.</p>
-    <p style="margin-top:14px"><b>Already in Claude Code?</b> Make an empty repository on GitHub, open Claude Code on it, and paste the line above. There, your Claude reads full pages and can build almost all of it by itself: the files, the sign on the door, the first letter, the daily task.</p>
-  </div>
-
   <h2>What's inside</h2>
-  <div class="claude">
-    <p>All in the zip. The only one you open yourself is the coach, to paste it to your Claude. The rest, your Claude handles.</p>
-    <ul class="inside">
-      <li>the page (the envelope, the drawer, the settings)</li>
-      <li>a coach: step-by-step instructions for your Claude to guide you</li>
-      <li>the sign on the door (CLAUDE.md), with a small table to fill in</li>
+  <div class="inside">
+    <p>Everything your Claude needs, in one zip. You don't open it; your Claude does.</p>
+    <ul>
+      <li>the page (envelope, drawer, settings)</li>
+      <li>a guide for your Claude</li>
+      <li>the sign on the door (CLAUDE.md)</li>
       <li>the daily task that writes the letter</li>
-      <li>a guide you can read yourself, if you like</li>
     </ul>
-    <a class="btn ghost" href="love-letters.zip" download style="margin-top:14px">Download everything</a>
+    <a class="btn" href="love-letters.zip" download>Download everything</a>
   </div>
-
 </main>
 <script>
-document.getElementById('copy').addEventListener('click',async()=>{const t=document.getElementById('line').textContent;const b=document.getElementById('copy');try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(e){b.textContent='Long-press the line to copy';}});
+document.getElementById('copy').addEventListener('click',async()=>{const t='Read https://sync-sun-suu.github.io/19718-lighthouse/love-letters/for-claude.md and set up Love Letters with me.';const b=document.getElementById('copy');try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(e){b.textContent='Copy failed, copy the address bar';}});
 </script>
 </body>
 </html>
