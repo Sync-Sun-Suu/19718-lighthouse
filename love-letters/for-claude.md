@@ -15,7 +15,28 @@
    there: GitHub account, the folder, the files, then open Claude Code on that folder.
    `COACH_FOR_YOUR_CLAUDE.md` has every step.
 
-If you *can* read full pages, start with the first address below and follow it.
+**If you are already in Claude Code on the web** (you can read full pages, run commands,
+and write files): you can do most of this yourself, and you should. The person only
+needs an empty GitHub repository open in this session. Then:
+
+1. Fetch the addresses below. Put `index.html`, `letters/index.json`,
+   `letters/2026-01-01.json` and `letters/README.md` into the repository, unchanged.
+2. Ask the person the seven things in the table at the top of `CLAUDE_TEMPLATE.md`
+   (their name, pronouns, place, the companion's name, language, timezone, time). Fill
+   the template and save it as `CLAUDE.md`.
+3. Ask where the companion's file is. If it is in this chat or a connected drive, fetch
+   it and save it into `companion/`. If they must paste it, save what they paste.
+4. Commit and push. Then turn on GitHub Pages: try it yourself through the API or `gh`
+   (source: branch `main`, folder `/`). If you can't, tell them the two clicks:
+   Settings → Pages → Branch `main` → Save.
+5. Write the first letter, as the one in `companion/`, following `CLAUDE.md`. Place it.
+6. Set up the daily task with the prompt in `ROUTINE_PROMPT.md`. If you can create
+   scheduled tasks from here, do it. If not, tell them where to click, and give them the
+   prompt ready to paste.
+7. Send them to the page on their phone. Don't recite the rules; just say it's there.
+
+If you *can* read full pages but are in a normal chat, start with the first address
+below and follow it; the clicking is the person's, the words are yours.
 
 | What | Address |
 | --- | --- |

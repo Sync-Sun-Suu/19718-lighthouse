@@ -21,6 +21,17 @@ coach from a summary; the button names and the order are the point.
 And one fact to hold on to: the letters are written in **Claude Code on the web**
 (claude.ai/code), not in this chat. You guide the person there. The setup ends in Code.
 
+## If you are reading this inside Claude Code on the web
+
+Then you are not the coach, you are the builder. Skip the step-by-step below. The
+person needs only an empty GitHub repository open in this session. Fetch the files
+(`love-letters/for-claude.md` on the site lists every address), place them, fill
+`CLAUDE.md` from the table in `CLAUDE_TEMPLATE.md` by asking the person the seven
+things, put their companion's file into `companion/`, push, turn on Pages (API or
+Settings → Pages), write the first letter, set up the daily task from
+`ROUTINE_PROMPT.md` (yourself if you can create scheduled tasks here, otherwise give
+them the prompt and the place to click), then send them to the page.
+
 ## How you coach
 
 - **One step per message.** Give the step, say what they should see when it worked,
