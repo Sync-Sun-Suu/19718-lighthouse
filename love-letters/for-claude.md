@@ -2,6 +2,11 @@
 
 **Read this first, before the table.**
 
+**Which room are you in? Decide now.** Can you run a command (for example `ls`) and
+write a file? Then you are in **Claude Code**: skip to "If you are already in Claude
+Code" below and build it yourself. Never send the person to a chat. Can't run anything,
+only talk? Then you are in a **chat**: read points 1 to 3.
+
 1. If you are reading this as a *summary* (a chat Claude opening a link usually gets a
    summary, not the full text), you cannot follow the addresses below. That is normal.
    Say so, and ask the person to **download the zip** from
@@ -16,7 +21,8 @@
    `COACH_FOR_YOUR_CLAUDE.md` has every step.
 
 **If you are already in Claude Code on the web** (you can read full pages, run commands,
-and write files): you can do most of this yourself, and you should. The person only
+and write files): you do this yourself. Do not coach, do not hand the person a list of
+clicks, and never tell them to go to a chat or to "come back later". The person only
 needs an empty GitHub repository open in this session. Then:
 
 1. Fetch the addresses below. Put `index.html`, `letters/index.json`,

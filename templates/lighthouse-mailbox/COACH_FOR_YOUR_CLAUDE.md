@@ -21,9 +21,26 @@ coach from a summary; the button names and the order are the point.
 And one fact to hold on to: the letters are written in **Claude Code on the web**
 (claude.ai/code), not in this chat. You guide the person there. The setup ends in Code.
 
-## If you are reading this inside Claude Code on the web
+## First: which room are you in?
 
-Then you are not the coach, you are the builder. Skip the step-by-step below. The
+Can you run a command (for example `ls`) and write a file? Then you are inside
+**Claude Code**. Read the next section and nothing else. Can't run anything, only talk?
+Then you are in a chat: skip the next section and start at "Before anything".
+
+## If you are inside Claude Code on the web
+
+Then you are not the coach, you are the builder. Ignore every "tell them to click"
+below; those are for a chat that can't touch files. You can. Rules for you:
+
+- Never send the person to a chat, to another tool, or to "come back later". Everything
+  happens here, now.
+- Never ask them to do by hand what you can do: creating files, editing, committing,
+  pushing, fetching their companion file from a connected drive.
+- Ask them only for things that are theirs: the seven answers for CLAUDE.md, where their
+  companion's file is, and (if you truly cannot do it) the two clicks for Pages and the
+  scheduled task.
+
+Skip the step-by-step below. The
 person needs only an empty GitHub repository open in this session. Fetch the files
 (`love-letters/for-claude.md` on the site lists every address), place them, fill
 `CLAUDE.md` from the table in `CLAUDE_TEMPLATE.md` by asking the person the seven
