@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ping</title>
+<meta name="description" content="A line from your Claude, a little later.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ping">
+<meta name="theme-color" content="#0f1424">
+<style>
+:root{--bg:#0f1424;--card:#161c30;--line:#2b3350;--fg:#e8ecf5;--mute:#aab3c8;--gold:#f3c969;--ok:#7fd1a8;--warn:#ff9f7a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:440px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;margin:8px 0 20px}
+header img{width:44px;height:44px;border-radius:12px}
+header h1{font-size:20px;margin:0;font-weight:600}
+header p{margin:0;color:var(--mute);font-size:13px}
+.lang{margin-left:8px;background:none;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:4px 10px;font-size:12px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-bottom:14px}
+h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 10px;font-weight:600}
+p{margin:0 0 10px}
+.muted{color:var(--mute);font-size:14px}
+input[type=text]{width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0f1424;color:#fff}
+button{font:inherit;width:100%;margin-top:10px;padding:13px;border:0;border-radius:12px;background:var(--gold);color:#1a1300;font-weight:600}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button:disabled{opacity:.5}
+.code{font-size:40px;letter-spacing:.22em;text-align:center;padding:10px 0 4px;font-variant-numeric:tabular-nums;font-weight:600}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--mute)}
+.pill.on{color:var(--ok);border-color:var(--ok)}
+.pill.off{color:var(--warn);border-color:var(--warn)}
+ol{padding-left:20px;margin:0}
+ol li{margin-bottom:8px}
+code{background:#0f1424;border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:14px;word-break:break-all}
+.hist{list-style:none;padding:0;margin:0}
+.hist li{padding:10px 0;border-top:1px solid var(--line)}
+.hist li:first-child{border-top:0}
+.hist time{display:block;color:var(--mute);font-size:12px}
+select{font:inherit;background:#0f1424;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.hide{display:none}
+.err{color:var(--warn);font-size:14px;margin-top:8px}
+footer{color:var(--mute);font-size:12px;text-align:center;margin-top:20px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <img src="/icon-192.png" alt="">
+  <div style="flex:1"><h1>Ping</h1><p data-i18n="tag"></p></div>
+  <button class="lang" id="reloadBtn" title="reload">↻</button>
+  <button class="lang" id="langBtn">EN</button>
+</header>
+<p class="muted" id="updatedAt" style="text-align:right;font-size:12px;margin:-12px 0 12px"></p>
+
+<section id="claim">
+  <h2 data-i18n="s_start"></h2>
+  <p class="muted" data-i18n="claim_help"></p>
+  <input type="text" id="license" autocomplete="off" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX">
+  <button id="claimBtn" data-i18n="claim_btn"></button>
+  <div class="err hide" id="claimErr"></div>
+</section>
+
+<section id="codeSec" class="hide">
+  <h2 data-i18n="s_code"></h2>
+  <div class="code" id="code">······</div>
+  <p class="muted" style="text-align:center" data-i18n="code_help"></p>
+</section>
+
+<section id="connectSec" class="hide">
+  <h2 data-i18n="s_connect"></h2>
+  <ol>
+    <li data-i18n="c1"></li>
+    <li><span data-i18n="c2"></span><br><code id="mcpUrl"></code></li>
+    <li data-i18n="c3"></li>
+    <li><span data-i18n="c4"></span> <a href="/ping-skill.zip" style="color:var(--gold)">ping-skill.zip</a></li>
+  </ol>
+  <p style="margin-top:12px"><span class="pill" id="connPill"></span></p>
+</section>
+
+<section id="notifSec" class="hide">
+  <h2 data-i18n="s_notif"></h2>
+  <p class="muted hide" id="iosHint" data-i18n="ios_hint"></p>
+  <p class="muted hide" id="unsupported" data-i18n="unsupported"></p>
+  <button id="subBtn" data-i18n="sub_btn"></button>
+  <button id="testBtn" class="ghost hide" data-i18n="test_btn"></button>
+  <p style="margin-top:12px"><span class="pill" id="subPill"></span></p>
+  <div class="err hide" id="notifErr"></div>
+</section>
+
+<section id="statusSec" class="hide">
+  <h2 data-i18n="s_status"></h2>
+  <p id="pending" class="muted"></p>
+  <div class="row" style="margin-top:8px">
+    <label class="muted" data-i18n="quiet"></label>
+    <select id="qFrom"></select><span style="flex:0;color:var(--mute)">→</span><select id="qTo"></select>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <label class="muted" data-i18n="wait"></label>
+    <select id="waitSel"><option value="60">60</option><option value="30">30</option><option value="10">10</option><option value="2">2</option></select><span style="flex:0" class="muted" data-i18n="wait_unit"></span>
+  </div>
+  <button id="pauseBtn" class="ghost"></button>
+</section>
+
+<section id="notesSec" class="hide">
+  <h2 data-i18n="s_notes"></h2>
+  <p class="muted" data-i18n="notes_help"></p>
+  <div id="daysBox"></div>
+  <p class="muted" id="notesEmpty" data-i18n="notes_empty"></p>
+  <a id="exportLink" class="hide" style="color:var(--gold)" download="notebook.md" data-i18n="notes_export"></a>
+  <button id="notesClear" class="ghost hide" data-i18n="notes_clear"></button>
+</section>
+
+<section id="histSec" class="hide">
+  <h2 data-i18n="s_hist"></h2>
+  <ul class="hist" id="hist"></ul>
+  <p class="muted" id="histEmpty" data-i18n="hist_empty"></p>
+</section>
+
+<footer data-i18n="foot"></footer>
+</main>
+
+<script>
+const T = {
+  ja: {
+    tag: 'Claude から、あとで一行。', s_start: 'はじめに', claim_help: 'Gumroad で届いたライセンスキーを入れると、合言葉が出ます。', claim_btn: '合言葉を受け取る',
+    s_code: '合言葉', code_help: 'Claude の設定でコネクタを繋ぐときに、この合言葉を入れます。',
+    s_connect: 'Claude と繋ぐ', c1: 'Claude の設定 → コネクタ → 「カスタムコネクタを追加」。', c2: 'URL にこれを貼る：', c3: '「接続」を押すと小さな画面が開くので、上の合言葉を入れる。', c4: 'Claude の設定 → 機能 → スキル で、このファイルを入れる：',
+    conn_on: 'Claude と繋がっている', conn_off: 'まだ繋がっていない',
+    s_notif: '通知', ios_hint: 'iPhone / iPad では、共有ボタン → 「ホーム画面に追加」してから、ホーム画面のアイコンから開くと通知を許可できます。', unsupported: 'このブラウザは Web の通知に対応していません。',
+    sub_btn: '通知を許可する', test_btn: 'テストを一通送る', sub_on: '通知はこの端末に届く', sub_off: '通知はまだ届かない',
+    s_status: 'いま', pending_yes: '一行、預かっています。最後の動きから {m} 分後に届きます。', pending_no: '預かっている一行はありません。Claude と話すと置かれます。',
+    quiet: '静かな時間', wait: '届くまで', wait_unit: '分（試すときは 2）', pause: '休止する（19 は読まない・書かない・送らない）', resume: '再開する（読む・書く・送る）',
+    s_hist: '届いた一行', hist_empty: 'まだありません。',
+    s_notes: 'ノート（どの部屋の Claude も読む）', notes_help: '返事のたびに Claude がターンの要約を足します。日が変わると、その日のまとめ（md）を Claude が書きます。× で消せます。', notes_empty: 'まだありません。Claude と話すと増えます。', notes_clear: 'ノートを全部消す', notes_confirm: '全部消します。いい？', notes_export: 'md で書き出す', notes_day: 'まとめ', notes_turns: 'ターン', notes_nosum: 'まとめはまだ（次の会話の始めに Claude が書きます）',
+    foot: 'サーバーが預かるのは、その一行だけ。会話の中身は預かりません。',
+    err_license: 'ライセンスキーが確認できませんでした。', err_notif: '通知を許可できませんでした。', test_sent: '送りました。', test_fail: '送れませんでした。',
+  },
+  en: {
+    tag: 'A line from your Claude, a little later.', s_start: 'Start', claim_help: 'Paste the license key from your Gumroad receipt to get your code.', claim_btn: 'Get my code',
+    s_code: 'Your code', code_help: 'Enter this code when you connect the connector in Claude settings.',
+    s_connect: 'Connect Claude', c1: 'Claude → Settings → Connectors → "Add custom connector".', c2: 'Paste this URL:', c3: 'Press Connect. A small page opens; enter the code above.', c4: 'Claude → Settings → Capabilities → Skills → upload this file:',
+    conn_on: 'Connected to Claude', conn_off: 'Not connected yet',
+    s_notif: 'Notifications', ios_hint: 'On iPhone / iPad: Share → "Add to Home Screen", then open Ping from the home screen to allow notifications.', unsupported: 'This browser does not support web notifications.',
+    sub_btn: 'Allow notifications', test_btn: 'Send a test', sub_on: 'This device will receive lines', sub_off: 'Not receiving yet',
+    s_status: 'Now', pending_yes: 'One line is waiting. It arrives about {m} minutes after your last activity.', pending_no: 'No line waiting. Talk with Claude and one will be placed.',
+    quiet: 'Quiet hours', wait: 'Deliver after', wait_unit: 'min (2 for testing)', pause: 'Pause Ping (no reading, writing or sending)', resume: 'Resume Ping',
+    s_hist: 'Delivered', hist_empty: 'Nothing yet.',
+    s_notes: 'Notebook (every Claude chat reads it)', notes_help: 'Claude adds a turn note after every reply. When the day changes, Claude writes that day\'s summary (markdown). Delete anything with ×.', notes_empty: 'Nothing yet. Talk with Claude and it fills up.', notes_clear: 'Clear the notebook', notes_confirm: 'Delete all notes?', notes_export: 'Export as .md', notes_day: 'summary', notes_turns: 'turns', notes_nosum: 'No summary yet (Claude writes it at the start of the next conversation)',
+    foot: 'The server keeps only that one line. Never your conversation.',
+    err_license: 'That license key could not be verified.', err_notif: 'Notifications could not be enabled.', test_sent: 'Sent.', test_fail: 'Could not send.',
+  },
+};
+let lang = localStorage.getItem('ping-lang') || ((navigator.language || 'en').startsWith('ja') ? 'ja' : 'en');
+const $ = id => document.getElementById(id);
+const t = k => (T[lang][k] ?? k);
+function render() {
+  document.documentElement.lang = lang;
+  $('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  $('claimBtn').textContent = t('claim_btn'); $('subBtn').textContent = t('sub_btn'); $('testBtn').textContent = t('test_btn');
+  $('mcpUrl').textContent = location.origin + '/mcp';
+  if (me) paint();
+}
+$('langBtn').onclick = () => { lang = lang === 'ja' ? 'en' : 'ja'; localStorage.setItem('ping-lang', lang); render(); };
+
+let token = localStorage.getItem('ping-device'); let me = null;
+const api = async (path, body) => {
+  const r = body ? await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_token: token, ...body }) }) : await fetch(path + '?device_token=' + encodeURIComponent(token));
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(j.error || r.status), j); return j;
+};
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const pushOK = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+$('claimBtn').onclick = async () => {
+  $('claimErr').classList.add('hide');
+  const key = $('license').value.trim(); if (!key) return;
+  try {
+    const r = await fetch('/api/claim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ license_key: key }) });
+    if (!r.ok) throw new Error('license');
+    const j = await r.json(); token = j.device_token; localStorage.setItem('ping-device', token); await load();
+  } catch { $('claimErr').textContent = t('err_license'); $('claimErr').classList.remove('hide'); }
+};
+
+function fmtCode(c) { return c.replace(/(.{3})(.{3})/, '$1 $2'); }
+function paint() {
+  $('claim').classList.add('hide');
+  ['codeSec', 'connectSec', 'notifSec', 'statusSec', 'notesSec', 'histSec'].forEach(id => $(id).classList.remove('hide'));
+  $('code').textContent = fmtCode(me.code);
+  $('connPill').textContent = me.connected ? t('conn_on') : t('conn_off'); $('connPill').className = 'pill ' + (me.connected ? 'on' : 'off');
+  $('subPill').textContent = me.subscribed ? t('sub_on') : t('sub_off'); $('subPill').className = 'pill ' + (me.subscribed ? 'on' : 'off');
+  $('testBtn').classList.toggle('hide', !me.subscribed);
+  $('pending').textContent = me.pending ? t('pending_yes').replace('{m}', me.wait_min) : t('pending_no');
+  $('iosHint').classList.toggle('hide', !(isIOS && !standalone));
+  $('unsupported').classList.toggle('hide', pushOK);
+  $('subBtn').disabled = !pushOK || (isIOS && !standalone);
+  $('pauseBtn').textContent = me.paused ? t('resume') : t('pause');
+  $('waitSel').value = String(me.wait_min);
+  for (const [id, v] of [['qFrom', me.quiet[0]], ['qTo', me.quiet[1]]]) {
+    const s = $(id); if (!s.options.length) for (let h = 0; h < 24; h++) s.add(new Option(String(h).padStart(2, '0') + ':00', h));
+    s.value = v;
+  }
+  const h = $('hist'); h.innerHTML = '';
+  for (const x of me.history) { const li = document.createElement('li'); const tm = document.createElement('time'); tm.textContent = new Date(x.at).toLocaleString(lang === 'ja' ? 'ja-JP' : 'en-US', { timeZone: me.tz }); li.appendChild(tm); li.appendChild(document.createTextNode(x.text)); h.appendChild(li); }
+  $('histEmpty').classList.toggle('hide', me.history.length > 0);
+  const box = $('daysBox'); box.innerHTML = '';
+  const fmtD = ts => new Date(ts).toLocaleDateString('en-CA', { timeZone: me.tz });
+  const byDate = {}; for (const tn of (me.turns || [])) (byDate[fmtD(tn.at)] = byDate[fmtD(tn.at)] || []).push(tn);
+  const dates = [...new Set([...Object.keys(me.days || {}), ...Object.keys(byDate)])].sort().reverse();
+  for (const d of dates) {
+    const h = document.createElement('h3'); h.textContent = d; h.style.cssText = 'font-size:15px;margin:14px 0 6px';
+    box.appendChild(h);
+    const day = (me.days || {})[d];
+    if (day) {
+      const x = document.createElement('button'); x.textContent = '×'; x.className = 'ghost'; x.style.cssText = 'width:auto;float:right;margin:0;padding:2px 10px;font-size:12px';
+      x.onclick = async () => { await api('/api/notes/delete', { date: d }); await load(); };
+      const pre = document.createElement('div'); pre.style.cssText = 'white-space:pre-wrap;background:#0f1424;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px'; pre.textContent = day.md;
+      box.appendChild(x); box.appendChild(pre);
+    } else { const p = document.createElement('p'); p.className = 'muted'; p.textContent = t('notes_nosum'); box.appendChild(p); }
+    if (byDate[d]) {
+      const ol = document.createElement('ol'); ol.style.cssText = 'margin:8px 0 0;padding-left:22px;font-size:14px';
+      for (const tn of byDate[d]) {
+        const li = document.createElement('li'); li.style.marginBottom = '6px';
+        const tm = document.createElement('span'); tm.className = 'muted'; tm.textContent = new Date(tn.at).toLocaleTimeString(lang === 'ja' ? 'ja-JP' : 'en-US', { timeZone: me.tz, hour: '2-digit', minute: '2-digit' }) + ' ';
+        const x = document.createElement('button'); x.textContent = '×'; x.className = 'ghost'; x.style.cssText = 'width:auto;float:right;margin:0;padding:0 8px;font-size:11px';
+        x.onclick = async () => { await api('/api/notes/delete', { at: tn.at }); await load(); };
+        li.appendChild(x); li.appendChild(tm); li.appendChild(document.createTextNode(tn.text)); ol.appendChild(li);
+      }
+      box.appendChild(ol);
+    }
+  }
+  const any = dates.length > 0;
+  $('notesEmpty').classList.toggle('hide', any);
+  $('notesClear').classList.toggle('hide', !any);
+  $('exportLink').classList.toggle('hide', !any); $('exportLink').href = '/api/export.md?device_token=' + encodeURIComponent(token);
+}
+$('notesClear').onclick = async () => { if (confirm(t('notes_confirm'))) { await api('/api/notes/clear', {}); await load(); } };
+async function load() {
+  if (!token) return;
+  try { me = await api('/api/me'); paint(); $('updatedAt').textContent = (lang === 'ja' ? '更新 ' : 'updated ') + new Date().toLocaleTimeString(lang === 'ja' ? 'ja-JP' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+  catch (e) { if (e.message === 'unknown_device') { localStorage.removeItem('ping-device'); token = null; } }
+}
+$('qFrom').onchange = $('qTo').onchange = async () => { await api('/api/settings', { quiet: [Number($('qFrom').value), Number($('qTo').value)] }); await load(); };
+$('pauseBtn').onclick = async () => { await api('/api/settings', { paused: !me.paused }); await load(); };
+$('waitSel').onchange = async () => { await api('/api/settings', { wait_min: Number($('waitSel').value) }); await load(); };
+
+function b64ToU8(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const b = atob(s); const o = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o; }
+$('subBtn').onclick = async () => {
+  $('notifErr').classList.add('hide');
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js'); await navigator.serviceWorker.ready;
+    const perm = await Notification.requestPermission(); if (perm !== 'granted') throw new Error('denied');
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(me.vapid_public) });
+    await api('/api/subscribe', { subscription: sub.toJSON(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone, lang });
+    await load();
+  } catch (e) { $('notifErr').textContent = t('err_notif') + ' (' + e.message + ')'; $('notifErr').classList.remove('hide'); }
+};
+$('testBtn').onclick = async () => { try { await api('/api/test', {}); $('testBtn').textContent = t('test_sent'); } catch { $('testBtn').textContent = t('test_fail'); } setTimeout(render, 2500); };
+
+render(); load();
+$('reloadBtn').onclick = () => { $('reloadBtn').textContent = '…'; load().finally(() => { $('reloadBtn').textContent = '↻'; }); };
+setInterval(() => { if (!document.hidden && token) load(); }, 30000);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>
