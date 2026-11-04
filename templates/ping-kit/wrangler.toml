@@ -1,0 +1,27 @@
+name = "ping"
+main = "index.js"
+compatibility_date = "2026-10-01"
+
+[assets]
+directory = "./app"
+binding = "ASSETS"
+run_worker_first = true
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "PING_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"   # npx wrangler kv namespace create PING_KV
+
+[vars]
+WAIT_MIN = "60"          # 最後の動きから何分で携帯に一行を出すか
+DAILY_CAP = "3"          # 一日に出す一行の上限
+VAPID_PUBLIC = "REPLACE_WITH_scripts/gen-vapid.mjs_OUTPUT"
+VAPID_SUBJECT = "mailto:REPLACE@example.com"
+GUMROAD_PRODUCT_ID = ""  # 空のまま。鍵は DEV_LICENSE_KEYS で渡す
+PUBLIC_ORIGIN = "https://ping.REPLACE.workers.dev"
+
+# secrets（npx wrangler secret put <NAME>）:
+#   VAPID_PRIVATE_JWK   scripts/gen-vapid.mjs が出す JSON
+#   DEV_LICENSE_KEYS    合言葉を作るための鍵。カンマ区切りで何本でも。自分で決めた長い文字列でよい
