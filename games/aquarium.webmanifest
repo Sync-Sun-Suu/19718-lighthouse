@@ -1,0 +1,1 @@
+{"name":"バグ水族館","short_name":"水族館","start_url":"./aquarium.html","scope":"./","display":"standalone","background_color":"#04121c","theme_color":"#0a2f3d","icons":[{"src":"./aquarium-icon-192.png","sizes":"192x192","type":"image/png"},{"src":"./aquarium-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
