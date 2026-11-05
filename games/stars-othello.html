@@ -93,8 +93,8 @@ document.getElementById('lang').addEventListener('click',()=>{lang=lang==='ja'?'
 /* ---------- 空 ---------- */
 const sky=document.getElementById('sky'),sx=sky.getContext('2d'),fxc=document.getElementById('fx'),fx=fxc.getContext('2d');let W=0,H=0;
 /* ふわの部屋と同じ空（lighthouse/room.html の dust と motes） */
-const dust=Array.from({length:260},()=>({x:Math.random(),y:Math.random(),r:0.4+Math.random()*1.4,ph:Math.random()*6.28,sp:0.5+Math.random()*1.8,c:Math.random()<.2?[243,198,107]:(Math.random()<.5?[200,210,255]:[235,240,255])}));
-const motes=Array.from({length:40},()=>({x:Math.random(),y:Math.random(),vy:-(0.004+Math.random()*0.008),vx:(Math.random()-.5)*0.004,r:1+Math.random()*1.6,ph:Math.random()*6.28}));
+const dust=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),r:0.8+Math.random()*2.8,ph:Math.random()*6.28,sp:0.5+Math.random()*1.8,c:Math.random()<.2?[243,198,107]:(Math.random()<.5?[200,210,255]:[235,240,255])}));
+const motes=Array.from({length:18},()=>({x:Math.random(),y:Math.random(),vy:-(0.004+Math.random()*0.008),vx:(Math.random()-.5)*0.004,r:2+Math.random()*3.2,ph:Math.random()*6.28}));
 const rgba=(c,a)=>'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';
 function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;for(const c of[sky,fxc]){c.width=W*d;c.height=H*d;c.getContext('2d').setTransform(d,0,0,d,0,0);}}
 addEventListener('resize',resize);resize();
@@ -106,14 +106,14 @@ let lastT=0;
 function drawSky(t){const dt=Math.min(.05,t-lastT);lastT=t;const el=t;
  const wall=sx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.4,Math.max(W,H)*1.1);wall.addColorStop(0,'#1b1f4a');wall.addColorStop(.6,'#121638');wall.addColorStop(1,'#0b0e26');sx.fillStyle=wall;sx.fillRect(0,0,W,H);
  for(const d of dust){const tw=0.5+0.5*Math.sin(el*d.sp+d.ph);sx.fillStyle=rgba(d.c,0.15+0.6*tw);sx.beginPath();sx.arc(d.x*W,d.y*H,d.r,0,7);sx.fill();
-  if(d.r>1.5&&tw>0.85){sx.strokeStyle=rgba(d.c,0.5*tw);sx.lineWidth=.7;sx.beginPath();sx.moveTo(d.x*W-5,d.y*H);sx.lineTo(d.x*W+5,d.y*H);sx.moveTo(d.x*W,d.y*H-5);sx.lineTo(d.x*W,d.y*H+5);sx.stroke();}}
+  if(d.r>3&&tw>0.85){sx.strokeStyle=rgba(d.c,0.5*tw);sx.lineWidth=1.4;sx.beginPath();sx.moveTo(d.x*W-10,d.y*H);sx.lineTo(d.x*W+10,d.y*H);sx.moveTo(d.x*W,d.y*H-10);sx.lineTo(d.x*W,d.y*H+10);sx.stroke();}}
  for(const m of motes){m.y+=m.vy*0.016;m.x+=m.vx*0.016+Math.sin(el+m.ph)*0.0004;if(m.y<0){m.y=1;m.x=Math.random();}sx.fillStyle='rgba(243,198,107,'+(0.25+0.35*Math.sin(el*2+m.ph))+')';sx.beginPath();sx.arc(m.x*W,m.y*H,m.r,0,7);sx.fill();}
  drawFx(t,dt);
  if(!reduce)requestAnimationFrame(n=>drawSky(n/1000));}
 /* 置いた時・返った時：ぽーっと光る */
 const glows=[];
-function burst(x,y,gold,n){glows.push({x,y,gold,age:0,life:1.1,r:Math.max(18,W/16)*(n>10?1.6:1.1)});}
-function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=glows.length-1;i>=0;i--){const q=glows[i];q.age+=dt;if(q.age>=q.life){glows.splice(i,1);continue;}const k=q.age/q.life,a=k<.25?k/.25:1-(k-.25)/.75,r=q.r*(0.6+0.8*k);const col=q.gold?'255,228,160':'180,170,255';const g=fx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);g.addColorStop(0,'rgba('+col+','+(a*.55)+')');g.addColorStop(.5,'rgba('+col+','+(a*.18)+')');g.addColorStop(1,'rgba('+col+',0)');fx.fillStyle=g;fx.beginPath();fx.arc(q.x,q.y,r,0,7);fx.fill();}}
+function burst(x,y,gold,n){glows.push({x,y,gold,age:0,life:1.3,r:Math.max(26,W/11)*(n>6?1.5:1.1)});}
+function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=glows.length-1;i>=0;i--){const q=glows[i];q.age+=dt;if(q.age>=q.life){glows.splice(i,1);continue;}const k=q.age/q.life,a=k<.25?k/.25:1-(k-.25)/.75,r=q.r*(0.6+0.8*k);const col=q.gold?'255,228,160':'180,170,255';const g=fx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);g.addColorStop(0,'rgba('+col+','+(a*.8)+')');g.addColorStop(.45,'rgba('+col+','+(a*.3)+')');g.addColorStop(1,'rgba('+col+',0)');fx.fillStyle=g;fx.beginPath();fx.arc(q.x,q.y,r,0,7);fx.fill();}}
 drawSky(0);
 /* ---------- 時計 ---------- */
 const clock=document.getElementById('clock');
