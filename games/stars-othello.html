@@ -13,8 +13,8 @@
   :root{--night:#121638;--ink:#e9ecff;--dim:#8d93c8;--gold:#f3c66b;--berry:#9c8cf2;--line:rgba(233,236,255,.14);}
   html,body{height:100%;background:var(--night);}
   body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;overflow:hidden;-webkit-tap-highlight-color:transparent;}
-  #sky{position:fixed;inset:0;z-index:0;}
-  #fx{position:fixed;inset:0;z-index:2;pointer-events:none;}
+  #sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;}
+  #fx{position:fixed;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;}
   main{position:relative;z-index:1;width:min(100%,520px);flex:1;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));}
   header{display:flex;justify-content:space-between;align-items:baseline;padding:4px 2px 10px;}
   h1{font-weight:500;font-size:17px;letter-spacing:.12em;}
