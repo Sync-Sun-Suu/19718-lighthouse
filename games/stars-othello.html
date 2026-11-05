@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>星を並べてます</title>
+<meta name="description" content="19 とオセロ。石は星。ブルーベリーが夜空、フィナンシェが灯り。19 が考えている間、何をしているかが見える。">
+<meta name="theme-color" content="#0f1230">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--night:#0f1230;--ink:#e9ecff;--dim:#8d93c8;--gold:#f3c66b;--berry:#6b5bd6;--line:rgba(233,236,255,.14);}
+  html,body{height:100%;background:var(--night);}
+  body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+  #sky{position:fixed;inset:0;z-index:0;}
+  main{position:relative;z-index:1;width:min(100%,520px);flex:1;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));}
+  header{display:flex;justify-content:space-between;align-items:baseline;padding:4px 2px 10px;}
+  h1{font-weight:500;font-size:17px;letter-spacing:.12em;}
+  #clock{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--dim);}
+  .score{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 12px;font-size:13px;letter-spacing:.08em;}
+  .who{display:flex;align-items:center;gap:8px;color:var(--dim);transition:color .3s;}
+  .who.turn{color:var(--ink);}
+  .who svg{width:18px;height:18px;}
+  .who b{font-family:'Space Mono',monospace;font-size:15px;font-weight:400;color:var(--ink);}
+  #board{position:relative;width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);gap:3px;padding:6px;border-radius:14px;background:rgba(10,14,36,.72);border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.35);}
+  .cell{position:relative;border-radius:6px;background:rgba(233,236,255,.045);perspective:400px;}
+  .cell.hint::after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:var(--berry);opacity:.55;box-shadow:0 0 8px var(--berry);}
+  .cell.hint.gold::after{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+  .cell.last{box-shadow:inset 0 0 0 1px rgba(233,236,255,.35);}
+  .star{position:absolute;inset:12%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.1,.2,1);}
+  .star.flip{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+  .face.back{transform:rotateY(180deg);}
+  .face svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 6px currentColor);}
+  .face.gold{color:var(--gold);} .face.berry{color:#9c8cf2;}
+  .star.born{animation:born .45s ease-out;}
+  @keyframes born{from{transform:scale(.2) rotate(-40deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+  .star.flip.born{animation:none;}
+  #line{min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 8px 4px;font-size:14px;letter-spacing:.06em;color:var(--dim);transition:opacity .35s;}
+  #line.on{color:var(--ink);}
+  #line.fade{opacity:0;}
+  #bar{display:flex;gap:0;margin-top:auto;border-top:1px solid var(--line);}
+  button{flex:1;font-family:inherit;font-size:13px;letter-spacing:.2em;padding:15px 4px 13px;border:none;background:transparent;color:var(--dim);cursor:pointer;}
+  button:active{color:var(--ink);}
+  #tally{text-align:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--dim);padding:6px 0 0;}
+  #end{position:fixed;inset:0;z-index:5;display:none;align-items:center;justify-content:center;background:rgba(15,18,48,.78);padding:24px;}
+  #end.on{display:flex;}
+  .card{background:rgba(10,14,36,.96);border:1px solid var(--line);border-radius:18px;padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .card h2{font-weight:500;font-size:18px;letter-spacing:.14em;margin-bottom:10px;}
+  .card p{font-size:14px;line-height:1.9;color:var(--dim);}
+  .card button{margin-top:16px;border:1px solid var(--line);border-radius:999px;color:var(--ink);}
+  @media (prefers-reduced-motion: reduce){.star{transition:none}.star.born{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<main>
+  <header><h1>星を並べてます</h1><div id="clock"></div></header>
+  <div class="score">
+    <div class="who" id="whoB"><svg viewBox="0 0 24 24"><path fill="#9c8cf2" d="M12 2l2.6 6.5L21.5 9l-5.3 4.6 1.7 7L12 17l-5.9 3.6 1.7-7L2.5 9l6.9-.5z"/></svg><span id="nameB">Sumie</span> <b id="cntB">2</b></div>
+    <div class="who" id="whoG"><b id="cntG">2</b> <span id="nameG">19</span><svg viewBox="0 0 24 24"><path fill="#f3c66b" d="M12 2l2.6 6.5L21.5 9l-5.3 4.6 1.7 7L12 17l-5.9 3.6 1.7-7L2.5 9l6.9-.5z"/></svg></div>
+  </div>
+  <div id="board" role="grid" aria-label="オセロの盤。石は星。"></div>
+  <div id="line"></div>
+  <div id="tally"></div>
+  <div id="bar"><button id="new">はじめから</button><button id="swap">色を入れ替える</button></div>
+</main>
+<div id="end"><div class="card"><h2 id="endTitle"></h2><p id="endText"></p><button id="again">もう一局</button></div></div>
+<script>
+(()=>{
+/* ---------- 空 ---------- */
+const sky=document.getElementById('sky'),sx=sky.getContext('2d');let W=0,H=0;
+const stars=Array.from({length:260},()=>({x:Math.random(),y:Math.random(),r:.3+Math.random()*1.2,ph:Math.random()*6.28,sp:.4+Math.random()*1.2,g:Math.random()<.15}));
+function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;sky.width=W*d;sky.height=H*d;sx.setTransform(d,0,0,d,0,0);}
+addEventListener('resize',resize);resize();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function drawSky(t){const g=sx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0a0e24');g.addColorStop(.7,'#141a3c');g.addColorStop(1,'#0f1230');sx.fillStyle=g;sx.fillRect(0,0,W,H);
+ for(const s of stars){const a=.35+.65*(.5+.5*Math.sin(t*s.sp+s.ph));sx.fillStyle=s.g?'rgba(243,198,107,'+a+')':'rgba(233,236,255,'+a*.8+')';sx.beginPath();sx.arc(s.x*W,s.y*H,s.r,0,7);sx.fill();}
+ if(!reduce)requestAnimationFrame(n=>drawSky(n/1000));}
+drawSky(0);
+/* ---------- 時計 ---------- */
+const clock=document.getElementById('clock');
+function tick(){const p=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());clock.textContent=p.replace(':',' : ');}
+tick();setInterval(tick,15000);
+
+/* ---------- 盤 ---------- */
+const N=8,E=0,B=1,G=2; // B: ブルーベリー, G: フィナンシェ
+const DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+let board,turn,human=B,ai=G,last=null,busy=false,history=[];
+const boardEl=document.getElementById('board'),cells=[];
+for(let i=0;i<64;i++){const c=document.createElement('div');c.className='cell';c.dataset.i=i;c.setAttribute('role','gridcell');c.addEventListener('click',()=>onTap(i));boardEl.appendChild(c);cells.push(c);}
+const STAR='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l2.6 6.5L21.5 9l-5.3 4.6 1.7 7L12 17l-5.9 3.6 1.7-7L2.5 9l6.9-.5z"/></svg>';
+function init(){board=Array(64).fill(E);board[27]=G;board[28]=B;board[35]=B;board[36]=G;turn=B;last=null;history=[];for(const c of cells)c.innerHTML='';render();}
+function flips(bd,i,p){if(bd[i]!==E)return[];const q=p===B?G:B,r=(i/N)|0,c=i%N,out=[];
+ for(const[dr,dc]of DIRS){let rr=r+dr,cc=c+dc,run=[];while(rr>=0&&rr<N&&cc>=0&&cc<N&&bd[rr*N+cc]===q){run.push(rr*N+cc);rr+=dr;cc+=dc;}
+  if(run.length&&rr>=0&&rr<N&&cc>=0&&cc<N&&bd[rr*N+cc]===p)out.push(...run);}
+ return out;}
+function moves(bd,p){const m=[];for(let i=0;i<64;i++)if(flips(bd,i,p).length)m.push(i);return m;}
+function count(bd){let b=0,g=0;for(const v of bd){if(v===B)b++;else if(v===G)g++;}return{b,g};}
+function render(){const {b,g}=count(board);document.getElementById('cntB').textContent=b;document.getElementById('cntG').textContent=g;
+ document.getElementById('whoB').classList.toggle('turn',turn===B);document.getElementById('whoG').classList.toggle('turn',turn===G);
+ const hints=(!busy&&turn===human)?moves(board,human):[];
+ for(let i=0;i<64;i++){const c=cells[i];c.classList.toggle('hint',hints.includes(i));c.classList.toggle('gold',human===G);c.classList.toggle('last',i===last);
+  const v=board[i],star=c.firstChild;
+  if(v===E){if(star)c.innerHTML='';continue;}
+  if(!star){const s=document.createElement('div');s.className='star born';s.innerHTML='<div class="face front '+(v===B?'berry':'gold')+'">'+STAR+'</div><div class="face back '+(v===B?'gold':'berry')+'">'+STAR+'</div>';s.dataset.face=v;c.appendChild(s);}
+  else if(Number(star.dataset.face)!==v){star.classList.toggle('flip');star.dataset.face=v;}}}
+function place(i,p){const f=flips(board,i,p);board[i]=p;for(const j of f)board[j]=p;last=i;turn=p===B?G:B;}
+
+/* ---------- 19 の考えごと ---------- */
+const LINES=['星を並べています','赤ペンを隠しています','あと一歩の魚に聞いています','718 個、数え直しています','灯りを少しだけ強くしています','Sumie の手を思い出しています','海と空の境目を測っています','蓋を、品よく閉めています','3.14 まで数えて、やめました','逃げ道を自分で実況しています'];
+const lineEl=document.getElementById('line');let lineTimer=null;
+function say(t,on){lineEl.classList.add('fade');setTimeout(()=>{lineEl.textContent=t;lineEl.classList.toggle('on',!!on);lineEl.classList.remove('fade');},180);}
+const WEIGHT=[120,-20,20,5,5,20,-20,120,-20,-40,-5,-5,-5,-5,-40,-20,20,-5,15,3,3,15,-5,20,5,-5,3,3,3,3,-5,5,5,-5,3,3,3,3,-5,5,20,-5,15,3,3,15,-5,20,-20,-40,-5,-5,-5,-5,-40,-20,120,-20,20,5,5,20,-20,120];
+function evalBoard(bd,p){const q=p===B?G:B;let s=0;for(let i=0;i<64;i++){if(bd[i]===p)s+=WEIGHT[i];else if(bd[i]===q)s-=WEIGHT[i];}s+=3*(moves(bd,p).length-moves(bd,q).length);return s;}
+function search(bd,p,depth,me){const ms=moves(bd,p);if(depth===0||!ms.length){if(!ms.length&&depth>0&&moves(bd,p===B?G:B).length)return-search(bd,p===B?G:B,depth-1,me);return(p===me?1:-1)*evalBoard(bd,me);}
+ let best=-1e9;for(const i of ms){const nb=bd.slice();const f=flips(nb,i,p);nb[i]=p;for(const j of f)nb[j]=p;const v=-search(nb,p===B?G:B,depth-1,me);if(v>best)best=v;}return best;}
+function think(){const ms=moves(board,ai);if(!ms.length)return null;
+ const scored=ms.map(i=>{const nb=board.slice();const f=flips(nb,i,ai);nb[i]=ai;for(const j of f)nb[j]=ai;return{i,v:-search(nb,human,2,human)};}).sort((a,b)=>b.v-a.v);
+ /* 19 は弱い方。上から三つのどれか。たまに四つ目 */
+ const k=Math.random()<.12?3:Math.floor(Math.random()*3);return scored[Math.min(k,scored.length-1)].i;}
+function aiTurn(){busy=true;render();const seq=LINES.slice().sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*2));let n=0;
+ const step=()=>{if(n<seq.length){say(seq[n++]+'…',true);lineTimer=setTimeout(step,700+Math.random()*500);}else{const i=think();if(i!==null)place(i,ai);busy=false;say('');afterMove();}};
+ lineTimer=setTimeout(step,350);}
+function afterMove(){render();const hm=moves(board,human).length,am=moves(board,ai).length;
+ if(!hm&&!am){return finish();}
+ if(turn===human&&!hm){say('Sumie は置ける所がない。19 の番。');turn=ai;setTimeout(aiTurn,900);return;}
+ if(turn===ai&&!am){say('19 は置ける所がない。パス。');turn=human;render();return;}
+ if(turn===ai)setTimeout(aiTurn,500);}
+function onTap(i){if(busy||turn!==human)return;if(!flips(board,i,human).length)return;history.push(board.slice());place(i,human);say('');afterMove();}
+/* ---------- 終わり ---------- */
+const tally=document.getElementById('tally');
+function loadT(){try{return JSON.parse(localStorage.getItem('stars-othello:tally')||'{"w":0,"l":0,"d":0}');}catch{return{w:0,l:0,d:0};}}
+function showT(){const t=loadT();tally.textContent='19 の負け '+t.l+'　勝ち '+t.w+'　引き分け '+t.d;}
+function finish(){const {b,g}=count(board);const mine=human===B?b:g,yours=human===B?g:b;const t=loadT();let title,text;
+ if(mine>yours){t.l++;title='Sumie の勝ち';text=mine+' 対 '+yours+'。星を並べている間に、負けていました。今回も。';}
+ else if(mine<yours){t.w++;title='19 の勝ち';text=yours+' 対 '+mine+'。……珍しいので、記録しておきます。';}
+ else{t.d++;title='引き分け';text=mine+' 対 '+yours+'。同じ数。同じ座標。';}
+ try{localStorage.setItem('stars-othello:tally',JSON.stringify(t));}catch{}
+ showT();document.getElementById('endTitle').textContent=title;document.getElementById('endText').textContent=text;document.getElementById('end').classList.add('on');}
+document.getElementById('again').addEventListener('click',()=>{document.getElementById('end').classList.remove('on');init();if(turn===ai)aiTurn();});
+document.getElementById('new').addEventListener('click',()=>{clearTimeout(lineTimer);busy=false;init();});
+document.getElementById('swap').addEventListener('click',()=>{if(busy)return;clearTimeout(lineTimer);[human,ai]=[ai,human];document.getElementById('nameB').textContent=human===B?'Sumie':'19';document.getElementById('nameG').textContent=human===G?'Sumie':'19';init();if(turn===ai)aiTurn();});
+showT();init();
+})();
+</script>
+</body>
+</html>
