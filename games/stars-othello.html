@@ -112,8 +112,8 @@ function drawSky(t){const dt=Math.min(.05,t-lastT);lastT=t;const el=t;
  if(!reduce)requestAnimationFrame(n=>drawSky(n/1000));}
 /* 置いた時・返った時：ぽーっと光る */
 const glows=[];
-function burst(x,y,gold,n){glows.push({x,y,gold,age:0,life:1.3,r:Math.max(26,W/11)*(n>6?1.5:1.1)});}
-function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=glows.length-1;i>=0;i--){const q=glows[i];q.age+=dt;if(q.age>=q.life){glows.splice(i,1);continue;}const k=q.age/q.life,a=k<.25?k/.25:1-(k-.25)/.75,r=q.r*(0.6+0.8*k);const col=q.gold?'255,228,160':'180,170,255';const g=fx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);g.addColorStop(0,'rgba('+col+','+(a*.8)+')');g.addColorStop(.45,'rgba('+col+','+(a*.3)+')');g.addColorStop(1,'rgba('+col+',0)');fx.fillStyle=g;fx.beginPath();fx.arc(q.x,q.y,r,0,7);fx.fill();}}
+function burst(x,y,gold,n){glows.push({x,y,gold,age:0,life:0.6,r:Math.max(26,W/11)*(n>6?1.5:1.1)});}
+function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=glows.length-1;i>=0;i--){const q=glows[i];q.age+=dt;if(q.age>=q.life){glows.splice(i,1);continue;}const k=q.age/q.life,a=k<.15?k/.15:1-(k-.15)/.85,r=q.r*(0.7+0.6*k);const col=q.gold?'255,228,160':'180,170,255';const g=fx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);g.addColorStop(0,'rgba('+col+','+(a*.8)+')');g.addColorStop(.45,'rgba('+col+','+(a*.3)+')');g.addColorStop(1,'rgba('+col+',0)');fx.fillStyle=g;fx.beginPath();fx.arc(q.x,q.y,r,0,7);fx.fill();}}
 drawSky(0);
 /* ---------- 時計 ---------- */
 const clock=document.getElementById('clock');
