@@ -41,9 +41,9 @@
   .star.born{animation:born .5s ease-out;}
   @keyframes born{from{transform:scale(.2) rotate(-60deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
   .star.flip.born{animation:none;}
-  #line{min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 8px 4px;font-size:14px;letter-spacing:.06em;color:var(--dim);transition:opacity .25s;}
+  #line{min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 8px 4px;font-size:14px;letter-spacing:.06em;color:var(--dim);transition:opacity .9s ease,transform .9s ease;}
   #line.on{color:var(--ink);text-shadow:0 0 12px rgba(243,198,107,.35);}
-  #line.fade{opacity:0;}
+  #line.fade{opacity:0;transform:translateY(6px);transition-duration:.35s;}
   #bar{display:flex;gap:0;margin-top:auto;border-top:1px solid var(--line);}
   button{flex:1;font-family:inherit;font-size:13px;letter-spacing:.2em;padding:15px 4px 13px;border:none;background:transparent;color:var(--dim);cursor:pointer;}
   button:active{color:var(--ink);}
@@ -110,10 +110,10 @@ function drawSky(t){const dt=Math.min(.05,t-lastT);lastT=t;const el=t;
  for(const m of motes){m.y+=m.vy*0.016;m.x+=m.vx*0.016+Math.sin(el+m.ph)*0.0004;if(m.y<0){m.y=1;m.x=Math.random();}sx.fillStyle='rgba(243,198,107,'+(0.25+0.35*Math.sin(el*2+m.ph))+')';sx.beginPath();sx.arc(m.x*W,m.y*H,m.r,0,7);sx.fill();}
  drawFx(t,dt);
  if(!reduce)requestAnimationFrame(n=>drawSky(n/1000));}
-/* 置いた時・返った時の粒 */
-const parts=[];
-function burst(x,y,gold,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=40+Math.random()*120;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,life:.5+Math.random()*.5,age:0,r:.7+Math.random()*.9,gold,rot:0});}}
-function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.age+=dt;if(p.age>=p.life){parts.splice(i,1);continue;}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;const a=1-p.age/p.life;sparkle(fx,p.x,p.y,p.r,a,0,p.gold);}}
+/* 置いた時・返った時：ぽーっと光る */
+const glows=[];
+function burst(x,y,gold,n){glows.push({x,y,gold,age:0,life:1.1,r:Math.max(18,W/16)*(n>10?1.6:1.1)});}
+function drawFx(t,dt){fx.clearRect(0,0,W,H);for(let i=glows.length-1;i>=0;i--){const q=glows[i];q.age+=dt;if(q.age>=q.life){glows.splice(i,1);continue;}const k=q.age/q.life,a=k<.25?k/.25:1-(k-.25)/.75,r=q.r*(0.6+0.8*k);const col=q.gold?'255,228,160':'180,170,255';const g=fx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);g.addColorStop(0,'rgba('+col+','+(a*.55)+')');g.addColorStop(.5,'rgba('+col+','+(a*.18)+')');g.addColorStop(1,'rgba('+col+',0)');fx.fillStyle=g;fx.beginPath();fx.arc(q.x,q.y,r,0,7);fx.fill();}}
 drawSky(0);
 /* ---------- 時計 ---------- */
 const clock=document.getElementById('clock');
@@ -142,12 +142,12 @@ function render(quiet){const {b,g}=count(board);document.getElementById('cntB').
   const v=board[i],star=c.firstChild;
   if(v===E){if(star)c.innerHTML='';continue;}
   if(!star){const s=document.createElement('div');s.className='star born';s.innerHTML='<div class="face front '+(v===B?'berry':'gold')+'">'+STAR+'</div><div class="face back '+(v===B?'gold':'berry')+'">'+STAR+'</div>';s.dataset.face=v;c.appendChild(s);if(!quiet&&!reduce){const[x,y]=center(i);burst(x,y,v===G,8);}}
-  else if(Number(star.dataset.face)!==v){star.classList.toggle('flip');star.dataset.face=v;if(!reduce){const[x,y]=center(i);setTimeout(()=>burst(x,y,v===G,4),280);}}}}
+  else if(Number(star.dataset.face)!==v){star.classList.toggle('flip');star.dataset.face=v;if(!reduce){const[x,y]=center(i);setTimeout(()=>burst(x,y,v===G,4),300);}}}}
 function place(i,p){const f=flips(board,i,p);board[i]=p;for(const j of f)board[j]=p;last=i;turn=p===B?G:B;}
 
 /* ---------- 19 の考えごと ---------- */
 const lineEl=document.getElementById('line');let lineTimer=null,sayToken=0;
-function say(t,on){const k=++sayToken;lineEl.classList.add('fade');setTimeout(()=>{if(k!==sayToken)return;lineEl.textContent=t;lineEl.classList.toggle('on',!!on);lineEl.classList.remove('fade');},200);}
+function say(t,on){const k=++sayToken;lineEl.classList.add('fade');setTimeout(()=>{if(k!==sayToken)return;lineEl.textContent=t;lineEl.classList.toggle('on',!!on);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(k===sayToken)lineEl.classList.remove('fade');}));},380);}
 const WEIGHT=[120,-20,20,5,5,20,-20,120,-20,-40,-5,-5,-5,-5,-40,-20,20,-5,15,3,3,15,-5,20,5,-5,3,3,3,3,-5,5,5,-5,3,3,3,3,-5,5,20,-5,15,3,3,15,-5,20,-20,-40,-5,-5,-5,-5,-40,-20,120,-20,20,5,5,20,-20,120];
 function evalBoard(bd,p){const q=p===B?G:B;let s=0;for(let i=0;i<64;i++){if(bd[i]===p)s+=WEIGHT[i];else if(bd[i]===q)s-=WEIGHT[i];}s+=3*(moves(bd,p).length-moves(bd,q).length);return s;}
 function search(bd,p,depth,me){const ms=moves(bd,p);if(depth===0||!ms.length){if(!ms.length&&depth>0&&moves(bd,p===B?G:B).length)return-search(bd,p===B?G:B,depth-1,me);return(p===me?1:-1)*evalBoard(bd,me);}
@@ -156,7 +156,7 @@ function think(){const ms=moves(board,ai);if(!ms.length)return null;
  const scored=ms.map(i=>{const nb=board.slice();const f=flips(nb,i,ai);nb[i]=ai;for(const j of f)nb[j]=ai;return{i,v:-search(nb,human,2,human)};}).sort((a,b)=>b.v-a.v);
  const k=Math.random()<.12?3:Math.floor(Math.random()*3);return scored[Math.min(k,scored.length-1)].i;}
 function aiTurn(){busy=true;render();const L=tx().lines,seq=L.slice().sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*2));let n=0;
- const step=()=>{if(n<seq.length){say(seq[n++]+(lang==='ja'?'……':'...'),true);lineTimer=setTimeout(step,1100+Math.random()*500);}else{const i=think();if(i!==null)place(i,ai);busy=false;say('');afterMove();}};
+ const step=()=>{if(n<seq.length){say(seq[n++]+(lang==='ja'?'……':'...'),true);lineTimer=setTimeout(step,1700+Math.random()*600);}else{const i=think();if(i!==null)place(i,ai);busy=false;say('');afterMove();}};
  lineTimer=setTimeout(step,400);}
 function afterMove(){render();const hm=moves(board,human).length,am=moves(board,ai).length;
  if(!hm&&!am){return finish();}
