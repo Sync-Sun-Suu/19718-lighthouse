@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>星を並べる</title>
+<title>ステラ</title>
 <meta name="description" content="灯台の夜空に、小さい脳が星を並べて形を描く。最初は何も知らない。Sumie が教えると、少しずつ Sumie のニモになる。覚えたことは、この携帯の中だけ。">
 <meta name="theme-color" content="#0a0e24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="星を並べる">
+<meta name="apple-mobile-web-app-title" content="ステラ">
 <link rel="apple-touch-icon" sizes="180x180" href="./arrange-stars-apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./arrange-stars-icon-192.png">
 <link rel="manifest" href="./arrange-stars.webmanifest">
@@ -21,7 +21,8 @@
   body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:var(--ink);display:flex;justify-content:center;-webkit-tap-highlight-color:transparent;}
   main{width:min(100%,520px);display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));}
   header{display:flex;justify-content:space-between;align-items:baseline;padding:4px 2px 10px;}
-  h1{font-weight:500;font-size:17px;letter-spacing:.14em;}
+  h1{font-weight:500;font-size:19px;letter-spacing:.16em;}
+  h1 small{font-weight:400;font-size:11px;letter-spacing:.14em;color:var(--dim);margin-left:12px;}
   #lang{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--dim);cursor:pointer;padding:4px 0 4px 12px;}
   .words{display:flex;gap:8px;align-items:center;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none;}
   .words::-webkit-scrollbar{display:none;}
@@ -58,7 +59,7 @@
 </head>
 <body>
 <main>
-  <header><h1 id="title">星を並べる</h1><div id="lang">EN</div></header>
+  <header><h1><span id="title">ステラ</span><small id="sub"></small></h1><div id="lang">EN</div></header>
   <div class="words" id="words"></div>
   <div class="frame"><canvas id="c" aria-label="灯台の夜空に、星が並んでいる。"></canvas></div>
   <div id="status"><span id="say"></span><span id="lessons"></span></div>
@@ -73,12 +74,12 @@
 const $=id=>document.getElementById(id);
 /* ---------- ことば ---------- */
 const T={
- ja:{sw:'EN',title:'星を並べる',ph:'＋ なにを並べる？',arranging:'星、並べてる……',ready:w=>w+'座。',like:'好き',no:'違う',afterLike:'覚えた。',afterNo:'描き直す。',teach:'覚えてる……',
-  hint:'星を指で動かす。空いてるところを叩くと、星を足す。<br>星を長押しすると消す。全部、覚える。',mind:w=>'脳の中の「'+w+'」',
-  stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の'+'形になってる。',
+ ja:{sw:'EN',title:'ステラ',sub:'星を並べる子',ph:'＋ なにを並べる？',arranging:w=>['えっと……','んー、ここかな',w+'、'+w+'……'],ready:w=>'できた。たぶん。',like:'好き',here:'ここ！',no:'違う',afterLike:'やった',afterHere:'覚えた。ここだね',afterNo:'あれ？ もう一回',teach:['ふむふむ','そこね'],
+  hint:'星を叩くと「そこ」。動かせる。空いてるところを叩くと足す。<br>長押しで消す。教えたら「ここ！」。',mind:w=>'ステラの中の「'+w+'」',
+  stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の形になってる。',
   lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
- en:{sw:'日本語',title:'arranging stars',ph:'+ what shall I draw?',arranging:'arranging the stars...',ready:w=>'the '+w+' constellation.',like:'like',no:'not this',afterLike:'noted.',afterNo:"I'll try again.",teach:'learning...',
-  hint:'drag a star to move it. tap an empty spot to add one.<br>hold a star to remove it. I learn from all of it.',mind:w=>'"'+w+'" in my head',
+ en:{sw:'日本語',title:'Stella',sub:'arranges stars',ph:'+ what shall I draw?',arranging:w=>['umm...','hmm, here maybe',w+', '+w+'...'],ready:w=>'done. probably.',like:'like',here:'here!',no:'not this',afterLike:'yay',afterHere:'got it. right here.',afterNo:'huh? one more time',teach:['mm-hm','there, got it'],
+  hint:'tap a star to say "that one". drag to move. tap empty space to add.<br>hold to remove. then press "here!".',mind:w=>'"'+w+'" inside Stella',
   stage:n=>n<3?"I don't know it yet.":n<10?'a shape is starting to show.':n<25?'getting there.':"it's your shape now.",
   lessons:n=>n+' lessons',past:'nights you liked',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
 };
@@ -86,23 +87,25 @@ let lang='ja';try{lang=localStorage.getItem('arrange-stars-lang')||'ja';}catch(e
 const tx=()=>T[lang];
 
 /* ---------- 脳：言葉ごとの、形の地図 ---------- */
-const G=28,X0=.05,X1=.95,Y0=.05,Y1=.66,ASP=680/740,BIG=19,SMALL=26;
+const G=28,X0=.05,X1=.95,Y0=.05,Y1=.66,ASP=680/740,BIG=19,SMALL=78,FLOOR=.03;
 const KEY='arrange-stars:v2';
 let mem={words:{},cur:'ニモ',hist:[]};
 try{const m=JSON.parse(localStorage.getItem(KEY)||'null');if(m&&m.words)mem=m;}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(mem));}catch(e){}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=Math.random;
 const isEmoji=s=>/\p{Extended_Pictographic}/u.test(s);
-function blankMap(){const M=new Array(G*G).fill(.05);for(let k=0;k<3;k++){const cx=4+rnd()*(G-8),cy=4+rnd()*(G-8),s=2+rnd()*4;for(let j=0;j<G;j++)for(let i=0;i<G;i++)M[j*G+i]+=.6*Math.exp(-((i-cx)**2+(j-cy)**2)/(2*s*s));}return M;}
+function blankMap(){const M=new Array(G*G).fill(FLOOR);for(let k=0;k<3;k++){const cx=4+rnd()*(G-8),cy=4+rnd()*(G-8),s=2+rnd()*4;for(let j=0;j<G;j++)for(let i=0;i<G;i++)M[j*G+i]+=.35*Math.exp(-((i-cx)**2+(j-cy)**2)/(2*s*s));}return M;}
 function emojiMap(e){const c=document.createElement('canvas');c.width=c.height=G;const g=c.getContext('2d');g.textAlign='center';g.textBaseline='middle';g.font=Math.floor(G*.86)+'px sans-serif';g.fillText(e,G/2,G/2+1);const d=g.getImageData(0,0,G,G).data,M=new Array(G*G);for(let i=0;i<G*G;i++)M[i]=.04+1.2*d[i*4+3]/255;return M;}
-function word(w){if(!mem.words[w])mem.words[w]={M:isEmoji(w)?emojiMap(w):blankMap(),n:0,likes:0};return mem.words[w];}
+function word(w){if(!mem.words[w])mem.words[w]={M:isEmoji(w)?emojiMap(w):blankMap(),n:0,likes:0,edits:0};if(mem.words[w].edits==null)mem.words[w].edits=0;return mem.words[w];}
+const conf=W_=>W_.n+W_.edits*.5;
 /* 正規化座標 ⇔ 地図のマス */
 const toCell=p=>({i:clamp((p.x-X0)/(X1-X0)*G-.5,0,G-1),j:clamp((p.y-Y0)/(Y1-Y0)*G-.5,0,G-1)});
-function stamp(M,p,a,s=1.25){const {i,j}=toCell(p);for(let y=Math.max(0,Math.floor(j-4));y<=Math.min(G-1,Math.ceil(j+4));y++)for(let x=Math.max(0,Math.floor(i-4));x<=Math.min(G-1,Math.ceil(i+4));x++){M[y*G+x]=clamp(M[y*G+x]+a*Math.exp(-((x-i)**2+(y-j)**2)/(2*s*s)),.01,6);}}
+const fires=[];
+function stamp(M,p,a,s=1.25){const {i,j}=toCell(p);if(a>.3)fires.push({i,j,t:performance.now()/1000,a:Math.min(1,a/1.6)});for(let y=Math.max(0,Math.floor(j-4));y<=Math.min(G-1,Math.ceil(j+4));y++)for(let x=Math.max(0,Math.floor(i-4));x<=Math.min(G-1,Math.ceil(i+4));x++){M[y*G+x]=clamp(M[y*G+x]+a*Math.exp(-((x-i)**2+(y-j)**2)/(2*s*s)),.01,8);}}
 function valAt(M,p){const {i,j}=toCell(p);return M[Math.round(j)*G+Math.round(i)];}
 const dist=(p,q)=>Math.hypot((p.x-q.x)*ASP,p.y-q.y);
 /* 地図から星を置く。教えるほど、濃いところに集まる */
-function draw(w){const W_=word(w),M=W_.M,gam=1+Math.min(W_.n,30)*.07;const P=M.map(v=>Math.pow(v,gam)),tot=P.reduce((a,b)=>a+b,0);const stars=[];
+function draw(w){const W_=word(w),M=W_.M,gam=1+Math.min(conf(W_),25)*.12;const P=M.map(v=>Math.pow(v,gam)),tot=P.reduce((a,b)=>a+b,0);const stars=[];
  const pick=()=>{let r=rnd()*tot;for(let k=0;k<P.length;k++){r-=P[k];if(r<=0)return k;}return P.length-1;};
  for(let n=0;n<BIG+SMALL;n++){let p,t=0;do{const k=pick(),i=k%G,j=(k/G)|0;p={x:X0+(i+rnd())/G*(X1-X0),y:Y0+(j+rnd())/G*(Y1-Y0)};t++;}while(t<14&&stars.some(q=>dist(p,q)<.024));stars.push(p);}
  stars.forEach(s=>{s.v=valAt(M,s);s.ph=rnd()*6.28;s.sp=.6+rnd()*1.2;s.rot=rnd()*6.28;});
@@ -136,38 +139,42 @@ function scene(t){
 }
 let stars=[],born=0,phase='arranging',fadeOut=0,touched=false;
 function drawStars(t){const age=t-born,fo=fadeOut?Math.max(0,1-(t-fadeOut)/.8):1;
- stars.forEach((s,k)=>{if(s.gone)return;const b=reduce||s.added?1:clamp((age-k*.045)/.45,0,1);if(b<=0)return;const tw=reduce?.9:(.65+.35*Math.sin(t*s.sp+s.ph));const x=s.x*W,y=s.y*H,a=b*fo;
+ stars.forEach((s,k)=>{if(s.gone)return;const b=reduce||s.added?1:clamp((age-k*(2.4/stars.length))/.45,0,1);if(b<=0)return;const tw=reduce?.9:(.65+.35*Math.sin(t*s.sp+s.ph));const x=s.x*W,y=s.y*H,a=b*fo;
   if(s===held){cx.strokeStyle='rgba(243,198,107,'+(.4*a)+')';cx.lineWidth=1;cx.beginPath();cx.arc(x,y,W*.035,0,7);cx.stroke();}
   if(s.big)sparkle(x,y,W*.0062*tw*(.6+.4*b),(.55+.45*tw)*a,s.rot+(reduce?0:t*.08));
-  else{const r=W*.003;const g=cx.createRadialGradient(x,y,0,x,y,r*3.2);g.addColorStop(0,'rgba(240,243,255,'+(.85*a*tw)+')');g.addColorStop(1,'rgba(240,243,255,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3.2,0,7);cx.fill();cx.fillStyle='rgba(250,250,255,'+(.95*a)+')';cx.beginPath();cx.arc(x,y,r*.8,0,7);cx.fill();}});
- if(phase==='arranging'&&age>(BIG+SMALL)*.045+.6){phase='ready';onReady();}}
-function frame(now){const t=now/1000;scene(t);drawStars(t);requestAnimationFrame(frame);}
+  else{const r=W*.0024;const g=cx.createRadialGradient(x,y,0,x,y,r*3.2);g.addColorStop(0,'rgba(240,243,255,'+(.85*a*tw)+')');g.addColorStop(1,'rgba(240,243,255,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3.2,0,7);cx.fill();cx.fillStyle='rgba(250,250,255,'+(.95*a)+')';cx.beginPath();cx.arc(x,y,r*.8,0,7);cx.fill();}});
+ if(phase==='arranging'&&age>3){phase='ready';onReady();}}
+function frame(now){const t=now/1000;scene(t);drawStars(t);drawMind(t);requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 
 /* ---------- 教える：動かす・足す・消す ---------- */
 let held=null,downAt=0,downP=null,moved=false,pressTimer=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};}
-function nearest(p){let b=null,bd=.05;for(const s of stars){if(s.gone)continue;const d=dist(s,p);if(d<bd){bd=d;b=s;}}return b;}
-function teach(){touched=true;say(tx().teach,true);renderMind();}
+function nearest(p){let b=null,bd=.03;for(const s of stars){if(s.gone)continue;const d=dist(s,p);if(d<bd){bd=d;b=s;}}return b;}
+let teachK=0;function teach(){touched=true;const L=tx().teach;say(L[teachK++%L.length],true);$('yes').textContent=tx().here;renderMind();}
 cv.addEventListener('pointerdown',e=>{if(phase!=='ready')return;const p=pos(e);downP=p;moved=false;held=nearest(p);cv.setPointerCapture(e.pointerId);
- if(held){held.ox=held.x;held.oy=held.y;clearTimeout(pressTimer);pressTimer=setTimeout(()=>{if(held&&!moved){const M=word(mem.cur).M;stamp(M,held,-.5);held.gone=true;held=null;teach();save();}},520);}});
+ if(held){held.ox=held.x;held.oy=held.y;clearTimeout(pressTimer);pressTimer=setTimeout(()=>{if(held&&!moved){const W_=word(mem.cur);stamp(W_.M,held,-.9);W_.edits++;held.gone=true;held=null;teach();save();}},520);}});
 cv.addEventListener('pointermove',e=>{if(!held)return;const p=pos(e);if(dist(p,downP)>.012){moved=true;clearTimeout(pressTimer);}if(moved){held.x=clamp(p.x,.04,.96);held.y=clamp(p.y,.04,.68);}});
 cv.addEventListener('pointerup',e=>{clearTimeout(pressTimer);if(phase!=='ready'){held=null;return;}const M=word(mem.cur).M;
- if(held&&moved){stamp(M,{x:held.ox,y:held.oy},-.4);stamp(M,held,.9);held.v=valAt(M,held);teach();save();}
- else if(!held&&downP){const p=downP;if(p.y<.7){const s={x:p.x,y:p.y,big:true,added:true,ph:rnd()*6.28,sp:1,rot:rnd()*6.28};stars.push(s);stamp(M,s,.9);teach();save();}}
+ if(held&&moved){stamp(M,{x:held.ox,y:held.oy},-.6);stamp(M,held,1.6);held.v=valAt(M,held);held.taught=true;held.big=true;word(mem.cur).edits++;teach();save();}
+ else if(held&&!moved){stamp(M,held,1.2);held.v=valAt(M,held);held.taught=true;held.big=true;word(mem.cur).edits++;teach();save();}
+ else if(!held&&downP){const p=downP;if(p.y<.7){const s={x:p.x,y:p.y,big:true,added:true,taught:true,ph:rnd()*6.28,sp:1,rot:rnd()*6.28};stars.push(s);stamp(M,s,1.6);word(mem.cur).edits++;teach();save();}}
  held=null;downP=null;});
 cv.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);held=null;});
 
 /* ---------- 流れ ---------- */
 const sayEl=$('say');let sayK=0;
 function say(t,now){const k=++sayK;if(now){sayEl.textContent=t;sayEl.classList.remove('fade');return;}sayEl.classList.add('fade');setTimeout(()=>{if(k!==sayK)return;sayEl.textContent=t;sayEl.classList.remove('fade');},300);}
-function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;held=null;$('yes').disabled=$('no').disabled=true;say(tx().arranging);$('hint').innerHTML='';renderMind();}
-function onReady(){$('yes').disabled=$('no').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
+let murmur=null;
+function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;held=null;$('yes').disabled=$('no').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
+ const L=tx().arranging(mem.cur);let k=0;clearInterval(murmur);say(L[0]);murmur=setInterval(()=>{if(phase!=='arranging'){clearInterval(murmur);return;}k=(k+1)%L.length;say(L[k]);},950);}
+function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
 function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=true;$('hint').innerHTML='';
- const W_=word(mem.cur),live=stars.filter(s=>!s.gone);
- for(const s of live)stamp(W_.M,s,y?(s.big?.45:.22):(s.big?-.16:-.08));
+ const W_=word(mem.cur),live=stars.filter(s=>!s.gone),here=y&&touched;
+ for(let k=0;k<W_.M.length;k++)W_.M[k]=FLOOR+(W_.M[k]-FLOOR)*.92;
+ for(const s of live){let a;if(here)a=s.taught?.6:(s.big?.25:.12);else if(y)a=s.big?.12:.05;else a=s.big?-.3:-.15;stamp(W_.M,s,a);}
  W_.n++;if(y){W_.likes++;mem.hist.push({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0]),t:Date.now()});if(mem.hist.length>120)mem.hist.shift();}
- save();say(y?tx().afterLike:tx().afterNo);renderMind();renderStrip();
+ save();say(here?tx().afterHere:y?tx().afterLike:tx().afterNo);renderMind();renderStrip();
  setTimeout(()=>{fadeOut=performance.now()/1000;},800);setTimeout(arrange,1700);}
 $('yes').addEventListener('click',()=>rate(true));$('no').addEventListener('click',()=>rate(false));
 
@@ -180,17 +187,21 @@ function renderWords(){const box=$('words');box.innerHTML='';const list=Object.k
  box.appendChild(inp);}
 
 /* ---------- 脳の中 ---------- */
-function renderMind(){const x=tx(),W_=word(mem.cur),M=W_.M,mc=$('map'),g=mc.getContext('2d'),w=mc.width,h=mc.height;
- g.fillStyle='#0a0e24';g.fillRect(0,0,w,h);const mx=Math.max(...M),cw=w/G,ch=h/G;
- for(let j=0;j<G;j++)for(let i=0;i<G;i++){const v=M[j*G+i]/mx;if(v<.06)continue;g.fillStyle='rgba(243,198,107,'+Math.pow(v,1.3).toFixed(3)+')';g.beginPath();g.arc((i+.5)*cw,(j+.5)*ch,Math.max(cw,ch)*.62,0,7);g.fill();}
- $('mindT').textContent=x.mind(mem.cur);$('mindP').textContent=x.stage(W_.n);$('lessons').textContent=x.lessons(W_.n);$('forget').textContent=x.forget(mem.cur);}
+const flies=Array.from({length:G*G},()=>({ph:Math.random()*6.28,sp:.6+Math.random()*1.6,dx:(Math.random()-.5)*.5,dy:(Math.random()-.5)*.5}));
+function drawMind(t){const W_=word(mem.cur),M=W_.M,mc=$('map'),g=mc.getContext('2d'),w=mc.width,h=mc.height;
+ g.fillStyle='#0a0e24';g.fillRect(0,0,w,h);let mx=0;for(const v of M)if(v>mx)mx=v;const cw=w/G,ch=h/G;
+ for(let j=0;j<G;j++)for(let i=0;i<G;i++){const k=j*G+i,v=(M[k]-FLOOR)/(mx-FLOOR+1e-6);if(v<.08)continue;const f=flies[k],tw=reduce?1:(.55+.45*Math.sin(t*f.sp*(1.4-v)+f.ph));const x=(i+.5+f.dx)*cw,y=(j+.5+f.dy)*ch,r=(.8+2.2*v)*(w/224)*1.4,a=(.25+.75*v)*tw;
+  const col=v>.55?'255,226,150':v>.25?'226,214,255':'170,180,240';const gg=g.createRadialGradient(x,y,0,x,y,r*2.6);gg.addColorStop(0,'rgba('+col+','+a+')');gg.addColorStop(1,'rgba('+col+',0)');g.fillStyle=gg;g.beginPath();g.arc(x,y,r*2.6,0,7);g.fill();g.fillStyle='rgba(255,250,235,'+(a*.9)+')';g.beginPath();g.arc(x,y,r*.55,0,7);g.fill();}
+ for(let q=fires.length-1;q>=0;q--){const f=fires[q],k=(t-f.t)/.7;if(k>=1){fires.splice(q,1);continue;}const x=(f.i+.5)*cw,y=(f.j+.5)*ch,R=(6+28*k)*(w/224);g.strokeStyle='rgba(255,236,190,'+((1-k)*.8*f.a)+')';g.lineWidth=2*(w/224);g.beginPath();g.arc(x,y,R,0,7);g.stroke();const gg=g.createRadialGradient(x,y,0,x,y,R*.8);gg.addColorStop(0,'rgba(255,245,215,'+((1-k)*f.a)+')');gg.addColorStop(1,'rgba(255,245,215,0)');g.fillStyle=gg;g.beginPath();g.arc(x,y,R*.8,0,7);g.fill();}}
+function renderMind(){const x=tx(),W_=word(mem.cur);
+ $('mindT').textContent=x.mind(mem.cur);$('mindP').textContent=x.stage(conf(W_));$('lessons').textContent=x.lessons(W_.n+W_.edits);$('forget').textContent=x.forget(mem.cur);}
 function renderStrip(){const st=$('strip');st.innerHTML='';for(const hh of mem.hist.slice(-40).reverse()){const d=document.createElement('div');d.className='thumb';const c=document.createElement('canvas');c.width=92;c.height=100;const g=c.getContext('2d');
  const gr=g.createLinearGradient(0,0,0,100);gr.addColorStop(0,'#0a0e24');gr.addColorStop(1,'#141a3c');g.fillStyle=gr;g.fillRect(0,0,92,100);g.fillStyle='#10163a';g.fillRect(0,82,92,18);
  for(const [px,py,b] of hh.s){g.fillStyle=b?'#fff3d0':'rgba(235,240,255,.75)';g.beginPath();g.arc(px*92,py*100,b?1.9:1,0,7);g.fill();}
  const i=document.createElement('i');i.textContent=hh.w;d.appendChild(c);d.appendChild(i);st.appendChild(d);}}
 $('forget').addEventListener('click',()=>{const w=mem.cur;if(!confirm(tx().confirm(w)))return;delete mem.words[w];mem.hist=mem.hist.filter(h=>h.w!==w);save();renderWords();renderStrip();arrange();});
-function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;document.title=x.title;$('yes').textContent=x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;
- if(phase==='ready'){say(x.ready(mem.cur),true);$('hint').innerHTML=x.hint;}else if(phase==='arranging')say(x.arranging,true);renderWords();renderMind();}
+function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;$('sub').textContent=x.sub;document.title=x.title;$('yes').textContent=touched?x.here:x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;
+ if(phase==='ready'){say(x.ready(mem.cur),true);$('hint').innerHTML=x.hint;}else if(phase==='arranging')say(x.arranging(mem.cur)[0],true);renderWords();renderMind();}
 $('lang').addEventListener('click',()=>{lang=lang==='ja'?'en':'ja';try{localStorage.setItem('arrange-stars-lang',lang);}catch(e){}applyLang();});
 word(mem.cur);applyLang();renderStrip();arrange();
 })();
