@@ -53,6 +53,28 @@
   .thumb{flex:none;width:46px;}
   .thumb canvas{width:46px;height:50px;border-radius:6px;display:block;}
   .thumb i{display:block;text-align:center;font-style:normal;font-size:10px;color:var(--gold);padding-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #toFrame{position:absolute;right:12px;bottom:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(243,198,107,.45);background:rgba(10,14,36,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .3s,transform .15s;}
+  #toFrame:disabled{opacity:.3;}
+  #toFrame:active{transform:scale(.92);}
+  #toFrame svg{width:20px;height:20px;}
+  .frame.shot{animation:shot 1.1s ease-out;}
+  @keyframes shot{0%{box-shadow:0 0 0 0 rgba(255,236,190,.0),0 20px 50px rgba(0,0,0,.45);}20%{box-shadow:0 0 0 3px rgba(255,236,190,.85),0 0 40px rgba(243,198,107,.5);}100%{box-shadow:0 0 0 0 rgba(255,236,190,0),0 20px 50px rgba(0,0,0,.45);}}
+  .gaku{border-top:1px solid var(--line);margin-top:14px;padding:14px 2px 0;}
+  .gaku h2{font-weight:400;font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:12px;}
+  #gakuList{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 12px;}
+  #gakuList:empty::after{content:attr(data-empty);grid-column:1/-1;font-size:11px;letter-spacing:.08em;color:var(--dim);opacity:.7;}
+  .g1{cursor:pointer;}
+  .g1 .fr{padding:4px;border-radius:3px;background:linear-gradient(135deg,#f6dc9c,#b98a3e 45%,#f3d58e 60%,#9c7232);box-shadow:0 6px 16px rgba(0,0,0,.45);}
+  .g1 .mat{padding:5px;background:#121735;}
+  .g1 canvas{display:block;width:100%;aspect-ratio:680/740;}
+  .g1 i{display:block;text-align:center;font-style:normal;font-size:10px;letter-spacing:.06em;color:var(--gold);padding-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #viewer{position:fixed;inset:0;background:rgba(5,7,20,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));z-index:10;}
+  #viewer.on{display:flex;}
+  #viewer img{max-width:min(100%,460px);max-height:68vh;display:block;-webkit-touch-callout:default;}
+  #viewer .vb{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  #viewer button{font-family:inherit;font-size:13px;letter-spacing:.14em;padding:11px 18px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.05);color:var(--ink);cursor:pointer;}
+  #viewer button.save{border-color:rgba(243,198,107,.55);color:#ffe7b0;}
+  #viewer small{font-size:10px;letter-spacing:.1em;color:var(--dim);}
   footer{display:flex;justify-content:flex-end;padding:18px 2px 0;}
   footer button{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--dim);background:none;border:none;cursor:pointer;padding:6px 0;}
 </style>
@@ -61,13 +83,15 @@
 <main>
   <header><h1><span id="title">ステラ</span><small id="sub"></small></h1><div id="lang">EN</div></header>
   <div class="words" id="words"></div>
-  <div class="frame"><canvas id="c" aria-label="灯台の夜空に、星が並んでいる。"></canvas></div>
+  <div class="frame"><canvas id="c" aria-label="灯台の夜空に、星が並んでいる。"></canvas><button id="toFrame" disabled><svg viewBox="0 0 20 20" fill="none" stroke="#f3c66b" stroke-width="1.3"><rect x="2.5" y="3" width="15" height="14" rx="1"/><rect x="5" y="5.5" width="10" height="9"/><path d="M10 7.4l.8 1.7 1.8.2-1.3 1.2.4 1.8-1.7-.9-1.7.9.4-1.8-1.3-1.2 1.8-.2z" fill="#f3c66b" stroke="none"/></svg></button></div>
   <div id="status"><span id="say"></span><span id="lessons"></span></div>
   <div class="rate"><button id="no" disabled>違う</button><button id="yes" class="like" disabled>好き</button></div>
   <div id="hint"></div>
   <div class="mind"><canvas id="map" width="224" height="172"></canvas><p><b id="mindT"></b><span id="mindP"></span></p></div>
+  <div class="gaku"><h2 id="gakuT"></h2><div id="gakuList"></div></div>
   <div class="past"><h2 id="pastT"></h2><div id="strip"></div></div>
   <footer><button id="forget"></button></footer>
+  <div id="viewer"><img id="vImg" alt=""><small id="vNote"></small><div class="vb"><button id="vSave" class="save"></button><button id="vDel"></button><button id="vClose"></button></div></div>
 </main>
 <script>
 (()=>{
@@ -77,11 +101,11 @@ const T={
  ja:{sw:'EN',title:'ステラ',sub:'星を並べる子',ph:'＋ なにを並べる？',arranging:w=>['えっと……','んー、ここかな',w+'、'+w+'……'],ready:w=>'できた。たぶん。',like:'好き',here:'ここ！',no:'違う',afterLike:'やった',afterHere:'覚えた。ここだね',afterNo:'あれ？ もう一回',teach:['ふむふむ','そこね'],
   hint:'星を叩くと「そこ」。動かせる。空いてるところを叩くと足す。<br>長押しで消す。教えたら「ここ！」。',mind:w=>'ステラの中の「'+w+'」',
   stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の形になってる。',
-  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
+  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
  en:{sw:'日本語',title:'Stella',sub:'arranges stars',ph:'+ what shall I draw?',arranging:w=>['umm...','hmm, here maybe',w+', '+w+'...'],ready:w=>'done. probably.',like:'like',here:'here!',no:'not this',afterLike:'yay',afterHere:'got it. right here.',afterNo:'huh? one more time',teach:['mm-hm','there, got it'],
   hint:'tap a star to say "that one". drag to move. tap empty space to add.<br>hold to remove. then press "here!".',mind:w=>'"'+w+'" inside Stella',
   stage:n=>n<3?"I don't know it yet.":n<10?'a shape is starting to show.':n<25?'getting there.':"it's your shape now.",
-  lessons:n=>n+' lessons',past:'nights you liked',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
+  lessons:n=>n+' lessons',past:'nights you liked',frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
 };
 let lang='ja';try{lang=localStorage.getItem('arrange-stars-lang')||'ja';}catch(e){}
 const tx=()=>T[lang];
@@ -91,6 +115,8 @@ const G=28,X0=.05,X1=.95,Y0=.05,Y1=.66,ASP=680/740,BIG=19,SMALL=78,FLOOR=.03;
 const KEY='arrange-stars:v2';
 let mem={words:{},cur:'ニモ',hist:[]};
 try{const m=JSON.parse(localStorage.getItem(KEY)||'null');if(m&&m.words)mem=m;}catch(e){}
+if(!mem.frames)mem.frames=[];
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(mem));}catch(e){}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=Math.random;
 const isEmoji=s=>/\p{Extended_Pictographic}/u.test(s);
@@ -115,7 +141,7 @@ function draw(w){const W_=word(w),M=W_.M,gam=1+Math.min(conf(W_),25)*.12;const P
  return stars;}
 
 /* ---------- 絵 ---------- */
-const cv=$('c'),cx=cv.getContext('2d');let W=0,H=0;
+const cv=$('c');let cx=cv.getContext('2d'),W=0,H=0;
 function resize(){const d=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);}
 addEventListener('resize',resize);resize();
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -169,10 +195,10 @@ cv.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);held=null;});
 const sayEl=$('say');let sayK=0;
 function say(t,now){const k=++sayK;if(now){sayEl.textContent=t;sayEl.classList.remove('fade');return;}sayEl.classList.add('fade');setTimeout(()=>{if(k!==sayK)return;sayEl.textContent=t;sayEl.classList.remove('fade');},300);}
 let murmur=null;
-function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;round=[];roundEdits=0;held=null;$('yes').disabled=$('no').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
+function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;round=[];roundEdits=0;held=null;$('yes').disabled=$('no').disabled=$('toFrame').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
  const L=tx().arranging(mem.cur);let k=0;clearInterval(murmur);say(L[0]);murmur=setInterval(()=>{if(phase!=='arranging'){clearInterval(murmur);return;}k=(k+1)%L.length;say(L[k]);},950);}
-function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
-function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=true;$('hint').innerHTML='';
+function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=$('toFrame').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
+function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=$('toFrame').disabled=true;$('hint').innerHTML='';
  const W_=word(mem.cur),live=stars.filter(s=>!s.gone),here=y&&touched;
  if(!y){for(const r of round)stamp(W_.M,r,-r.a);W_.edits=Math.max(0,W_.edits-roundEdits);round=[];roundEdits=0;}
  for(let k=0;k<W_.M.length;k++)W_.M[k]=FLOOR+(W_.M[k]-FLOOR)*.92;
@@ -204,7 +230,41 @@ function renderStrip(){const st=$('strip');st.innerHTML='';for(const hh of mem.h
  for(const [px,py,b] of hh.s){g.fillStyle=b?'#fff3d0':'rgba(235,240,255,.75)';g.beginPath();g.arc(px*92,py*100,b?1.9:1,0,7);g.fill();}
  const i=document.createElement('i');i.textContent=hh.w;d.appendChild(c);d.appendChild(i);st.appendChild(d);}}
 $('forget').addEventListener('click',()=>{const w=mem.cur;if(!confirm(tx().confirm(w)))return;delete mem.words[w];mem.hist=mem.hist.filter(h=>h.w!==w);save();renderWords();renderStrip();arrange();});
-function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;$('sub').textContent=x.sub;document.title=x.title;$('yes').textContent=touched?x.here:x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;
+
+/* ---------- 額縁 ---------- */
+function paintPic(f,w,h){const oc=document.createElement('canvas');oc.width=w;oc.height=h;const keep=[cx,W,H];cx=oc.getContext('2d');W=w;H=h;
+ try{scene(2.2);for(const [px,py,b,rot] of f.s){const x=px*W,y=py*H;
+  if(b)sparkle(x,y,W*.0062,1,rot||0);
+  else{const r=W*.0024;const g=cx.createRadialGradient(x,y,0,x,y,r*3.2);g.addColorStop(0,'rgba(240,243,255,.8)');g.addColorStop(1,'rgba(240,243,255,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3.2,0,7);cx.fill();cx.fillStyle='rgba(250,250,255,.95)';cx.beginPath();cx.arc(x,y,r*.8,0,7);cx.fill();}}}
+ finally{[cx,W,H]=keep;}return oc;}
+function fmtDate(t){const d=new Date(t);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');}
+function framedPic(f){const pw=1020,ph=1110,mat=64,bd=34,cap=120,Wt=pw+2*mat+2*bd,Ht=ph+mat+cap+2*bd;
+ const c=document.createElement('canvas');c.width=Wt;c.height=Ht;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,Wt,Ht);gr.addColorStop(0,'#f6dc9c');gr.addColorStop(.45,'#b98a3e');gr.addColorStop(.6,'#f3d58e');gr.addColorStop(1,'#9c7232');g.fillStyle=gr;g.fillRect(0,0,Wt,Ht);
+ g.strokeStyle='rgba(90,60,20,.55)';g.lineWidth=3;g.strokeRect(bd-2,bd-2,Wt-2*bd+4,Ht-2*bd+4);
+ g.fillStyle='#121735';g.fillRect(bd,bd,Wt-2*bd,Ht-2*bd);
+ g.drawImage(paintPic(f,pw,ph),bd+mat,bd+mat);
+ g.strokeStyle='rgba(243,198,107,.35)';g.lineWidth=2;g.strokeRect(bd+mat-6,bd+mat-6,pw+12,ph+12);
+ g.fillStyle='#f3c66b';g.textAlign='center';g.textBaseline='middle';g.font="500 40px 'Shippori Mincho','Hiragino Mincho ProN',serif";
+ g.fillText(T[lang].title+'  ·  '+f.w+'  ·  '+fmtDate(f.t),Wt/2,bd+mat+ph+cap/2+4);return c;}
+function renderGaku(){const box=$('gakuList');box.innerHTML='';box.dataset.empty=tx().gakuEmpty;
+ mem.frames.forEach((f,idx)=>{const d=document.createElement('div');d.className='g1';const fr=document.createElement('div');fr.className='fr';const m=document.createElement('div');m.className='mat';
+  m.appendChild(paintPic(f,272,296));fr.appendChild(m);const i=document.createElement('i');i.textContent=f.w+' · '+fmtDate(f.t).slice(5);d.appendChild(fr);d.appendChild(i);
+  d.addEventListener('click',()=>openViewer(idx));box.appendChild(d);});}
+$('toFrame').addEventListener('click',()=>{if(phase!=='ready')return;const live=stars.filter(s=>!s.gone);
+ mem.frames.unshift({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0,+(s.rot||0).toFixed(2)]),t:Date.now()});if(mem.frames.length>60)mem.frames.pop();
+ save();say(tx().framed,true);const fr=document.querySelector('.frame');fr.classList.remove('shot');void fr.offsetWidth;fr.classList.add('shot');renderGaku();});
+let vIdx=-1,vCanvas=null;
+function openViewer(idx){vIdx=idx;vCanvas=framedPic(mem.frames[idx]);$('vImg').src=vCanvas.toDataURL('image/png');$('viewer').classList.add('on');}
+function closeViewer(){$('viewer').classList.remove('on');$('vImg').removeAttribute('src');vIdx=-1;vCanvas=null;}
+$('vClose').addEventListener('click',closeViewer);
+$('viewer').addEventListener('click',e=>{if(e.target===$('viewer'))closeViewer();});
+$('vDel').addEventListener('click',()=>{if(vIdx<0||!confirm(tx().delQ))return;mem.frames.splice(vIdx,1);save();closeViewer();renderGaku();});
+$('vSave').addEventListener('click',()=>{if(!vCanvas)return;const f=mem.frames[vIdx],name='stella-'+fmtDate(f.t).replace(/\./g,'')+'.png';
+ vCanvas.toBlob(async b=>{if(!b)return;const file=new File([b],name,{type:'image/png'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);},'image/png');});
+function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;$('sub').textContent=x.sub;document.title=x.title;$('yes').textContent=touched?x.here:x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;$('gakuT').textContent=x.gaku;$('toFrame').setAttribute('aria-label',x.frameBtn);$('toFrame').title=x.frameBtn;$('vSave').textContent=x.save;$('vDel').textContent=x.del;$('vClose').textContent=x.close;$('vNote').textContent=x.note;renderGaku();
  if(phase==='ready'){say(x.ready(mem.cur),true);$('hint').innerHTML=x.hint;}else if(phase==='arranging')say(x.arranging(mem.cur)[0],true);renderWords();renderMind();}
 $('lang').addEventListener('click',()=>{lang=lang==='ja'?'en':'ja';try{localStorage.setItem('arrange-stars-lang',lang);}catch(e){}applyLang();});
 word(mem.cur);applyLang();renderStrip();arrange();
