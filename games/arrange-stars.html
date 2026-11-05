@@ -137,7 +137,10 @@ function scene(t){
  cx.fillStyle='rgba(230,200,140,.26)';cx.beginPath();cx.ellipse(lx,seaY+H*.03,W*.05,H*.008,0,0,7);cx.fill();
  cx.strokeStyle='rgba(90,110,200,.5)';cx.lineWidth=1.4;for(let k=0;k<2;k++){const y0=seaY+H*.04+k*H*.035;cx.beginPath();for(let x=0;x<=W;x+=6){const y=y0+Math.sin(x*.025+t*(1.1+k*.3)+k)*3.5;x===0?cx.moveTo(x,y):cx.lineTo(x,y);}cx.stroke();}
 }
-let stars=[],born=0,phase='arranging',fadeOut=0,touched=false;
+let stars=[],born=0,phase='arranging',fadeOut=0,touched=false,round=[],roundEdits=0;
+/* この夜に指で教えた分。「違う」を押したら取り消す */
+function tstamp(M,p,a){stamp(M,p,a);if(a>0)round.push({x:p.x,y:p.y,a});}
+function edited(){word(mem.cur).edits++;roundEdits++;}
 function drawStars(t){const age=t-born,fo=fadeOut?Math.max(0,1-(t-fadeOut)/.8):1;
  stars.forEach((s,k)=>{if(s.gone)return;const b=reduce||s.added?1:clamp((age-k*(2.4/stars.length))/.45,0,1);if(b<=0)return;const tw=reduce?.9:(.65+.35*Math.sin(t*s.sp+s.ph));const x=s.x*W,y=s.y*H,a=b*fo;
   if(s===held){cx.strokeStyle='rgba(243,198,107,'+(.4*a)+')';cx.lineWidth=1;cx.beginPath();cx.arc(x,y,W*.035,0,7);cx.stroke();}
@@ -153,12 +156,12 @@ function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r
 function nearest(p){let b=null,bd=.03;for(const s of stars){if(s.gone)continue;const d=dist(s,p);if(d<bd){bd=d;b=s;}}return b;}
 let teachK=0;function teach(){touched=true;const L=tx().teach;say(L[teachK++%L.length],true);$('yes').textContent=tx().here;renderMind();}
 cv.addEventListener('pointerdown',e=>{if(phase!=='ready')return;const p=pos(e);downP=p;moved=false;held=nearest(p);cv.setPointerCapture(e.pointerId);
- if(held){held.ox=held.x;held.oy=held.y;clearTimeout(pressTimer);pressTimer=setTimeout(()=>{if(held&&!moved){const W_=word(mem.cur);stamp(W_.M,held,-.9);W_.edits++;held.gone=true;held=null;teach();save();}},520);}});
+ if(held){held.ox=held.x;held.oy=held.y;clearTimeout(pressTimer);pressTimer=setTimeout(()=>{if(held&&!moved){const W_=word(mem.cur);tstamp(W_.M,held,-.9);edited();held.gone=true;held=null;teach();save();}},520);}});
 cv.addEventListener('pointermove',e=>{if(!held)return;const p=pos(e);if(dist(p,downP)>.012){moved=true;clearTimeout(pressTimer);}if(moved){held.x=clamp(p.x,.04,.96);held.y=clamp(p.y,.04,.68);}});
 cv.addEventListener('pointerup',e=>{clearTimeout(pressTimer);if(phase!=='ready'){held=null;return;}const M=word(mem.cur).M;
- if(held&&moved){stamp(M,{x:held.ox,y:held.oy},-.6);stamp(M,held,1.6);held.v=valAt(M,held);held.taught=true;held.big=true;word(mem.cur).edits++;teach();save();}
- else if(held&&!moved){stamp(M,held,1.2);held.v=valAt(M,held);held.taught=true;held.big=true;word(mem.cur).edits++;teach();save();}
- else if(!held&&downP){const p=downP;if(p.y<.7){const s={x:p.x,y:p.y,big:true,added:true,taught:true,ph:rnd()*6.28,sp:1,rot:rnd()*6.28};stars.push(s);stamp(M,s,1.6);word(mem.cur).edits++;teach();save();}}
+ if(held&&moved){tstamp(M,{x:held.ox,y:held.oy},-.6);tstamp(M,held,1.6);held.v=valAt(M,held);held.taught=true;held.big=true;edited();teach();save();}
+ else if(held&&!moved){tstamp(M,held,1.2);held.v=valAt(M,held);held.taught=true;held.big=true;edited();teach();save();}
+ else if(!held&&downP){const p=downP;if(p.y<.7){const s={x:p.x,y:p.y,big:true,added:true,taught:true,ph:rnd()*6.28,sp:1,rot:rnd()*6.28};stars.push(s);tstamp(M,s,1.6);edited();teach();save();}}
  held=null;downP=null;});
 cv.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);held=null;});
 
@@ -166,11 +169,12 @@ cv.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);held=null;});
 const sayEl=$('say');let sayK=0;
 function say(t,now){const k=++sayK;if(now){sayEl.textContent=t;sayEl.classList.remove('fade');return;}sayEl.classList.add('fade');setTimeout(()=>{if(k!==sayK)return;sayEl.textContent=t;sayEl.classList.remove('fade');},300);}
 let murmur=null;
-function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;held=null;$('yes').disabled=$('no').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
+function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;round=[];roundEdits=0;held=null;$('yes').disabled=$('no').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
  const L=tx().arranging(mem.cur);let k=0;clearInterval(murmur);say(L[0]);murmur=setInterval(()=>{if(phase!=='arranging'){clearInterval(murmur);return;}k=(k+1)%L.length;say(L[k]);},950);}
 function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
 function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=true;$('hint').innerHTML='';
  const W_=word(mem.cur),live=stars.filter(s=>!s.gone),here=y&&touched;
+ if(!y){for(const r of round)stamp(W_.M,r,-r.a);W_.edits=Math.max(0,W_.edits-roundEdits);round=[];roundEdits=0;}
  for(let k=0;k<W_.M.length;k++)W_.M[k]=FLOOR+(W_.M[k]-FLOOR)*.92;
  for(const s of live){let a;if(here)a=s.taught?.6:(s.big?.25:.12);else if(y)a=s.big?.12:.05;else a=s.big?-.3:-.15;stamp(W_.M,s,a);}
  W_.n++;if(y){W_.likes++;mem.hist.push({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0]),t:Date.now()});if(mem.hist.length>120)mem.hist.shift();}
