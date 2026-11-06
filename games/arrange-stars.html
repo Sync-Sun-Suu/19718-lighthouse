@@ -122,7 +122,9 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=Math.random;
 const isEmoji=s=>/\p{Extended_Pictographic}/u.test(s);
 function blankMap(){const M=new Array(G*G).fill(FLOOR);for(let k=0;k<3;k++){const cx=4+rnd()*(G-8),cy=4+rnd()*(G-8),s=2+rnd()*4;for(let j=0;j<G;j++)for(let i=0;i<G;i++)M[j*G+i]+=.35*Math.exp(-((i-cx)**2+(j-cy)**2)/(2*s*s));}return M;}
 function emojiMap(e){const c=document.createElement('canvas');c.width=c.height=G;const g=c.getContext('2d');g.textAlign='center';g.textBaseline='middle';g.font=Math.floor(G*.86)+'px sans-serif';g.fillText(e,G/2,G/2+1);const d=g.getImageData(0,0,G,G).data,M=new Array(G*G);for(let i=0;i<G*G;i++)M[i]=.04+1.2*d[i*4+3]/255;return M;}
-function word(w){if(!mem.words[w])mem.words[w]={M:isEmoji(w)?emojiMap(w):blankMap(),n:0,likes:0,edits:0};if(mem.words[w].edits==null)mem.words[w].edits=0;return mem.words[w];}
+function word(w){if(!mem.words[w])mem.words[w]={M:isEmoji(w)?emojiMap(w):blankMap(),n:0,likes:0,edits:0};if(mem.words[w].edits==null)mem.words[w].edits=0;if(!mem.words[w].T)mem.words[w].T=new Array(G*G).fill(0);return mem.words[w];}
+/* Sumie が自分の指で教えた場所の地図。「違う」でも、ここはあまり崩さない */
+function addT(T,p,a,s=1.25){const {i,j}=toCell(p);for(let y=Math.max(0,Math.floor(j-4));y<=Math.min(G-1,Math.ceil(j+4));y++)for(let x=Math.max(0,Math.floor(i-4));x<=Math.min(G-1,Math.ceil(i+4));x++){T[y*G+x]=clamp(T[y*G+x]+a*Math.exp(-((x-i)**2+(y-j)**2)/(2*s*s)),0,8);}}
 const conf=W_=>W_.n+W_.edits*.5;
 /* 正規化座標 ⇔ 地図のマス */
 const toCell=p=>({i:clamp((p.x-X0)/(X1-X0)*G-.5,0,G-1),j:clamp((p.y-Y0)/(Y1-Y0)*G-.5,0,G-1)});
@@ -131,11 +133,14 @@ function stamp(M,p,a,s=1.25){const {i,j}=toCell(p);if(a>.3)fires.push({i,j,t:per
 function valAt(M,p){const {i,j}=toCell(p);return M[Math.round(j)*G+Math.round(i)];}
 const dist=(p,q)=>Math.hypot((p.x-q.x)*ASP,p.y-q.y);
 /* 地図から星を置く。教えるほど、濃いところに集まる */
-function draw(w){const W_=word(w),M=W_.M,gam=1+Math.min(conf(W_),25)*.12;const P=M.map(v=>Math.pow(v,gam)),tot=P.reduce((a,b)=>a+b,0);const stars=[];
+function draw(w){const W_=word(w),M=W_.M,gam=1+Math.min(W_.likes+W_.edits*.2,30)*.06;const P=M.map(v=>Math.pow(v,gam));let tot=P.reduce((a,b)=>a+b,0);const stars=[];
  const pick=()=>{let r=rnd()*tot;for(let k=0;k<P.length;k++){r-=P[k];if(r<=0)return k;}return P.length-1;};
- for(let n=0;n<BIG+SMALL;n++){let p,t=0;do{const k=pick(),i=k%G,j=(k/G)|0;p={x:X0+(i+rnd())/G*(X1-X0),y:Y0+(j+rnd())/G*(Y1-Y0)};t++;}while(t<14&&stars.some(q=>dist(p,q)<.024));stars.push(p);}
+ /* 一つ置いたら、その場所は少し譲る。濃い所に全部が集まらないように */
+ for(let n=0;n<BIG+SMALL;n++){let p,t=0,k;do{k=pick();const i=k%G,j=(k/G)|0;p={x:X0+(i+rnd())/G*(X1-X0),y:Y0+(j+rnd())/G*(Y1-Y0)};t++;}while(t<14&&stars.some(q=>dist(p,q)<.024));stars.push(p);const d=P[k]*.6;P[k]-=d;tot-=d;}
  stars.forEach(s=>{s.v=valAt(M,s);s.ph=rnd()*6.28;s.sp=.6+rnd()*1.2;s.rot=rnd()*6.28;});
- stars.sort((a,b)=>b.v-a.v);stars.forEach((s,k)=>s.big=k<BIG);
+ /* 大きい星は、だんごにならないように間をあける */
+ stars.sort((a,b)=>b.v-a.v);let nb=0;for(const s of stars){s.big=false;if(nb<BIG&&!stars.some(q=>q.big&&dist(q,s)<.05)){s.big=true;nb++;}}
+ for(const s of stars){if(nb>=BIG)break;if(!s.big){s.big=true;nb++;}}
  /* 置く順はばらばらに */
  for(let k=stars.length-1;k>0;k--){const r=Math.floor(rnd()*(k+1));[stars[k],stars[r]]=[stars[r],stars[k]];}
  return stars;}
@@ -165,7 +170,7 @@ function scene(t){
 }
 let stars=[],born=0,phase='arranging',fadeOut=0,touched=false,round=[],roundEdits=0;
 /* この夜に指で教えた分。「違う」を押したら取り消す */
-function tstamp(M,p,a){stamp(M,p,a);if(a>0)round.push({x:p.x,y:p.y,a});}
+function tstamp(M,p,a){stamp(M,p,a);addT(word(mem.cur).T,p,a);if(a>0)round.push({x:p.x,y:p.y,a});}
 function edited(){word(mem.cur).edits++;roundEdits++;}
 function drawStars(t){const age=t-born,fo=fadeOut?Math.max(0,1-(t-fadeOut)/.8):1;
  stars.forEach((s,k)=>{if(s.gone)return;const b=reduce||s.added?1:clamp((age-k*(2.4/stars.length))/.45,0,1);if(b<=0)return;const tw=reduce?.9:(.65+.35*Math.sin(t*s.sp+s.ph));const x=s.x*W,y=s.y*H,a=b*fo;
@@ -200,9 +205,14 @@ function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arrang
 function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=$('toFrame').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
 function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=$('toFrame').disabled=true;$('hint').innerHTML='';
  const W_=word(mem.cur),live=stars.filter(s=>!s.gone),here=y&&touched;
- if(!y){for(const r of round)stamp(W_.M,r,-r.a);W_.edits=Math.max(0,W_.edits-roundEdits);round=[];roundEdits=0;}
- for(let k=0;k<W_.M.length;k++)W_.M[k]=FLOOR+(W_.M[k]-FLOOR)*.92;
- for(const s of live){let a;if(here)a=s.taught?.6:(s.big?.25:.12);else if(y)a=s.big?.12:.05;else a=s.big?-.3:-.15;stamp(W_.M,s,a);}
+ if(!y){for(const r of round){stamp(W_.M,r,-r.a);addT(W_.T,r,-r.a);}W_.edits=Math.max(0,W_.edits-roundEdits);round=[];roundEdits=0;}
+ /* 教えてない薄い所だけ、少しずつ忘れる。覚えた形は薄めない */
+ let mx=0;for(const v of W_.M)if(v>mx)mx=v;const low=FLOOR+.25*(mx-FLOOR);
+ for(let k=0;k<W_.M.length;k++)if(W_.M[k]<low)W_.M[k]=FLOOR+(W_.M[k]-FLOOR)*.85;
+ /* 「ここ！」は Sumie が触った星だけを覚える。「違う」は、Sumie が指で教えた場所の星には弱く、はぐれた星には強く */
+ const rel=s=>Math.min(1,valAt(W_.T,s)/1.2);
+ const vals=live.map(s=>here?(s.taught?.6:0):y?(s.big?.25:.1):-(s.big?.3:.15)*(1-.75*rel(s)));
+ live.forEach((s,k)=>stamp(W_.M,s,vals[k]));
  W_.n++;if(y){W_.likes++;mem.hist.push({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0]),t:Date.now()});if(mem.hist.length>120)mem.hist.shift();}
  save();say(here?tx().afterHere:y?tx().afterLike:tx().afterNo);renderMind();renderStrip();
  setTimeout(()=>{fadeOut=performance.now()/1000;},800);setTimeout(arrange,1700);}
