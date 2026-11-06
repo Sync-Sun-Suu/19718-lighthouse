@@ -70,6 +70,14 @@
   .g1 i{display:block;text-align:center;font-style:normal;font-size:10px;letter-spacing:.06em;color:var(--gold);padding-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   #viewer{position:fixed;inset:0;background:rgba(5,7,20,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));z-index:10;}
   #viewer.on{display:flex;}
+  #pick{position:fixed;inset:0;background:rgba(5,7,20,.9);display:none;align-items:center;justify-content:center;padding:16px;z-index:11;}
+  #pick.on{display:flex;}
+  #pick .box{width:min(100%,360px);background:#10152f;border:1px solid var(--line);border-radius:20px;padding:22px 18px 18px;text-align:center;}
+  #pick h3{font-weight:500;font-size:14px;letter-spacing:.14em;margin-bottom:6px;}
+  #pick p{font-size:11px;letter-spacing:.06em;color:var(--dim);margin-bottom:16px;line-height:1.7;}
+  #pickList{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;}
+  #pickList .chip.all{color:#ffe7b0;border-color:rgba(243,198,107,.55);background:rgba(243,198,107,.08);}
+  #pickNo{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--dim);background:none;border:none;cursor:pointer;padding:6px;}
   #viewer img{max-width:min(100%,460px);max-height:68vh;display:block;-webkit-touch-callout:default;}
   #viewer .vb{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
   #viewer button{font-family:inherit;font-size:13px;letter-spacing:.14em;padding:11px 18px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.05);color:var(--ink);cursor:pointer;}
@@ -92,6 +100,7 @@
   <div class="gaku"><h2 id="gakuT"></h2><div id="gakuList"></div></div>
   <div class="past"><h2 id="pastT"></h2><div id="strip"></div></div>
   <footer><div class="io"><button id="exp"></button><button id="imp"></button></div><button id="forget"></button><input type="file" id="impFile" accept=".json,application/json,text/plain" hidden></footer>
+  <div id="pick"><div class="box"><h3 id="pickT"></h3><p id="pickP"></p><div id="pickList"></div><button id="pickNo"></button></div></div>
   <div id="viewer"><img id="vImg" alt=""><small id="vNote"></small><div class="vb"><button id="vSave" class="save"></button><button id="vDel"></button><button id="vClose"></button></div></div>
 </main>
 <script>
@@ -102,11 +111,11 @@ const T={
  ja:{sw:'EN',title:'ステラ',sub:'星を並べる子',ph:'＋ なにを並べる？',arranging:w=>['えっと……','んー、ここかな',w+'、'+w+'……'],ready:w=>'できた。たぶん。',like:'好き',here:'ここ！',no:'違う',afterLike:'やった',afterHere:'覚えた。ここだね',afterNo:'あれ？ もう一回',teach:['ふむふむ','そこね'],
   hint:'星を叩くと「そこ」。動かせる。空いてるところを叩くと足す。<br>長押しで消す。教えたら「ここ！」。',mind:w=>'ステラの中の「'+w+'」',
   stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の形になってる。',
-  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',exp:'覚えたことを取り出す',imp:'取り出したのを入れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
+  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',exp:'覚えたことを取り出す',pickT:'なにを取り出す？',pickP:'全部か、言葉を一つ。入れる時は、ファイルに入ってる言葉だけが入る。',pickAll:'全部',pickNo:'やめる',imp:'取り出したのを入れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
  en:{sw:'日本語',title:'Stella',sub:'arranges stars',ph:'+ what shall I draw?',arranging:w=>['umm...','hmm, here maybe',w+', '+w+'...'],ready:w=>'done. probably.',like:'like',here:'here!',no:'not this',afterLike:'yay',afterHere:'got it. right here.',afterNo:'huh? one more time',teach:['mm-hm','there, got it'],
   hint:'tap a star to say "that one". drag to move. tap empty space to add.<br>hold to remove. then press "here!".',mind:w=>'"'+w+'" inside Stella',
   stage:n=>n<3?"I don't know it yet.":n<10?'a shape is starting to show.':n<25?'getting there.':"it's your shape now.",
-  lessons:n=>n+' lessons',past:'nights you liked',exp:'save what she learned',imp:'load it back',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
+  lessons:n=>n+' lessons',past:'nights you liked',exp:'save what she learned',pickT:'what to save?',pickP:'everything, or just one word. loading a file only brings in the words inside it.',pickAll:'everything',pickNo:'cancel',imp:'load it back',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
 };
 let lang='ja';try{lang=localStorage.getItem('arrange-stars-lang')||'ja';}catch(e){}
 const tx=()=>T[lang];
@@ -269,12 +278,19 @@ $('vSave').addEventListener('click',()=>{if(!vCanvas)return;const f=mem.frames[v
 
 /* ---------- 取り出す・入れる（携帯を替えても、雲に上げても、続きから） ---------- */
 const r3=v=>Math.round(v*1000)/1000;
-$('exp').addEventListener('click',async()=>{const out={app:'stella',v:2,at:new Date().toISOString(),mem:{cur:mem.cur,hist:mem.hist,frames:mem.frames,words:{}}};
- for(const [w,W_] of Object.entries(mem.words))out.mem.words[w]={M:W_.M.map(r3),n:W_.n,likes:W_.likes,edits:W_.edits||0};
- const d=new Date(),pad=x=>String(x).padStart(2,'0'),name='stella-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.json';
+async function doExport(only){const list=only?[only]:Object.keys(mem.words);
+ const out={app:'stella',v:2,at:new Date().toISOString(),mem:{cur:only||mem.cur,hist:mem.hist.filter(h=>!only||h.w===only),frames:mem.frames.filter(f=>!only||f.w===only),words:{}}};
+ for(const w of list){const W_=mem.words[w];if(W_)out.mem.words[w]={M:W_.M.map(r3),n:W_.n,likes:W_.likes,edits:W_.edits||0};}
+ const d=new Date(),pad=x=>String(x).padStart(2,'0'),tag=only?only.replace(/[\\/:*?"<>|\s]/g,'_'):'all',name='stella-'+tag+'-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.json';
  const blob=new Blob([JSON.stringify(out)],{type:'application/json'}),file=new File([blob],name,{type:'application/json'});
  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});say(tx().expDone,true);return;}}catch(e){if(e&&e.name==='AbortError')return;}
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);say(tx().expDone,true);});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);say(tx().expDone,true);}
+function closePick(){$('pick').classList.remove('on');}
+$('exp').addEventListener('click',()=>{const x=tx(),L=$('pickList');$('pickT').textContent=x.pickT;$('pickP').textContent=x.pickP;$('pickNo').textContent=x.pickNo;L.innerHTML='';
+ const mk=(label,only,cls)=>{const b=document.createElement('button');b.className='chip'+(cls?' '+cls:'');b.textContent=label;b.addEventListener('click',()=>{closePick();doExport(only);});L.appendChild(b);};
+ mk(x.pickAll,null,'all');for(const w of Object.keys(mem.words))mk(w,w);$('pick').classList.add('on');});
+$('pickNo').addEventListener('click',closePick);
+$('pick').addEventListener('click',e=>{if(e.target===$('pick'))closePick();});
 $('imp').addEventListener('click',()=>$('impFile').click());
 $('impFile').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
  let o;try{o=JSON.parse(await f.text());}catch(err){alert(tx().impBad);return;}
