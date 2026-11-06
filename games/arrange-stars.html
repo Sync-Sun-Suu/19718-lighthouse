@@ -81,6 +81,19 @@
   .bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:2px 0 16px;}
   .bar button,.card .cb button{font-family:inherit;font-size:12px;letter-spacing:.12em;padding:9px 16px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.04);color:var(--ink);cursor:pointer;}
   .bar button.gold{border-color:rgba(243,198,107,.5);color:#ffe7b0;}
+  .cloud{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 14px;font-size:12px;letter-spacing:.06em;color:var(--dim);}
+  .cloud b{font-weight:500;color:var(--ink);}
+  .cloud button{flex:none;font-family:inherit;font-size:11px;letter-spacing:.08em;padding:6px 12px 5px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.04);color:var(--ink);cursor:pointer;}
+  #keyBox{position:fixed;inset:0;background:rgba(5,7,20,.9);display:none;align-items:center;justify-content:center;padding:16px;z-index:12;}
+  #keyBox.on{display:flex;}
+  #keyBox .box{width:min(100%,340px);background:#10152f;border:1px solid var(--line);border-radius:20px;padding:22px 18px 16px;text-align:center;}
+  #keyBox h3{font-weight:500;font-size:15px;letter-spacing:.14em;margin-bottom:8px;}
+  #keyBox p{font-size:11px;line-height:1.8;letter-spacing:.06em;color:var(--dim);margin-bottom:14px;}
+  #keyIn{width:100%;font-family:inherit;font-size:16px;text-align:center;letter-spacing:.2em;padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.04);color:var(--ink);outline:none;margin-bottom:12px;}
+  #keyErr{font-size:11px;color:#f3a6a6;min-height:16px;margin-bottom:8px;}
+  #keyBox .kb{display:flex;gap:10px;justify-content:center;}
+  #keyBox .kb button{font-family:inherit;font-size:13px;letter-spacing:.14em;padding:10px 18px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.04);color:var(--ink);cursor:pointer;}
+  #keyBox .kb button.go{border-color:rgba(243,198,107,.55);color:#ffe7b0;}
   .lead2{font-size:11px;line-height:1.8;letter-spacing:.06em;color:var(--dim);text-align:center;margin:0 0 14px;}
   #dataList{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 12px;}
   .card{border:1px solid var(--line);border-radius:16px;padding:8px 8px 10px;background:rgba(233,236,255,.03);}
@@ -106,7 +119,8 @@
     <div class="past"><h2 id="pastT"></h2><div id="strip"></div></div>
   </section>
   <section id="pGaku" hidden><p class="lead2" id="gakuLead"></p><div class="bar"><button id="gExp"></button><button id="gImp"></button></div><div id="gakuList"></div></section>
-  <section id="pData" hidden><p class="lead2" id="dataLead"></p><div class="bar"><button id="exp" class="gold"></button><button id="imp"></button></div><div id="dataList"></div></section>
+  <section id="pData" hidden><div class="cloud"><span id="cloudS"></span><button id="cloudB"></button></div><p class="lead2" id="dataLead"></p><div class="bar"><button id="exp" class="gold"></button><button id="imp"></button></div><div id="dataList"></div></section>
+  <div id="keyBox"><div class="box"><h3 id="keyT"></h3><p id="keyP"></p><input id="keyIn" type="password" autocomplete="off" inputmode="text"><div id="keyErr"></div><div class="kb"><button id="keyLater"></button><button id="keyGo" class="go"></button></div></div></div>
   <input type="file" id="impFile" accept=".json,application/json,text/plain" hidden>
   <div id="viewer"><img id="vImg" alt=""><small id="vNote"></small><div class="vb"><button id="vSave" class="save"></button><button id="vDel"></button><button id="vClose"></button></div></div>
 </main>
@@ -118,11 +132,11 @@ const T={
  ja:{sw:'EN',title:'ステラ',sub:'星を並べる子',ph:'＋ なにを並べる？',arranging:w=>['えっと……','んー、ここかな',w+'、'+w+'……'],ready:w=>'できた。たぶん。',like:'好き',here:'ここ！',no:'違う',afterLike:'やった',afterHere:'覚えた。ここだね',afterNo:'あれ？ もう一回',teach:['ふむふむ','そこね'],
   hint:'星を叩くと「そこ」。動かせる。空いてるところを叩くと足す。<br>長押しで消す。教えたら「ここ！」。',mind:w=>'ステラの中の「'+w+'」',
   stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の形になってる。',
-  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',tabPlay:'ステラ',tabGaku:'額縁',tabData:'学習データ',gakuLead:'気に入った夜。絵を叩くと、大きく見たり、写真に保存したり、外したりできる。',dataLead:'言葉ごとの、ステラの頭の中。いちばん最近の絵。絵を叩くと取り出せる。',exp:'全部を取り出す',imp:'全部を入れる',gExp:'額縁を取り出す',gImp:'額縁を入れる',cExp:'取り出す',cImp:'入れる',cDel:'忘れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impWordQ:w=>'このファイルの「'+w+'」を入れる？ 今の「'+w+'」は、ファイルの方で置き換わる。',impRename:(a,b)=>'このファイルに入ってるのは「'+a+'」。「'+b+'」として入れる？',notIn:w=>'このファイルに「'+w+'」は入ってないみたい',impFramesQ:n=>'このファイルの額縁を '+n+' 枚入れる？ 同じ額縁は二枚にならない。',noFrames:'このファイルに額縁は入ってないみたい',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',noData:'まだ何も覚えてない。ステラのところで言葉を入れてみて。',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
+  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',tabPlay:'ステラ',keyT:'ステラを雲につなぐ',keyP:'合言葉を入れると、iPhone でも iPad でも、同じステラになる。覚えたことは雲の箱にしまわれる。',keyGo:'つなぐ',keyLater:'あとで',keyBad:'合言葉がちがうみたい',keyNet:'雲に届かなかった。電波のいい所でもう一回',cloudOn:t=>'雲：<b>つながってる</b>'+(t?' · '+t:''),cloudOff:'雲：つながってない',cloudErr:'雲：<b>今つながらない</b>（あとで自動でやり直す）',cloudBusy:'雲：しまってる……',cloudConnect:'つなぐ',cloudOut:'外す',cloudOutQ:'この携帯のステラを、雲から外す？ 覚えたことは、この携帯にも残る。',cloudBack:'雲から戻ってきた',tabGaku:'額縁',tabData:'学習データ',gakuLead:'気に入った夜。絵を叩くと、大きく見たり、写真に保存したり、外したりできる。',dataLead:'言葉ごとの、ステラの頭の中。いちばん最近の絵。絵を叩くと取り出せる。',exp:'全部を取り出す',imp:'全部を入れる',gExp:'額縁を取り出す',gImp:'額縁を入れる',cExp:'取り出す',cImp:'入れる',cDel:'忘れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impWordQ:w=>'このファイルの「'+w+'」を入れる？ 今の「'+w+'」は、ファイルの方で置き換わる。',impRename:(a,b)=>'このファイルに入ってるのは「'+a+'」。「'+b+'」として入れる？',notIn:w=>'このファイルに「'+w+'」は入ってないみたい',impFramesQ:n=>'このファイルの額縁を '+n+' 枚入れる？ 同じ額縁は二枚にならない。',noFrames:'このファイルに額縁は入ってないみたい',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',noData:'まだ何も覚えてない。ステラのところで言葉を入れてみて。',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
  en:{sw:'日本語',title:'Stella',sub:'arranges stars',ph:'+ what shall I draw?',arranging:w=>['umm...','hmm, here maybe',w+', '+w+'...'],ready:w=>'done. probably.',like:'like',here:'here!',no:'not this',afterLike:'yay',afterHere:'got it. right here.',afterNo:'huh? one more time',teach:['mm-hm','there, got it'],
   hint:'tap a star to say "that one". drag to move. tap empty space to add.<br>hold to remove. then press "here!".',mind:w=>'"'+w+'" inside Stella',
   stage:n=>n<3?"I don't know it yet.":n<10?'a shape is starting to show.':n<25?'getting there.':"it's your shape now.",
-  lessons:n=>n+' lessons',past:'nights you liked',tabPlay:'Stella',tabGaku:'frames',tabData:'learning',gakuLead:'nights you loved. tap one to see it big, save it to your photos, or take it down.',dataLead:"what's inside Stella, word by word. her latest picture. tap it to save.",exp:'save everything',imp:'load everything',gExp:'save frames',gImp:'load frames',cExp:'save',cImp:'load',cDel:'forget',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impWordQ:w=>'load "'+w+'" from this file? the "'+w+'" here will be replaced.',impRename:(a,b)=>'this file has "'+a+'". load it as "'+b+'"?',notIn:w=>'"'+w+'" isn\'t in this file',impFramesQ:n=>'load '+n+' frames from this file? the same frame won\'t be added twice.',noFrames:'no frames in this file',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",noData:"she hasn't learned anything yet. give her a word on the Stella tab.",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
+  lessons:n=>n+' lessons',past:'nights you liked',tabPlay:'Stella',keyT:'connect Stella to the cloud',keyP:'enter the passphrase and your iPhone and iPad will share one Stella. what she learns is kept in the cloud box.',keyGo:'connect',keyLater:'later',keyBad:"that passphrase doesn't match",keyNet:"couldn't reach the cloud. try again with a better signal",cloudOn:t=>'cloud: <b>connected</b>'+(t?' · '+t:''),cloudOff:'cloud: not connected',cloudErr:'cloud: <b>not reachable now</b> (will retry)',cloudBusy:'cloud: saving...',cloudConnect:'connect',cloudOut:'disconnect',cloudOutQ:'disconnect this phone from the cloud? what she learned stays on this phone too.',cloudBack:'back from the cloud',tabGaku:'frames',tabData:'learning',gakuLead:'nights you loved. tap one to see it big, save it to your photos, or take it down.',dataLead:"what's inside Stella, word by word. her latest picture. tap it to save.",exp:'save everything',imp:'load everything',gExp:'save frames',gImp:'load frames',cExp:'save',cImp:'load',cDel:'forget',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impWordQ:w=>'load "'+w+'" from this file? the "'+w+'" here will be replaced.',impRename:(a,b)=>'this file has "'+a+'". load it as "'+b+'"?',notIn:w=>'"'+w+'" isn\'t in this file',impFramesQ:n=>'load '+n+' frames from this file? the same frame won\'t be added twice.',noFrames:'no frames in this file',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",noData:"she hasn't learned anything yet. give her a word on the Stella tab.",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
 };
 let lang='ja';try{lang=localStorage.getItem('arrange-stars-lang')||'ja';}catch(e){}
 const tx=()=>T[lang];
@@ -132,12 +146,12 @@ const G=28,X0=.05,X1=.95,Y0=.05,Y1=.66,ASP=680/740,BIG=19,SMALL=78,FLOOR=.03;
 const KEY='arrange-stars:v2';
 let mem={words:{},cur:'ニモ',hist:[]};
 try{const m=JSON.parse(localStorage.getItem(KEY)||'null');if(m&&m.words)mem=m;}catch(e){}
-if(!mem.frames)mem.frames=[];
+if(!mem.frames)mem.frames=[];if(!mem.gone)mem.gone={};if(!mem.goneF)mem.goneF={};
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
 /* 保存は、触り終わってから一回だけ（触るたびに全部書くと重い） */
 let saveT=null;
 function saveNow(){clearTimeout(saveT);saveT=null;try{const W_=mem.words[mem.cur];if(W_)W_.M=W_.M.map(v=>Math.round(v*1000)/1000);localStorage.setItem(KEY,JSON.stringify(mem));}catch(e){}}
-function save(){if(!saveT)saveT=setTimeout(saveNow,500);}
+function save(){if(!saveT)saveT=setTimeout(saveNow,500);try{cloudLater();}catch(e){}}
 addEventListener('pagehide',()=>{if(saveT)saveNow();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&saveT)saveNow();});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=Math.random;
 const isEmoji=s=>/\p{Extended_Pictographic}/u.test(s);
@@ -198,7 +212,7 @@ function scene(t){const seaY=H*.82,lx=W/2,ly=H*.735;
 let stars=[],born=0,phase='arranging',fadeOut=0,touched=false,round=[],roundEdits=0;
 /* この夜に指で教えた分。「違う」を押したら取り消す */
 function tstamp(M,p,a){stamp(M,p,a);if(a>0)round.push({x:p.x,y:p.y,a});}
-function edited(){word(mem.cur).edits++;roundEdits++;}
+function edited(){const W_=word(mem.cur);W_.edits++;W_.u=Date.now();roundEdits++;}
 function drawStars(t){const age=t-born,fo=fadeOut?Math.max(0,1-(t-fadeOut)/.8):1;
  stars.forEach((s,k)=>{if(s.gone)return;const b=reduce||s.added?1:clamp((age-k*(2.4/stars.length))/.45,0,1);if(b<=0)return;const tw=reduce?.9:(.65+.35*Math.sin(t*s.sp+s.ph));const x=s.x*W,y=s.y*H,a=b*fo;
   if(s===held){cx.strokeStyle='rgba(243,198,107,'+(.4*a)+')';cx.lineWidth=1;cx.beginPath();cx.arc(x,y,W*.035,0,7);cx.stroke();}
@@ -237,7 +251,7 @@ function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('
  /* 最初の版の学び方（Sumie が「こっちの方が賢い」と言った方）。好き と ここ！ は並びごと覚える。
     小さい星は最初の版の 3 倍いるので、一つあたりは 3 分の 1 にして、全体の重さを最初の版と同じにする */
  for(const s of live)stamp(W_.M,s,y?(s.big?.45:.22/3):(s.big?-.16:-.08/3));
- W_.last=live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0,+(s.rot||0).toFixed(2)]);W_.n++;if(y){W_.likes++;mem.hist.push({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0]),t:Date.now()});if(mem.hist.length>120)mem.hist.shift();}
+ W_.u=Date.now();W_.last=live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0,+(s.rot||0).toFixed(2)]);W_.n++;if(y){W_.likes++;mem.hist.push({w:mem.cur,s:live.map(s=>[+s.x.toFixed(3),+s.y.toFixed(3),s.big?1:0]),t:Date.now()});if(mem.hist.length>120)mem.hist.shift();}
  save();say(here?tx().afterHere:y?tx().afterLike:tx().afterNo);renderMind();renderStrip();
  setTimeout(()=>{fadeOut=performance.now()/1000;},800);setTimeout(arrange,1700);}
 $('yes').addEventListener('click',()=>rate(true));$('no').addEventListener('click',()=>rate(false));
@@ -292,7 +306,7 @@ function openViewer(idx){vIdx=idx;vCanvas=framedPic(mem.frames[idx]);$('vImg').s
 function closeViewer(){$('viewer').classList.remove('on');$('vImg').removeAttribute('src');vIdx=-1;vCanvas=null;}
 $('vClose').addEventListener('click',closeViewer);
 $('viewer').addEventListener('click',e=>{if(e.target===$('viewer'))closeViewer();});
-$('vDel').addEventListener('click',()=>{if(vIdx<0||!confirm(tx().delQ))return;mem.frames.splice(vIdx,1);save();closeViewer();renderGaku();tabLabels();});
+$('vDel').addEventListener('click',()=>{if(vIdx<0||!confirm(tx().delQ))return;mem.goneF[mem.frames[vIdx].t]=Date.now();mem.frames.splice(vIdx,1);save();closeViewer();renderGaku();tabLabels();});
 $('vSave').addEventListener('click',()=>{if(!vCanvas)return;const f=mem.frames[vIdx],name='stella-'+fmtDate(f.t).replace(/\./g,'')+'.png';
  vCanvas.toBlob(async b=>{if(!b)return;const file=new File([b],name,{type:'image/png'});
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return;}}catch(e){if(e&&e.name==='AbortError')return;}
@@ -315,7 +329,7 @@ function renderData(){const box=$('dataList'),x=tx();box.innerHTML='';const list
   const cb=document.createElement('div');cb.className='cb';const mk=(t,f,cls)=>{const bt=document.createElement('button');bt.textContent=t;if(cls)bt.className=cls;bt.addEventListener('click',f);cb.appendChild(bt);};
   mk(x.cExp,()=>doExport('word',w));mk(x.cImp,()=>pickFile('word',w));mk(x.cDel,()=>forgetWord(w),'del');
   c.appendChild(pic);c.appendChild(b);c.appendChild(sm);c.appendChild(cb);box.appendChild(c);}}
-function forgetWord(w){if(!confirm(tx().confirm(w)))return;delete mem.words[w];mem.hist=mem.hist.filter(h=>h.w!==w);
+function forgetWord(w){if(!confirm(tx().confirm(w)))return;delete mem.words[w];mem.gone[w]=Date.now();mem.hist=mem.hist.filter(h=>h.w!==w);
  if(mem.cur===w){mem.cur=Object.keys(mem.words)[0]||'ニモ';word(mem.cur);arrange();}save();renderWords();renderStrip();renderData();}
 
 /* ---------- 取り出す・入れる（携帯を替えても、雲に上げても、続きから） ---------- */
@@ -342,13 +356,62 @@ $('impFile').addEventListener('change',async e=>{const f=e.target.files&&e.targe
  const words={};for(const [w,W_] of Object.entries(o.mem.words||{})){const c=cleanWord(W_);if(c)words[w]=c;}
  if(md.kind==='frames'){const fr=(o.mem.frames||[]).filter(x=>x&&x.t&&Array.isArray(x.s));if(!fr.length){alert(x.noFrames);return;}if(!confirm(x.impFramesQ(fr.length)))return;addFrames(fr);}
  else if(md.kind==='word'){const w=md.w;let src=w;if(!words[w]){const ks=Object.keys(words);if(ks.length!==1){alert(x.notIn(w));return;}src=ks[0];if(!confirm(x.impRename(src,w)))return;}else if(!confirm(x.impWordQ(w)))return;
-  mem.words[w]=words[src];addHist((o.mem.hist||[]).filter(h=>h&&h.w===src),src!==w?w:null);addFrames((o.mem.frames||[]).filter(f=>f&&f.w===src),src!==w?w:null);if(mem.cur===w)arrange();}
- else{const names=Object.keys(words);if(!names.length){alert(x.impBad);return;}if(!confirm(x.impQ(names.join('」「'))))return;Object.assign(mem.words,words);addHist(o.mem.hist);addFrames(o.mem.frames);if(o.mem.cur&&words[o.mem.cur])mem.cur=o.mem.cur;arrange();}
+  mem.words[w]={...words[src],u:Date.now()};delete mem.gone[w];addHist((o.mem.hist||[]).filter(h=>h&&h.w===src),src!==w?w:null);addFrames((o.mem.frames||[]).filter(f=>f&&f.w===src),src!==w?w:null);if(mem.cur===w)arrange();}
+ else{const names=Object.keys(words);if(!names.length){alert(x.impBad);return;}if(!confirm(x.impQ(names.join('」「'))))return;for(const w of names){mem.words[w]={...words[w],u:Date.now()};delete mem.gone[w];}addHist(o.mem.hist);addFrames(o.mem.frames);if(o.mem.cur&&words[o.mem.cur])mem.cur=o.mem.cur;arrange();}
  save();renderWords();renderStrip();renderGaku();renderData();tabLabels();setTimeout(()=>say(x.impDone,true),60);});
-function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;$('sub').textContent=x.sub;document.title=x.title;$('yes').textContent=touched?x.here:x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;$('gakuLead').textContent=x.gakuLead;$('dataLead').textContent=x.dataLead;$('gExp').textContent=x.gExp;$('gImp').textContent=x.gImp;tabLabels();$('toFrame').setAttribute('aria-label',x.frameBtn);$('toFrame').title=x.frameBtn;$('vSave').textContent=x.save;$('vDel').textContent=x.del;$('vClose').textContent=x.close;$('vNote').textContent=x.note;$('exp').textContent=x.exp;$('imp').textContent=x.imp;renderGaku();if(tab==='Data')renderData();
+
+/* ---------- 雲（Sumie の Cloudflare の箱。iPhone と iPad で同じステラ） ---------- */
+const CLOUD='https://stella.lighthouse19718.workers.dev';
+let cloudKey=null,cloudVer=null,cloudAt=null,cloudState='off',pushT=null,pushing=false,pushAgain=false;
+try{cloudKey=localStorage.getItem('arrange-stars-key');const c=JSON.parse(localStorage.getItem('arrange-stars-sync')||'{}');cloudVer=c.ver??null;cloudAt=c.at||null;}catch(e){}
+function keepSync(){try{localStorage.setItem('arrange-stars-sync',JSON.stringify({ver:cloudVer,at:cloudAt}));}catch(e){}}
+function hhmm(iso){if(!iso)return '';const d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function renderCloud(){const x=tx();$('cloudS').innerHTML=!cloudKey?x.cloudOff:cloudState==='err'?x.cloudErr:cloudState==='busy'?x.cloudBusy:x.cloudOn(hhmm(cloudAt));$('cloudB').textContent=cloudKey?x.cloudOut:x.cloudConnect;}
+/* 二つのステラを一つにする。言葉ごとに新しく教わった方。忘れた言葉と外した額縁は戻さない。同じなら雲の方 */
+function mergeMem(a,b){const out={cur:a.cur||b.cur,words:{},hist:[],frames:[],gone:{},goneF:{}};
+ for(const g of [a.gone||{},b.gone||{}])for(const [k,v] of Object.entries(g))out.gone[k]=Math.max(out.gone[k]||0,v);
+ for(const g of [a.goneF||{},b.goneF||{}])for(const [k,v] of Object.entries(g))out.goneF[k]=Math.max(out.goneF[k]||0,v);
+ const aw=a.words||{},bw=b.words||{};
+ for(const w of new Set([...Object.keys(aw),...Object.keys(bw)])){const A=aw[w],B=bw[w],W_=!A?B:!B?A:((A.u||0)>(B.u||0)?A:B);if(out.gone[w]&&out.gone[w]>=(W_.u||0))continue;out.words[w]=W_;}
+ const seen=new Set();for(const h of [...(a.hist||[]),...(b.hist||[])])if(h&&!seen.has(h.t)&&!(out.gone[h.w]&&h.t<=out.gone[h.w])){seen.add(h.t);out.hist.push(h);}
+ out.hist.sort((p,q)=>p.t-q.t);while(out.hist.length>120)out.hist.shift();
+ const seenF=new Set();for(const f of [...(a.frames||[]),...(b.frames||[])])if(f&&!seenF.has(f.t)&&!out.goneF[f.t]){seenF.add(f.t);out.frames.push(f);}
+ out.frames.sort((p,q)=>q.t-p.t);out.frames.length=Math.min(out.frames.length,60);
+ if(!out.words[out.cur])out.cur=Object.keys(out.words)[0]||'ニモ';return out;}
+async function cloudFetch(method,body){const r=await fetch(CLOUD+'/data',{method,headers:{'X-Stella-Key':cloudKey||'','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+ let j=null;try{j=await r.json();}catch(e){}return {status:r.status,j};}
+function adopt(m,quiet){const before=JSON.stringify(mem);mem=m;if(!mem.gone)mem.gone={};if(!mem.goneF)mem.goneF={};word(mem.cur);
+ if(JSON.stringify(mem)===before)return false;saveNow();renderWords();renderStrip();renderGaku();tabLabels();renderMind();if(tab==='Data')renderData();if(!quiet&&phase==='ready')say(tx().cloudBack,true);return true;}
+async function cloudPull(first){if(!cloudKey)return;cloudState='busy';renderCloud();
+ try{const {status,j}=await cloudFetch('GET');
+  if(status===401){cloudKey=null;try{localStorage.removeItem('arrange-stars-key');}catch(e){}cloudState='off';renderCloud();return 'key';}
+  if(status===404){cloudVer=0;await cloudPush();return 'ok';}
+  if(status!==200||!j||!j.mem){cloudState='err';renderCloud();return 'net';}
+  if(first){try{localStorage.setItem('arrange-stars:before-cloud',JSON.stringify(mem));}catch(e){}}
+  const merged=mergeMem(mem,j.mem);cloudVer=j.ver;cloudAt=j.at;keepSync();adopt(merged,first);
+  if(JSON.stringify(merged)!==JSON.stringify(j.mem))await cloudPush();else{cloudState='ok';renderCloud();}
+  return 'ok';}catch(e){cloudState='err';renderCloud();return 'net';}}
+async function cloudPush(){if(!cloudKey)return;if(pushing){pushAgain=true;return;}pushing=true;clearTimeout(pushT);pushT=null;cloudState='busy';renderCloud();
+ try{saveNow();let {status,j}=await cloudFetch('PUT',{base:cloudVer||0,mem});
+  if(status===409&&j&&j.mem){const merged=mergeMem(mem,j.mem);cloudVer=j.ver;adopt(merged,false);({status,j}=await cloudFetch('PUT',{base:cloudVer,mem}));}
+  if(status===200&&j){cloudVer=j.ver;cloudAt=j.at;keepSync();cloudState='ok';}else if(status===401){cloudKey=null;try{localStorage.removeItem('arrange-stars-key');}catch(e){}cloudState='off';}else{cloudState='err';cloudLater(30000);}
+ }catch(e){cloudState='err';cloudLater(30000);}
+ pushing=false;renderCloud();if(pushAgain){pushAgain=false;cloudLater(2000);}}
+/* 雲にしまうのは、触り終わって 15 秒後に一回（雲の箱は、一日に書ける回数に限りがある） */
+function cloudLater(ms){if(!cloudKey)return;if(pushT)return;pushT=setTimeout(()=>{pushT=null;cloudPush();},ms||15000);}
+document.addEventListener('visibilitychange',()=>{if(!cloudKey)return;if(document.hidden){if(pushT)cloudPush();}else cloudPull(false);});
+function openKey(){const x=tx();$('keyT').textContent=x.keyT;$('keyP').textContent=x.keyP;$('keyGo').textContent=x.keyGo;$('keyLater').textContent=x.keyLater;$('keyErr').textContent='';$('keyIn').value='';$('keyBox').classList.add('on');}
+function closeKey(){$('keyBox').classList.remove('on');$('keyIn').blur();}
+async function tryKey(){const k=$('keyIn').value.trim();if(!k)return;$('keyGo').disabled=true;cloudKey=k;const r=await cloudPull(true);$('keyGo').disabled=false;
+ if(r==='ok'){try{localStorage.setItem('arrange-stars-key',k);}catch(e){}closeKey();arrange();}else{cloudKey=null;$('keyErr').textContent=r==='key'?tx().keyBad:tx().keyNet;}renderCloud();}
+$('keyGo').addEventListener('click',tryKey);$('keyIn').addEventListener('keydown',e=>{if(e.key==='Enter')tryKey();});
+$('keyLater').addEventListener('click',()=>{try{localStorage.setItem('arrange-stars-cloud-later','1');}catch(e){}closeKey();});
+$('cloudB').addEventListener('click',()=>{if(cloudKey){if(!confirm(tx().cloudOutQ))return;cloudKey=null;cloudVer=null;cloudAt=null;keepSync();try{localStorage.removeItem('arrange-stars-key');}catch(e){}cloudState='off';renderCloud();}else openKey();});
+function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').textContent=x.sw;$('title').textContent=x.title;$('sub').textContent=x.sub;document.title=x.title;$('yes').textContent=touched?x.here:x.like;$('no').textContent=x.no;$('pastT').textContent=x.past;$('gakuLead').textContent=x.gakuLead;$('dataLead').textContent=x.dataLead;renderCloud();$('gExp').textContent=x.gExp;$('gImp').textContent=x.gImp;tabLabels();$('toFrame').setAttribute('aria-label',x.frameBtn);$('toFrame').title=x.frameBtn;$('vSave').textContent=x.save;$('vDel').textContent=x.del;$('vClose').textContent=x.close;$('vNote').textContent=x.note;$('exp').textContent=x.exp;$('imp').textContent=x.imp;renderGaku();if(tab==='Data')renderData();
  if(phase==='ready'){say(x.ready(mem.cur),true);$('hint').innerHTML=x.hint;}else if(phase==='arranging')say(x.arranging(mem.cur)[0],true);renderWords();renderMind();}
 $('lang').addEventListener('click',()=>{lang=lang==='ja'?'en':'ja';try{localStorage.setItem('arrange-stars-lang',lang);}catch(e){}applyLang();});
 word(mem.cur);applyLang();renderStrip();arrange();showTab(tab);
+if(cloudKey)cloudPull(false);else{let later=null;try{later=localStorage.getItem('arrange-stars-cloud-later');}catch(e){}if(!later)openKey();}
 })();
 </script>
 </body>
