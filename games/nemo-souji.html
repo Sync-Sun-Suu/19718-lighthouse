@@ -106,7 +106,7 @@ function resize(){
   h=nh;shine=ns;N=nN;base=nb;
   nemo.s=Math.max(12,Math.min(20,Math.min(W,H)*.032));
   tree.x=W-Math.min(56,W*.12);
-  bed.x=tree.x-Math.min(70,W*.15);
+  bed.x=Math.max(nemo.s*1.9,Math.min(40,W*.08)); // ニモの寝床はいつも左の角
   if(!nemo.x||nemo.state==='lie'){nemo.x=bed.x;nemo.y=surfY(bed.x)-nemo.s*.55;}
   buildRocks();
 }
@@ -173,7 +173,7 @@ function localMess(x){
 }
 function sweepAt(x){
   const c=col(x),R=10;
-  const lo=x<30?-c:-R,hi=x>W-30?N-1-c:R; // 壁ぎわは壁まで払う
+  const lo=x<60?-c:-R,hi=x>W-60?N-1-c:R; // 壁ぎわは壁まで払う
   for(let k=lo;k<=hi;k++){
     const i=c+k;if(i<0||i>=N)continue;
     const w=Math.max(.35,1-Math.abs(k)/(R+1));
@@ -197,12 +197,12 @@ const WAKE=['ニモ、起きた','ニモ、出勤','「また？」という顔'
 const BUSY=['ニモはめげない','ニモ、黙って片づけてる','仕事が増えた','ニモ、聞こえないふり'];
 let firstWake=true;
 let angry=false,angryPop=0;
-const rage=()=>angry?1.15:1;
+const rage=()=>angry?1.1:1;
 function dirtyFrac(){let c=0;const n=Math.min(N,Math.ceil(W/COL));for(let i=0;i<n;i++)if(messAt(i)>.3)c++;return c/Math.max(1,n);}
 function checkAngry(){
   const f=dirtyFrac();
-  if(!angry&&f>.4){angry=true;angryPop=30;toast('ニモ、おこ 💢',1800);}
-  else if(angry&&f<.2)angry=false;
+  if(!angry&&f>.6){angry=true;angryPop=30;toast('ニモ、おこ 💢',1800);}
+  else if(angry&&f<.3)angry=false;
 }
 function setState(s,timer){nemo.state=s;nemo.timer=timer||0;}
 
@@ -210,13 +210,16 @@ function swimTo(tx,ty,sp){
   const n=nemo;
   const a=Math.atan2(ty-n.y,tx-n.x);
   let d=a-n.dir;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
-  n.dir+=d*.1;
+  n.dir+=d*.09;
   n.x+=Math.cos(n.dir)*sp;n.y+=Math.sin(n.dir)*sp+Math.sin(n.wob)*.2;
   n.x=clamp(n.x,n.s*1.6,W-n.s*1.6);n.y=clamp(n.y,n.s*2,surfY(n.x)-n.s*.5);
   return Math.hypot(tx-n.x,ty-n.y);
 }
 function updateNemo(){
-  const n=nemo;n.wob+=.1;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
+  const n=nemo;n.wob+=.09;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
+  if(n.state==='go'||n.state==='sweep'){n.jobT=(n.jobT||0)+1;
+    if(n.jobT>60*80){for(let i=0;i<N;i++){if(messAt(i)>.05){h[i]=base;shine[i]=1;if(Math.random()<.08)spark(i*COL,surfAt(i)-2);}}n.jobT=0;setState('home');}
+  }else if(n.state==='lie')n.jobT=0;
   switch(n.state){
     case 'lie':{
       n.x=bed.x;n.y=surfY(bed.x)-n.s*.45;n.dir=0;
@@ -237,12 +240,12 @@ function updateNemo(){
     case 'go':{
       // 行き先は、そこがきれいになるまで変えない（あっちこっち迷わない）
       if(t%30===0&&localMess(n.tx)<1.2){const tx=findTarget(n.x);if(tx===null){setState('home');break;}n.tx=tx;}
-      const d=swimTo(n.tx,surfY(n.tx)-n.s*.7,2.83*rage());
+      const d=swimTo(n.tx,surfY(n.tx)-n.s*.7,2.55*rage());
       if(d<n.s*.8){n.sweepC=n.tx;n.phase=0;n.sweepT=0;n.hadJob=true;setState('sweep');}
       break;
     }
     case 'sweep':{
-      n.phase+=.117*rage();
+      n.phase+=.105*rage();
       const k=Math.sin(n.phase);
       n.x=clamp(n.sweepC+k*26,n.s*1.6,W-n.s*1.6);
       n.y=surfY(n.x)-n.s*.62+Math.abs(Math.cos(n.phase))*1.5;
@@ -263,15 +266,15 @@ function updateNemo(){
     }
     case 'home':{
       if(t%30===0){const tx=findTarget(n.x);if(tx!==null){n.tx=tx;setState('go');break;}}
-      const d=swimTo(bed.x,surfY(bed.x)-n.s*.6,2.83);
-      if(d<n.s*.6){n.sweepC=bed.x;n.phase=0;setState('polish',205);}
+      const d=swimTo(bed.x,surfY(bed.x)-n.s*.6,2.55);
+      if(d<n.s*.6){n.sweepC=bed.x;n.phase=0;setState('polish',225);}
       break;
     }
     case 'polish':{
       // 自分の角だけは念入りに。ピカピカにしてから寝る
-      n.phase+=.108;
+      n.phase+=.098;
       const k=Math.sin(n.phase);
-      n.x=bed.x+k*12;n.y=surfY(n.x)-n.s*.62;
+      n.x=clamp(bed.x+k*12,n.s*1.6,W-n.s*1.6);n.y=surfY(n.x)-n.s*.62;
       n.dir=Math.cos(n.phase)>0?0:Math.PI;
       sweepAt(n.x);
       if(t%11===0)spark(bed.x+(Math.random()-.5)*36,surfY(bed.x)-2-Math.random()*6);
@@ -303,8 +306,8 @@ function buildRocks(){
   const g=rockCv.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
   const R=rng(19718),floor=H-base+8;
   const piles=[
-    {x:W*.3,w:Math.min(W*.42,330),h:Math.min(H*.3,230),rows:[3,2,2,1]},
-    {x:W*(W<500?.6:.63),w:Math.min(W*.22,170),h:Math.min(H*.16,120),rows:[2,1,1]},
+    {x:W*.42,w:Math.min(W*.42,330),h:Math.min(H*.3,230),rows:[3,2,2,1]},
+    {x:W*.42+Math.min(W*.42,330)*.62,w:Math.min(W*.2,160),h:Math.min(H*.16,120),rows:[2,1,1]},
   ];
   const BASE=[['#ddd0bb','#a8937c'],['#d3c3ab','#9d8771'],['#e2d6c3','#ae9a83'],['#cdbca4','#958069']];
   const CORAL=['#c77db5','#b2659f','#d692c4','#a45d9c','#e0a3c9'];
@@ -568,7 +571,7 @@ function handle(p,dx,dy){
 cv.addEventListener('pointerdown',e=>{
   e.preventDefault();
   const p=pos(e);
-  if(Math.hypot(p.x-nemo.x,p.y-nemo.y)<nemo.s*2.2){
+  if(Math.hypot(p.x-nemo.x,p.y-nemo.y)<nemo.s*1.5){
     const st=nemo.state;
     showLabel(nemo.x,nemo.y-nemo.s,
       st==='lie'?'ニモ\n寝てる。本当に横になってる':
