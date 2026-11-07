@@ -1,0 +1,1 @@
+{"name":"ニモのおそうじ","short_name":"ニモ","start_url":"./nemo-souji.html","scope":"./","display":"standalone","background_color":"#ffffff","theme_color":"#ffffff","icons":[{"src":"./nemo-souji-icon-192.png","sizes":"192x192","type":"image/png"},{"src":"./nemo-souji-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
