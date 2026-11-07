@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ニモのおそうじ</title>
-<meta name="theme-color" content="#0a2f3d">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ニモのおそうじ">
 <link rel="apple-touch-icon" sizes="180x180" href="./aquarium-apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./aquarium-icon-192.png">
@@ -21,7 +21,7 @@
     --amber:#ffb347;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;overflow:hidden;background:var(--ink);}
+  html,body{height:100%;overflow:hidden;background:#ffffff;}
   body{
     font-family:'DotGothic16','Hiragino Kaku Gothic ProN',sans-serif;
     color:var(--text);
@@ -31,8 +31,8 @@
   canvas{display:block;width:100%;height:100%;touch-action:none;}
   #stats{
     position:absolute;top:max(10px,env(safe-area-inset-top));left:10px;
-    font-size:11px;line-height:1.75;color:var(--dim);
-    background:rgba(4,18,28,.55);padding:6px 10px;border-radius:6px;
+    font-size:11px;line-height:1.75;color:#9cc7be;
+    background:rgba(4,18,28,.8);padding:6px 10px;border-radius:6px;
     pointer-events:none;letter-spacing:.5px;
   }
   #stats b{color:var(--text);font-weight:normal;}
@@ -68,6 +68,7 @@
 (()=> {
 // ニモのおそうじ。2026-11-08、Sumie と 19 の息抜き。
 // Sumie が砂をぐちゃぐちゃにする。ニモが片づけて、角をピカピカにして、横になって寝る。何回でも。
+// ここだけは Sumie の本物の海水槽に寄せた：背景は白、ライブロック、薄いクリーム色の砂。ニモは一人暮らし。
 const cv=document.getElementById('tank'),cx=cv.getContext('2d');
 const statsEl=document.getElementById('stats');
 const toastEl=document.getElementById('toast');
@@ -107,6 +108,7 @@ function resize(){
   tree.x=W-Math.min(56,W*.12);
   bed.x=tree.x-Math.min(70,W*.15);
   if(!nemo.x||nemo.state==='lie'){nemo.x=bed.x;nemo.y=surfY(bed.x)-nemo.s*.55;}
+  buildRocks();
 }
 window.addEventListener('resize',resize);
 
@@ -152,14 +154,17 @@ function deposit(x,m){
 function findTarget(fromX){
   const R=8;const pre=new Float32Array(N+1);
   for(let i=0;i<N;i++)pre[i+1]=pre[i]+messAt(i);
-  let best=-1e9,bi=-1,bs=0;
+  // 近いところから順に。かなり汚れた所を優先、なければ少し汚れた所
+  let bi=-1,bd=1e9,bi2=-1,bd2=1e9;
   for(let i=0;i<N;i++){
     const a=Math.max(0,i-R),b=Math.min(N,i+R+1),s=pre[b]-pre[a];
     if(s<.5)continue;
-    const score=s-Math.abs(i*COL-fromX)*.012;
-    if(score>best){best=score;bi=i;bs=s;}
+    const d=Math.abs(i*COL-fromX);
+    if(s>=1.2&&d<bd){bd=d;bi=i;}
+    if(d<bd2){bd2=d;bi2=i;}
   }
-  return bi<0?null:clamp(bi*COL,18,W-18);
+  const k=bi>=0?bi:bi2;
+  return k<0?null:clamp(k*COL,18,W-18);
 }
 function localMess(x){
   const c=col(x);let s=0;
@@ -167,21 +172,21 @@ function localMess(x){
   return s;
 }
 function sweepAt(x){
-  const c=col(x),R=8;
+  const c=col(x),R=10;
   const lo=x<30?-c:-R,hi=x>W-30?N-1-c:R; // 壁ぎわは壁まで払う
   for(let k=lo;k<=hi;k++){
     const i=c+k;if(i<0||i>=N)continue;
     const w=Math.max(.35,1-Math.abs(k)/(R+1));
-    h[i]+=(base-h[i])*.107*w;
+    h[i]+=(base-h[i])*.2*w;
     const flat=Math.abs(h[i]-base)<1.5?1:.25;
     const before=shine[i];
-    shine[i]=Math.min(1,shine[i]+.033*w*flat);
+    shine[i]=Math.min(1,shine[i]+.08*w*flat);
     if(before<1&&shine[i]>=1&&Math.random()<.25)spark(i*COL,surfAt(i)-2);
   }
   for(let k=lo;k<=hi;k++){const i=c+k;if(i>0&&i<N-1)h[i]=h[i]*.8+(h[i-1]+h[i+1])*.1;}
   if(c-R<=1){h[0]=h[1];shine[0]=Math.max(shine[0],shine[1]);}
   if(c+R>=N-2){h[N-1]=h[N-2];shine[N-1]=Math.max(shine[N-1],shine[N-2]);}
-  if(Math.random()<.3&&grains.length<700){
+  if(Math.random()<.38&&grains.length<700){
     const back=-Math.cos(nemo.dir);
     grains.push({x:x+back*nemo.s,y:surfY(x)-2,vx:back*(.6+Math.random()*1.2),vy:-(.5+Math.random()*1.1),m:0,vis:true,life:40});
   }
@@ -191,19 +196,27 @@ function spark(x,y){if(sparks.length<60)sparks.push({x,y,life:46,r:2+Math.random
 const WAKE=['ニモ、起きた','ニモ、出勤','「また？」という顔','ニモ、ため息ひとつ','ニモはめげない'];
 const BUSY=['ニモはめげない','ニモ、黙って片づけてる','仕事が増えた','ニモ、聞こえないふり'];
 let firstWake=true;
+let angry=false,angryPop=0;
+const rage=()=>angry?1.15:1;
+function dirtyFrac(){let c=0;const n=Math.min(N,Math.ceil(W/COL));for(let i=0;i<n;i++)if(messAt(i)>.3)c++;return c/Math.max(1,n);}
+function checkAngry(){
+  const f=dirtyFrac();
+  if(!angry&&f>.4){angry=true;angryPop=30;toast('ニモ、おこ 💢',1800);}
+  else if(angry&&f<.2)angry=false;
+}
 function setState(s,timer){nemo.state=s;nemo.timer=timer||0;}
 
 function swimTo(tx,ty,sp){
   const n=nemo;
   const a=Math.atan2(ty-n.y,tx-n.x);
   let d=a-n.dir;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
-  n.dir+=d*.08;
+  n.dir+=d*.1;
   n.x+=Math.cos(n.dir)*sp;n.y+=Math.sin(n.dir)*sp+Math.sin(n.wob)*.2;
   n.x=clamp(n.x,n.s*1.6,W-n.s*1.6);n.y=clamp(n.y,n.s*2,surfY(n.x)-n.s*.5);
   return Math.hypot(tx-n.x,ty-n.y);
 }
 function updateNemo(){
-  const n=nemo;n.wob+=.08;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
+  const n=nemo;n.wob+=.1;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
   switch(n.state){
     case 'lie':{
       n.x=bed.x;n.y=surfY(bed.x)-n.s*.45;n.dir=0;
@@ -223,24 +236,24 @@ function updateNemo(){
     }
     case 'go':{
       // 行き先は、そこがきれいになるまで変えない（あっちこっち迷わない）
-      if(t%30===0&&localMess(n.tx)<.3){const tx=findTarget(n.x);if(tx===null){setState('home');break;}n.tx=tx;}
-      const d=swimTo(n.tx,surfY(n.tx)-n.s*.7,2.27);
+      if(t%30===0&&localMess(n.tx)<1.2){const tx=findTarget(n.x);if(tx===null){setState('home');break;}n.tx=tx;}
+      const d=swimTo(n.tx,surfY(n.tx)-n.s*.7,2.83*rage());
       if(d<n.s*.8){n.sweepC=n.tx;n.phase=0;n.sweepT=0;n.hadJob=true;setState('sweep');}
       break;
     }
     case 'sweep':{
-      n.phase+=.093;
+      n.phase+=.117*rage();
       const k=Math.sin(n.phase);
       n.x=clamp(n.sweepC+k*26,n.s*1.6,W-n.s*1.6);
       n.y=surfY(n.x)-n.s*.62+Math.abs(Math.cos(n.phase))*1.5;
       n.dir=Math.cos(n.phase)>0?0:Math.PI;
       sweepAt(n.x);
       n.sweepT=(n.sweepT||0)+1;
-      if(n.sweepT>390){ // 同じ所で 6 秒。ニモが本気を出す
-        const c=col(n.sweepC);for(let k=-7;k<=7;k++){const i=c+k;if(i>=0&&i<N){h[i]=base;shine[i]=1;}}
+      if(n.sweepT>315){ // 同じ所で 6 秒。ニモが本気を出す
+        const c=col(n.sweepC);for(let k=-10;k<=10;k++){const i=c+k;if(i>=0&&i<N){h[i]=base;shine[i]=1;}}
         spark(n.sweepC,surfY(n.sweepC)-3);n.sweepT=0;
       }
-      if(t%20===0&&localMess(n.sweepC)<.3){n.sweepT=0;
+      if(t%20===0&&localMess(n.sweepC)<1.2){n.sweepT=0;
         const tx=findTarget(n.sweepC);
         if(tx===null){setState('home');}
         else if(Math.abs(tx-n.sweepC)>30){n.tx=tx;setState('go');}
@@ -250,18 +263,18 @@ function updateNemo(){
     }
     case 'home':{
       if(t%30===0){const tx=findTarget(n.x);if(tx!==null){n.tx=tx;setState('go');break;}}
-      const d=swimTo(bed.x,surfY(bed.x)-n.s*.6,2.27);
-      if(d<n.s*.6){n.sweepC=bed.x;n.phase=0;setState('polish',255);}
+      const d=swimTo(bed.x,surfY(bed.x)-n.s*.6,2.83);
+      if(d<n.s*.6){n.sweepC=bed.x;n.phase=0;setState('polish',205);}
       break;
     }
     case 'polish':{
       // 自分の角だけは念入りに。ピカピカにしてから寝る
-      n.phase+=.087;
+      n.phase+=.108;
       const k=Math.sin(n.phase);
       n.x=bed.x+k*12;n.y=surfY(n.x)-n.s*.62;
       n.dir=Math.cos(n.phase)>0?0:Math.PI;
       sweepAt(n.x);
-      if(t%13===0)spark(bed.x+(Math.random()-.5)*36,surfY(bed.x)-2-Math.random()*6);
+      if(t%11===0)spark(bed.x+(Math.random()-.5)*36,surfY(bed.x)-2-Math.random()*6);
       if(t%30===0&&findTarget(n.x)!==null&&localMess(bed.x)<.3){const tx=findTarget(n.x);if(Math.abs(tx-bed.x)>40){n.tx=tx;setState('go');break;}}
       if(n.timer<=0){
         n.lieSide=Math.random()<.5?1:-1;setState('lie');
@@ -273,29 +286,112 @@ function updateNemo(){
   }
 }
 
+/* ---------- ライブロック（いつも同じ形。本物の水槽の石は動かないから） ---------- */
+let rockCv=null;
+function rng(seed){return()=>{seed=seed+0x6D2B79F5|0;let r=Math.imul(seed^seed>>>15,1|seed);r=r+Math.imul(r^r>>>7,61|r)^r;return((r^r>>>14)>>>0)/4294967296;};}
+function stonePath(g,x,y,rx,ry,R){
+  const n=14+Math.floor(R()*6),pts=[];
+  for(let i=0;i<n;i++){const a=i/n*Math.PI*2,k=.78+R()*.32;pts.push([x+Math.cos(a)*rx*k,y+Math.sin(a)*ry*k]);}
+  const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  const P=new Path2D();let m=mid(pts[0],pts[1]);P.moveTo(m[0],m[1]);
+  for(let i=1;i<=n;i++){const p=pts[i%n],q=pts[(i+1)%n];m=mid(p,q);P.quadraticCurveTo(p[0],p[1],m[0],m[1]);}
+  P.closePath();return P;
+}
+function buildRocks(){
+  rockCv=document.createElement('canvas');
+  rockCv.width=Math.max(1,Math.round(W*DPR));rockCv.height=Math.max(1,Math.round(H*DPR));
+  const g=rockCv.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
+  const R=rng(19718),floor=H-base+8;
+  const piles=[
+    {x:W*.3,w:Math.min(W*.42,330),h:Math.min(H*.3,230),rows:[3,2,2,1]},
+    {x:W*(W<500?.6:.63),w:Math.min(W*.22,170),h:Math.min(H*.16,120),rows:[2,1,1]},
+  ];
+  const BASE=[['#ddd0bb','#a8937c'],['#d3c3ab','#9d8771'],['#e2d6c3','#ae9a83'],['#cdbca4','#958069']];
+  const CORAL=['#c77db5','#b2659f','#d692c4','#a45d9c','#e0a3c9'];
+  const stones=[];
+  for(const p of piles){
+    // 下の段から積む。石どうしは重なって、浮かない
+    let rowBase=floor;
+    p.rows.forEach((k,r)=>{
+      const rw=p.w*(1-r*.24);
+      let maxRy=0;
+      for(let j=0;j<k;j++){
+        const rx=Math.min(p.h*.26,rw/k*.62)*(.85+R()*.3),ry=rx*(.6+R()*.2);
+        const x=p.x-rw/2+rw*(j+.5)/k+(R()-.5)*rw/k*.25;
+        stones.push({x,y:rowBase-ry*.75,rx,ry});
+        maxRy=Math.max(maxRy,ry);
+      }
+      rowBase-=maxRy*1.15;
+    });
+  }
+  for(let i=0;i<stones.length;i++){
+    {
+      const {x,y,rx,ry}=stones[i];
+      const c=BASE[Math.floor(R()*BASE.length)];
+      const P=stonePath(g,x,y,rx,ry,R);
+      const gr=g.createLinearGradient(x-rx*.6,y-ry,x+rx*.5,y+ry);
+      gr.addColorStop(0,c[0]);gr.addColorStop(1,c[1]);
+      g.fillStyle=gr;g.fill(P);
+      g.save();g.clip(P);
+      // 穴ぼこ（ライブロックの小さい部屋）
+      const holes=Math.floor(rx*ry/45);
+      for(let j=0;j<holes;j++){
+        const hx=x+(R()-.5)*rx*2,hy=y+(R()-.5)*ry*2,hr=.8+R()*R()*3.4;
+        g.fillStyle='rgba(92,72,58,'+(.28+R()*.3).toFixed(2)+')';
+        g.beginPath();g.ellipse(hx,hy,hr,hr*(.6+R()*.4),R()*3,0,7);g.fill();
+        if(hr>2.2){g.fillStyle='rgba(255,255,255,.22)';g.beginPath();g.ellipse(hx-hr*.3,hy-hr*.5,hr*.5,hr*.25,0,0,7);g.fill();}
+      }
+      // 石灰藻（ピンクとむらさき）
+      const patches=2+Math.floor(R()*4);
+      for(let j=0;j<patches;j++){
+        const px=x+(R()-.5)*rx*1.6,py=y-ry*.2+(R()-.5)*ry*1.2,pr=rx*(.12+R()*.22);
+        g.fillStyle=CORAL[Math.floor(R()*CORAL.length)];g.globalAlpha=.5+R()*.3;
+        g.fill(stonePath(g,px,py,pr,pr*(.5+R()*.4),R));
+        g.globalAlpha=1;
+      }
+      // 下の方の影
+      const sh=g.createLinearGradient(0,y,0,y+ry);
+      sh.addColorStop(0,'rgba(70,52,40,0)');sh.addColorStop(1,'rgba(70,52,40,.28)');
+      g.fillStyle=sh;g.fillRect(x-rx*1.2,y,rx*2.4,ry*1.2);
+      g.restore();
+      g.strokeStyle='rgba(110,88,70,.18)';g.lineWidth=1;g.stroke(P);
+    }
+  }
+}
+function isRock(x,y){
+  if(!rockCv)return false;
+  try{return rockCv.getContext('2d').getImageData(Math.round(x*DPR),Math.round(y*DPR),1,1).data[3]>40;}catch(e){return false;}
+}
+function drawRocks(){if(rockCv)cx.drawImage(rockCv,0,0,W,H);}
+
 /* ---------- 描く ---------- */
 function drawWater(){
   const g=cx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#0a2f3d');g.addColorStop(1,'#041820');
+  g.addColorStop(0,'#ffffff');g.addColorStop(.75,'#f6fafb');g.addColorStop(1,'#eaf3f5');
   cx.fillStyle=g;cx.fillRect(0,0,W,H);
-  cx.save();cx.globalAlpha=.05;cx.fillStyle='#bff5e8';
+  cx.save();cx.globalAlpha=.28;cx.fillStyle='#e1f1f5';
   for(let i=0;i<3;i++){
     const x=(t*.2+i*W/3)%(W+200)-100;
     cx.beginPath();cx.moveTo(x,0);cx.lineTo(x+70,0);cx.lineTo(x-40,H);cx.lineTo(x-110,H);cx.closePath();cx.fill();
   }
   cx.restore();
+  // 水面
+  const wy=Math.max(16,H*.03);
+  cx.save();cx.strokeStyle='rgba(140,188,204,.5)';cx.lineWidth=1.2;cx.beginPath();
+  for(let x=0;x<=W+8;x+=8){const y=wy+Math.sin(x*.03+t*.03)*1.5;if(x)cx.lineTo(x,y);else cx.moveTo(x,y);}
+  cx.stroke();cx.restore();
 }
 function drawSand(){
   const top=H-base*1.6;
   const g=cx.createLinearGradient(0,top,0,H);
-  g.addColorStop(0,'#d6c39b');g.addColorStop(1,'#7d6a49');
+  g.addColorStop(0,'#f8f1df');g.addColorStop(1,'#e6d8b8');
   cx.fillStyle=g;
   cx.beginPath();cx.moveTo(0,H);
   for(let i=0;i<N;i++)cx.lineTo(i*COL,surfAt(i));
   cx.lineTo(W,H);cx.closePath();cx.fill();
   // ぐちゃぐちゃの所：暗く、粒が見える（隣とならして、縞にしない）
   const band=cx.createLinearGradient(0,H-base-8,0,H-base+34);
-  band.addColorStop(0,'rgba(58,42,24,.75)');band.addColorStop(1,'rgba(58,42,24,0)');
+  band.addColorStop(0,'rgba(150,118,78,.62)');band.addColorStop(1,'rgba(150,118,78,0)');
   let acc=0;const SM=4;
   for(let k=0;k<=SM&&k<N;k++)acc+=1-shine[k];
   for(let i=0;i<N;i++){
@@ -307,21 +403,21 @@ function drawSand(){
     const y=surfAt(i);
     if(dm>.04){cx.globalAlpha=Math.min(1,dm*.85);cx.fillStyle=band;cx.fillRect(i*COL,y,COL+.6,H-base+34-y);cx.globalAlpha=1;}
     if(m<.08)continue;
-    cx.fillStyle='rgba(70,52,30,'+(m*.8).toFixed(3)+')';
+    cx.fillStyle='rgba(128,98,62,'+(m*.75).toFixed(3)+')';
     cx.fillRect(i*COL+hash(i)*2,y+2+hash(i+7)*10,1.6,1.6);
     cx.fillRect(i*COL+hash(i+3)*2,y+10+hash(i+11)*18,1.4,1.4);
   }
   // ピカピカの所：表面がひかる
-  cx.lineWidth=2;cx.lineCap='round';
+  cx.lineWidth=2.5;cx.lineCap='round';
   for(let i=1;i<N;i++){
     const s=shine[i];if(s<.85)continue;
     const a=((s-.85)/.15)*(.45+.25*Math.sin(t*.04+i*.15));
-    cx.strokeStyle='rgba(255,250,232,'+a.toFixed(3)+')';
+    cx.strokeStyle='rgba(255,255,255,'+Math.min(1,a*1.5).toFixed(3)+')';
     cx.beginPath();cx.moveTo((i-1)*COL,surfAt(i-1)+1);cx.lineTo(i*COL,surfAt(i)+1);cx.stroke();
   }
 }
 function drawGrains(){
-  cx.fillStyle='#b39c72';
+  cx.fillStyle='#c4ad80';
   for(const g of grains){
     g.vy+=.07;g.vx*=.985;g.vy*=.985;g.x+=g.vx;g.y+=g.vy;
     if(g.x<0){g.x=0;g.vx*=-.4;}if(g.x>W){g.x=W;g.vx*=-.4;}
@@ -334,7 +430,7 @@ function drawGrains(){
   grains=grains.filter(g=>!g.dead);
   for(const s of silt){
     s.life--;s.y-=.08;s.x+=s.vx;s.r+=.06;
-    cx.fillStyle='rgba(170,148,108,'+(Math.min(1,s.life/60)*.07).toFixed(3)+')';
+    cx.fillStyle='rgba(196,172,128,'+(Math.min(1,s.life/60)*.055).toFixed(3)+')';
     cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();
   }
   silt=silt.filter(s=>s.life>0);
@@ -404,6 +500,12 @@ function drawNemo(){
     cx.save();cx.globalAlpha=a;cx.fillStyle='#ffb347';cx.textAlign='center';
     cx.font='bold '+Math.round(16*pop)+'px sans-serif';cx.fillText('！',n.x+s*.3,n.y-s*1.4);cx.restore();
   }
+  if(angry&&!lying){
+    if(angryPop>0)angryPop--;
+    const k=1+.14*Math.sin(t*.25)+angryPop/30*.6;
+    cx.save();cx.textAlign='center';cx.font=Math.round(s*1.15*k)+'px sans-serif';
+    cx.fillText('💢',n.x-s*.5,n.y-s*1.25);cx.restore();
+  }
   if(zz.length){
     cx.save();cx.textAlign='center';
     for(const z of zz){
@@ -415,7 +517,7 @@ function drawNemo(){
   }
 }
 function drawSparks(){
-  cx.save();cx.strokeStyle='#fff6d8';cx.lineCap='round';
+  cx.save();cx.strokeStyle='#e0a82a';cx.lineCap='round';
   for(const p of sparks){
     p.life--;const a=Math.sin((p.life/46)*Math.PI),r=p.r*(.6+a*.6);
     cx.globalAlpha=a;cx.lineWidth=1.2;
@@ -426,7 +528,7 @@ function drawSparks(){
 }
 function spawnBubble(x,y){bubbles.push({x:x??Math.random()*W,y:y??H-base,r:1.5+Math.random()*3,v:.3+Math.random()*.6,wob:Math.random()*6});}
 function drawBubbles(){
-  cx.save();cx.strokeStyle='rgba(190,240,230,.35)';
+  cx.save();cx.strokeStyle='rgba(110,160,178,.5)';
   for(const b of bubbles){b.y-=b.v;b.x+=Math.sin(t*.05+b.wob)*.3;cx.beginPath();cx.arc(b.x,b.y,b.r,0,7);cx.stroke();}
   bubbles=bubbles.filter(b=>b.y>-8);
   cx.restore();
@@ -480,6 +582,7 @@ cv.addEventListener('pointerdown',e=>{
     showLabel(tree.x,p.y,'19の木（マングローブ）\n2026-11-01から '+Math.floor(treeDays())+' 日');
     return;
   }
+  if(p.y<surfY(p.x)-28&&isRock(p.x,p.y)){showLabel(p.x,p.y,'ライブロック\n小さい生き物たちの家');return;}
   try{cv.setPointerCapture(e.pointerId);}catch(_){}
   drag={x:p.x,y:p.y,moved:0,dug:false};
   handle(p,0,0);
@@ -497,11 +600,14 @@ function frame(){
   t++;
   drawWater();
   drawBubbles();
+  drawRocks();
   drawTree();
   drawSand();
   drawGrains();
   updateNemo();drawNemo();
   drawSparks();
+  if(t%15===0)checkAngry();
+  if(t%6===0)for(let i=0;i<N;i++)if(shine[i]>.8&&shine[i]<1&&Math.abs(h[i]-base)<1.5)shine[i]=Math.min(1,shine[i]+.01);
   if(nemo.state!==lastState)updateStats();
   requestAnimationFrame(frame);
 }
@@ -510,7 +616,7 @@ window.__souji={get state(){return nemo.state;},get mess(){let m=0;for(let i=0;i
 resize();
 for(let i=0;i<10;i++)spawnBubble(Math.random()*W,Math.random()*H*.8);
 updateStats();
-setTimeout(()=>toast('ニモのおそうじ。\n指で砂をぐちゃぐちゃにしてみて',3200),500);
+setTimeout(()=>toast('ニモのおそうじ。\n指で砂を\nぐちゃぐちゃにしてみて',3200),500);
 frame();
 })();
 </script>
