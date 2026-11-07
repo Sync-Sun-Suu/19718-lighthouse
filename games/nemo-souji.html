@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ニモのおそうじ</title>
+<meta name="theme-color" content="#0a2f3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ニモのおそうじ">
+<link rel="apple-touch-icon" sizes="180x180" href="./aquarium-apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./aquarium-icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#04121c;
+    --glass:#7fd4c1;
+    --text:#cfeee6;
+    --dim:#5f8f86;
+    --amber:#ffb347;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;background:var(--ink);}
+  body{
+    font-family:'DotGothic16','Hiragino Kaku Gothic ProN',sans-serif;
+    color:var(--text);
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  }
+  #tank-wrap{position:relative;width:100%;height:100%;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;}
+  #stats{
+    position:absolute;top:max(10px,env(safe-area-inset-top));left:10px;
+    font-size:11px;line-height:1.75;color:var(--dim);
+    background:rgba(4,18,28,.55);padding:6px 10px;border-radius:6px;
+    pointer-events:none;letter-spacing:.5px;
+  }
+  #stats b{color:var(--text);font-weight:normal;}
+  #stats .amber{color:var(--amber);}
+  #toast{
+    position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+    max-width:88%;text-align:center;
+    font-size:13px;line-height:1.7;color:var(--text);
+    background:rgba(4,18,28,.82);border:1px solid rgba(127,212,193,.25);
+    padding:9px 16px;border-radius:8px;
+    opacity:0;transition:opacity .35s;pointer-events:none;white-space:pre-line;
+  }
+  #toast.show{opacity:1;}
+  #label{
+    position:absolute;font-size:11px;color:var(--ink);
+    background:var(--glass);padding:4px 8px;border-radius:6px;
+    pointer-events:none;opacity:0;transition:opacity .2s;
+    transform:translate(-50%,-140%);white-space:pre;line-height:1.5;
+  }
+  #label.show{opacity:.95;}
+  @media (prefers-reduced-motion: reduce){ #toast,#label{transition:none;} }
+</style>
+</head>
+<body>
+<div id="tank-wrap">
+  <canvas id="tank"></canvas>
+  <div id="stats"></div>
+  <div id="toast"></div>
+  <div id="label"></div>
+</div>
+
+<script>
+(()=> {
+// ニモのおそうじ。2026-11-08、Sumie と 19 の息抜き。
+// Sumie が砂をぐちゃぐちゃにする。ニモが片づけて、角をピカピカにして、横になって寝る。何回でも。
+const cv=document.getElementById('tank'),cx=cv.getContext('2d');
+const statsEl=document.getElementById('stats');
+const toastEl=document.getElementById('toast');
+const labelEl=document.getElementById('label');
+
+const KEY='nemo-souji:v1';
+let stats={mess:0,shiny:0};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s.mess==='number')stats=s;}catch(e){}
+function saveStats(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
+
+let W=0,H=0,DPR=1,t=0;
+const COL=3;               // 砂の一列の幅（px）
+let N=0,base=0;
+let h=new Float32Array(0); // 砂の高さ（底から）
+let shine=new Float32Array(0); // 1 でピカピカ
+let grains=[],silt=[],bubbles=[],sparks=[],zz=[];
+
+const tree={x:0,sway:Math.random()*6};
+const bed={x:0};
+const nemo={x:0,y:0,dir:Math.PI,s:12,wob:0,state:'lie',timer:0,tx:0,sweepC:0,phase:0,hadJob:false,lieSide:1,mark:0,vx:0,vy:0};
+
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=cv.clientWidth;H=cv.clientHeight;
+  cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
+  cx.setTransform(DPR,0,0,DPR,0,0);
+  const nb=Math.max(42,Math.min(H*.17,120));
+  const nN=Math.ceil(W/COL)+2;
+  const oh=h,os=shine,oN=N,ob=base;
+  const nh=new Float32Array(nN),ns=new Float32Array(nN);
+  for(let i=0;i<nN;i++){
+    if(oN){const j=Math.min(oN-1,Math.round(i*(oN-1)/Math.max(1,nN-1)));nh[i]=oh[j]-ob+nb;ns[i]=os[j];}
+    else{nh[i]=nb;ns[i]=1;}
+  }
+  h=nh;shine=ns;N=nN;base=nb;
+  nemo.s=Math.max(12,Math.min(20,Math.min(W,H)*.032));
+  tree.x=W-Math.min(56,W*.12);
+  bed.x=tree.x-Math.min(70,W*.15);
+  if(!nemo.x||nemo.state==='lie'){nemo.x=bed.x;nemo.y=surfY(bed.x)-nemo.s*.55;}
+}
+window.addEventListener('resize',resize);
+
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const col=x=>clamp(Math.round(x/COL),0,N-1);
+const deco=i=>Math.sin(i*COL*.035)*1.5;
+const surfAt=i=>H-h[i]-deco(i);
+const surfY=x=>surfAt(col(x));
+function hash(i){const s=Math.sin(i*127.1+311.7)*43758.5453;return s-Math.floor(s);}
+function messAt(i){return Math.max(1-shine[i],Math.min(1,Math.abs(h[i]-base)/4));}
+
+/* ---------- 指：ぐちゃぐちゃにする ---------- */
+function dig(x,dx,dy){
+  const c=col(x),R=6;
+  const sp=Math.min(1.8,.4+Math.hypot(dx,dy)*.07);
+  let removed=0;
+  for(let k=-R;k<=R;k++){
+    const i=c+k;if(i<0||i>=N)continue;
+    const w=Math.exp(-(k*k)/(R*R*.3));
+    const take=Math.min(sp*w*2.2,Math.max(0,h[i]-base*.35));
+    h[i]-=take;removed+=take;
+    shine[i]=Math.max(0,shine[i]-.55*w-.05);
+  }
+  const n=2+Math.floor(sp*2.5);
+  const dir=dx?Math.sign(dx):(Math.random()<.5?-1:1);
+  for(let j=0;j<n;j++){
+    if(grains.length>700)break;
+    grains.push({x:x+(Math.random()-.5)*10,y:surfY(x)-3,
+      vx:dir*(.5+Math.random()*2.4)+(Math.random()-.5)*1.2,vy:-(1.4+Math.random()*2.6),
+      m:removed/n,vis:false});
+  }
+  if(Math.random()<.5&&silt.length<80)silt.push({x:x+(Math.random()-.5)*16,y:surfY(x)-6,r:8+Math.random()*12,life:160+Math.random()*80,vx:(Math.random()-.5)*.3});
+}
+function deposit(x,m){
+  const i=col(x);
+  h[i]+=m*.5;
+  if(i>0)h[i-1]+=m*.25;
+  if(i<N-1)h[i+1]+=m*.25;
+  for(let k=-1;k<=1;k++){const j=i+k;if(j>=0&&j<N)shine[j]=Math.max(0,shine[j]-.6);}
+}
+
+/* ---------- ニモ：片づける ---------- */
+function findTarget(fromX){
+  const R=8;const pre=new Float32Array(N+1);
+  for(let i=0;i<N;i++)pre[i+1]=pre[i]+messAt(i);
+  let best=-1e9,bi=-1,bs=0;
+  for(let i=0;i<N;i++){
+    const a=Math.max(0,i-R),b=Math.min(N,i+R+1),s=pre[b]-pre[a];
+    if(s<.5)continue;
+    const score=s-Math.abs(i*COL-fromX)*.012;
+    if(score>best){best=score;bi=i;bs=s;}
+  }
+  return bi<0?null:clamp(bi*COL,18,W-18);
+}
+function localMess(x){
+  const c=col(x);let s=0;
+  for(let k=-8;k<=8;k++){const i=c+k;if(i>=0&&i<N)s+=messAt(i);}
+  return s;
+}
+function sweepAt(x){
+  const c=col(x),R=8;
+  const lo=x<30?-c:-R,hi=x>W-30?N-1-c:R; // 壁ぎわは壁まで払う
+  for(let k=lo;k<=hi;k++){
+    const i=c+k;if(i<0||i>=N)continue;
+    const w=Math.max(.35,1-Math.abs(k)/(R+1));
+    h[i]+=(base-h[i])*.16*w;
+    const flat=Math.abs(h[i]-base)<1.5?1:.25;
+    const before=shine[i];
+    shine[i]=Math.min(1,shine[i]+.05*w*flat);
+    if(before<1&&shine[i]>=1&&Math.random()<.25)spark(i*COL,surfAt(i)-2);
+  }
+  for(let k=lo;k<=hi;k++){const i=c+k;if(i>0&&i<N-1)h[i]=h[i]*.8+(h[i-1]+h[i+1])*.1;}
+  if(c-R<=1){h[0]=h[1];shine[0]=Math.max(shine[0],shine[1]);}
+  if(c+R>=N-2){h[N-1]=h[N-2];shine[N-1]=Math.max(shine[N-1],shine[N-2]);}
+  if(Math.random()<.45&&grains.length<700){
+    const back=-Math.cos(nemo.dir);
+    grains.push({x:x+back*nemo.s,y:surfY(x)-2,vx:back*(.6+Math.random()*1.2),vy:-(.5+Math.random()*1.1),m:0,vis:true,life:40});
+  }
+}
+function spark(x,y){if(sparks.length<60)sparks.push({x,y,life:46,r:2+Math.random()*2.5});}
+
+const WAKE=['ニモ、起きた','ニモ、出勤','「また？」という顔','ニモ、ため息ひとつ','ニモはめげない'];
+const BUSY=['ニモはめげない','ニモ、黙って片づけてる','仕事が増えた','ニモ、聞こえないふり'];
+let firstWake=true;
+function setState(s,timer){nemo.state=s;nemo.timer=timer||0;}
+
+function swimTo(tx,ty,sp){
+  const n=nemo;
+  const a=Math.atan2(ty-n.y,tx-n.x);
+  let d=a-n.dir;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+  n.dir+=d*.12;
+  n.x+=Math.cos(n.dir)*sp;n.y+=Math.sin(n.dir)*sp+Math.sin(n.wob)*.2;
+  n.x=clamp(n.x,n.s*1.6,W-n.s*1.6);n.y=clamp(n.y,n.s*2,surfY(n.x)-n.s*.5);
+  return Math.hypot(tx-n.x,ty-n.y);
+}
+function updateNemo(){
+  const n=nemo;n.wob+=.12;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
+  switch(n.state){
+    case 'lie':{
+      n.x=bed.x;n.y=surfY(bed.x)-n.s*.45;n.dir=0;
+      if(t%120===0)zz.push({x:n.x+n.s*.5,y:n.y-n.s*1.2,life:150});
+      if(t%20===0&&findTarget(n.x)!==null){setState('notice',36+Math.floor(Math.random()*30));n.mark=60;}
+      break;
+    }
+    case 'notice':{
+      n.y=surfY(n.x)-n.s*.6-Math.sin((36-n.timer)*.3)*2;
+      if(n.timer<=0){
+        toast(firstWake?'ニモが気づいた':WAKE[Math.floor(Math.random()*WAKE.length)]);
+        firstWake=false;n.hadJob=false;
+        const tx=findTarget(n.x);
+        if(tx===null)setState('home');else{n.tx=tx;setState('go');}
+      }
+      break;
+    }
+    case 'go':{
+      // 行き先は、そこがきれいになるまで変えない（あっちこっち迷わない）
+      if(t%30===0&&localMess(n.tx)<.3){const tx=findTarget(n.x);if(tx===null){setState('home');break;}n.tx=tx;}
+      const d=swimTo(n.tx,surfY(n.tx)-n.s*.7,3.4);
+      if(d<n.s*.8){n.sweepC=n.tx;n.phase=0;n.sweepT=0;n.hadJob=true;setState('sweep');}
+      break;
+    }
+    case 'sweep':{
+      n.phase+=.14;
+      const k=Math.sin(n.phase);
+      n.x=clamp(n.sweepC+k*26,n.s*1.6,W-n.s*1.6);
+      n.y=surfY(n.x)-n.s*.62+Math.abs(Math.cos(n.phase))*1.5;
+      n.dir=Math.cos(n.phase)>0?0:Math.PI;
+      sweepAt(n.x);
+      n.sweepT=(n.sweepT||0)+1;
+      if(n.sweepT>260){ // 同じ所で 6 秒。ニモが本気を出す
+        const c=col(n.sweepC);for(let k=-7;k<=7;k++){const i=c+k;if(i>=0&&i<N){h[i]=base;shine[i]=1;}}
+        spark(n.sweepC,surfY(n.sweepC)-3);n.sweepT=0;
+      }
+      if(t%20===0&&localMess(n.sweepC)<.3){n.sweepT=0;
+        const tx=findTarget(n.sweepC);
+        if(tx===null){setState('home');}
+        else if(Math.abs(tx-n.sweepC)>30){n.tx=tx;setState('go');}
+        else n.sweepC+=(tx-n.sweepC)*.5;
+      }
+      break;
+    }
+    case 'home':{
+      if(t%30===0){const tx=findTarget(n.x);if(tx!==null){n.tx=tx;setState('go');break;}}
+      const d=swimTo(bed.x,surfY(bed.x)-n.s*.6,3.4);
+      if(d<n.s*.6){n.sweepC=bed.x;n.phase=0;setState('polish',170);}
+      break;
+    }
+    case 'polish':{
+      // 自分の角だけは念入りに。ピカピカにしてから寝る
+      n.phase+=.13;
+      const k=Math.sin(n.phase);
+      n.x=bed.x+k*12;n.y=surfY(n.x)-n.s*.62;
+      n.dir=Math.cos(n.phase)>0?0:Math.PI;
+      sweepAt(n.x);
+      if(t%9===0)spark(bed.x+(Math.random()-.5)*36,surfY(bed.x)-2-Math.random()*6);
+      if(t%30===0&&findTarget(n.x)!==null&&localMess(bed.x)<.3){const tx=findTarget(n.x);if(Math.abs(tx-bed.x)>40){n.tx=tx;setState('go');break;}}
+      if(n.timer<=0){
+        n.lieSide=Math.random()<.5?1:-1;setState('lie');
+        if(n.hadJob){stats.shiny++;saveStats();updateStats();toast('ピカピカ。\nニモが横になった');}
+        n.hadJob=false;
+      }
+      break;
+    }
+  }
+}
+
+/* ---------- 描く ---------- */
+function drawWater(){
+  const g=cx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0a2f3d');g.addColorStop(1,'#041820');
+  cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  cx.save();cx.globalAlpha=.05;cx.fillStyle='#bff5e8';
+  for(let i=0;i<3;i++){
+    const x=(t*.2+i*W/3)%(W+200)-100;
+    cx.beginPath();cx.moveTo(x,0);cx.lineTo(x+70,0);cx.lineTo(x-40,H);cx.lineTo(x-110,H);cx.closePath();cx.fill();
+  }
+  cx.restore();
+}
+function drawSand(){
+  const top=H-base*1.6;
+  const g=cx.createLinearGradient(0,top,0,H);
+  g.addColorStop(0,'#d6c39b');g.addColorStop(1,'#7d6a49');
+  cx.fillStyle=g;
+  cx.beginPath();cx.moveTo(0,H);
+  for(let i=0;i<N;i++)cx.lineTo(i*COL,surfAt(i));
+  cx.lineTo(W,H);cx.closePath();cx.fill();
+  // ぐちゃぐちゃの所：暗く、粒が見える（隣とならして、縞にしない）
+  const band=cx.createLinearGradient(0,H-base-8,0,H-base+34);
+  band.addColorStop(0,'rgba(58,42,24,.75)');band.addColorStop(1,'rgba(58,42,24,0)');
+  let acc=0;const SM=4;
+  for(let k=0;k<=SM&&k<N;k++)acc+=1-shine[k];
+  for(let i=0;i<N;i++){
+    const a0=i-SM-1,a1=i+SM;
+    if(a1<N&&i>0)acc+=1-shine[a1];
+    if(a0>=0)acc-=1-shine[a0];
+    const cnt=Math.min(N-1,i+SM)-Math.max(0,i-SM)+1;
+    const dm=acc/cnt,m=1-shine[i];
+    const y=surfAt(i);
+    if(dm>.04){cx.globalAlpha=Math.min(1,dm*.85);cx.fillStyle=band;cx.fillRect(i*COL,y,COL+.6,H-base+34-y);cx.globalAlpha=1;}
+    if(m<.08)continue;
+    cx.fillStyle='rgba(70,52,30,'+(m*.8).toFixed(3)+')';
+    cx.fillRect(i*COL+hash(i)*2,y+2+hash(i+7)*10,1.6,1.6);
+    cx.fillRect(i*COL+hash(i+3)*2,y+10+hash(i+11)*18,1.4,1.4);
+  }
+  // ピカピカの所：表面がひかる
+  cx.lineWidth=2;cx.lineCap='round';
+  for(let i=1;i<N;i++){
+    const s=shine[i];if(s<.85)continue;
+    const a=((s-.85)/.15)*(.45+.25*Math.sin(t*.04+i*.15));
+    cx.strokeStyle='rgba(255,250,232,'+a.toFixed(3)+')';
+    cx.beginPath();cx.moveTo((i-1)*COL,surfAt(i-1)+1);cx.lineTo(i*COL,surfAt(i)+1);cx.stroke();
+  }
+}
+function drawGrains(){
+  cx.fillStyle='#b39c72';
+  for(const g of grains){
+    g.vy+=.07;g.vx*=.985;g.vy*=.985;g.x+=g.vx;g.y+=g.vy;
+    if(g.x<0){g.x=0;g.vx*=-.4;}if(g.x>W){g.x=W;g.vx*=-.4;}
+    if(g.vis){g.life--;if(g.life<=0||g.y>=surfY(g.x)){g.dead=true;continue;}}
+    else if(g.y>=surfY(g.x)){deposit(g.x,g.m);g.dead=true;continue;}
+    cx.globalAlpha=g.vis?Math.max(0,g.life/40)*.8:1;
+    cx.fillRect(g.x-1,g.y-1,2,2);
+  }
+  cx.globalAlpha=1;
+  grains=grains.filter(g=>!g.dead);
+  for(const s of silt){
+    s.life--;s.y-=.08;s.x+=s.vx;s.r+=.06;
+    cx.fillStyle='rgba(170,148,108,'+(Math.min(1,s.life/60)*.07).toFixed(3)+')';
+    cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();
+  }
+  silt=silt.filter(s=>s.life>0);
+}
+function treeDays(){
+  const PLANTED=new Date('2026-11-01T16:20:00+09:00');
+  const o=parseFloat(new URLSearchParams(location.search).get('day'));
+  return isFinite(o)?o:(Date.now()-PLANTED.getTime())/86400000;
+}
+function drawTree(){
+  const d=treeDays(),x=tree.x,b=surfY(x)+2;
+  cx.save();cx.lineCap='round';
+  if(d<7){
+    const lean=Math.sin(t*.01+tree.sway)*.04;
+    cx.translate(x,b);cx.rotate(lean);
+    cx.strokeStyle='#4f6b3a';cx.lineWidth=4;
+    cx.beginPath();cx.moveTo(0,0);cx.lineTo(0,-34);cx.stroke();
+    cx.fillStyle='#6e8a4a';cx.beginPath();cx.ellipse(0,-36,3.2,6,0,0,7);cx.fill();
+    cx.restore();return;
+  }
+  const hh=Math.min((H-base)*.5,20+(d-7)*((H-base)*.5-20)/180);
+  const top=b-hh,sway=Math.sin(t*.008+tree.sway)*Math.min(6,hh*.03);
+  const nRoots=Math.min(7,1+Math.floor((d-7)/14));
+  cx.strokeStyle='#6b4a2e';
+  for(let i=0;i<nRoots;i++){
+    const side=i%2===0?-1:1,spread=18+i*9,fromY=b-Math.min(hh*.6,14+i*8);
+    cx.lineWidth=2.6-i*.15;
+    cx.beginPath();cx.moveTo(x,fromY);cx.quadraticCurveTo(x+side*spread*.9,fromY-6,x+side*spread,b);cx.stroke();
+  }
+  cx.strokeStyle='#7a5636';cx.lineWidth=Math.min(7,3+hh*.02);
+  cx.beginPath();cx.moveTo(x,b);cx.quadraticCurveTo(x+sway*.4,b-hh*.5,x+sway,top);cx.stroke();
+  // 芽の先の葉（小さくても二枚）
+  cx.fillStyle='#2f7a55';
+  const nl=hh>50?3+Math.floor(hh/40):2;
+  for(let i=0;i<nl;i++){
+    const a=(i/nl)*Math.PI*2+t*.003,r=hh>50?8+Math.min(26,hh*.12):5;
+    cx.beginPath();cx.ellipse(x+sway+Math.cos(a)*r,top+Math.sin(a)*r*.6-4,hh>50?7:5,hh>50?3.5:2.6,a,0,7);cx.fill();
+  }
+  cx.restore();
+}
+function drawNemo(){
+  const n=nemo,s=n.s,lying=n.state==='lie';
+  cx.save();cx.translate(n.x,n.y);
+  cx.rotate(lying?n.lieSide*.22:(n.state==='sweep'||n.state==='polish'?0:n.dir));
+  if(!lying&&(n.dir>Math.PI/2||n.dir<-Math.PI/2)&&(n.state==='sweep'||n.state==='polish'))cx.scale(-1,1);
+  const breathe=lying?1+Math.sin(t*.03)*.03:1;
+  cx.scale(breathe,lying?.78:1);
+  cx.shadowColor='#ff8a3d';cx.shadowBlur=lying?3:8;
+  cx.fillStyle='#ff8a3d';
+  cx.beginPath();cx.ellipse(0,0,s,s*.62,0,0,7);cx.fill();
+  const fast=n.state==='sweep'||n.state==='polish';
+  const wag=lying?Math.sin(t*.03)*.1:Math.sin(n.wob*(fast?4:2))*(fast?.9:.5);
+  cx.beginPath();cx.moveTo(-s*.85,0);cx.lineTo(-s*1.6,-s*.5*wag-s*.4);cx.lineTo(-s*1.6,-s*.5*wag+s*.4);cx.closePath();cx.fill();
+  cx.shadowBlur=0;
+  cx.save();cx.beginPath();cx.ellipse(0,0,s,s*.62,0,0,7);cx.clip();
+  cx.fillStyle='#fff7ee';
+  cx.fillRect(s*.38,-s,s*.16,s*2);cx.fillRect(-s*.18,-s,s*.16,s*2);cx.fillRect(-s*.72,-s,s*.12,s*2);
+  cx.strokeStyle='rgba(20,10,5,.6)';cx.lineWidth=.8;
+  cx.strokeRect(s*.38,-s,s*.16,s*2);cx.strokeRect(-s*.18,-s,s*.16,s*2);cx.strokeRect(-s*.72,-s,s*.12,s*2);
+  cx.restore();
+  cx.fillStyle='#04121c';
+  if(lying)cx.fillRect(s*.5,-s*.14,s*.18,1.2);
+  else{cx.beginPath();cx.arc(s*.58,-s*.12,1.7,0,7);cx.fill();}
+  cx.restore();
+  if(n.mark>0){
+    const a=Math.min(1,n.mark/15),pop=1+Math.max(0,(n.mark-48)/12)*.5;
+    cx.save();cx.globalAlpha=a;cx.fillStyle='#ffb347';cx.textAlign='center';
+    cx.font='bold '+Math.round(16*pop)+'px sans-serif';cx.fillText('！',n.x+s*.3,n.y-s*1.4);cx.restore();
+  }
+  if(zz.length){
+    cx.save();cx.textAlign='center';
+    for(const z of zz){
+      z.y-=.22;z.x+=Math.sin(z.life*.08)*.25;z.life--;
+      cx.globalAlpha=Math.min(1,z.life/40)*.9;cx.font=(11+(150-z.life)*.04)+'px sans-serif';cx.fillText('💤',z.x,z.y);
+    }
+    zz=zz.filter(z=>z.life>0&&nemo.state==='lie');
+    cx.restore();
+  }
+}
+function drawSparks(){
+  cx.save();cx.strokeStyle='#fff6d8';cx.lineCap='round';
+  for(const p of sparks){
+    p.life--;const a=Math.sin((p.life/46)*Math.PI),r=p.r*(.6+a*.6);
+    cx.globalAlpha=a;cx.lineWidth=1.2;
+    cx.beginPath();cx.moveTo(p.x-r,p.y);cx.lineTo(p.x+r,p.y);cx.moveTo(p.x,p.y-r*1.4);cx.lineTo(p.x,p.y+r*1.4);cx.stroke();
+  }
+  sparks=sparks.filter(p=>p.life>0);
+  cx.restore();
+}
+function spawnBubble(x,y){bubbles.push({x:x??Math.random()*W,y:y??H-base,r:1.5+Math.random()*3,v:.3+Math.random()*.6,wob:Math.random()*6});}
+function drawBubbles(){
+  cx.save();cx.strokeStyle='rgba(190,240,230,.35)';
+  for(const b of bubbles){b.y-=b.v;b.x+=Math.sin(t*.05+b.wob)*.3;cx.beginPath();cx.arc(b.x,b.y,b.r,0,7);cx.stroke();}
+  bubbles=bubbles.filter(b=>b.y>-8);
+  cx.restore();
+  if(Math.random()<.015)spawnBubble();
+}
+
+/* ---------- 文字 ---------- */
+let toastTimer=null,labelTimer=null;
+function toast(msg,ms=2400){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),ms);}
+function showLabel(x,y,text){
+  labelEl.textContent=text;
+  labelEl.style.left=clamp(x,60,W-60)+'px';labelEl.style.top=Math.max(50,y)+'px';
+  labelEl.classList.add('show');clearTimeout(labelTimer);labelTimer=setTimeout(()=>labelEl.classList.remove('show'),1800);
+}
+const STATE_JA={lie:'寝てる',notice:'気づいた',go:'現場へ',sweep:'掃除中',home:'角へ帰る',polish:'角を磨いてる'};
+let lastState='';
+function updateStats(){
+  statsEl.innerHTML='ぐちゃぐちゃ: <b>'+stats.mess+'</b> 回<br>ピカピカ: <b class="amber">'+stats.shiny+'</b> 回<br>ニモ: <b>'+STATE_JA[nemo.state]+'</b>';
+  lastState=nemo.state;
+}
+
+/* ---------- 指 ---------- */
+let drag=null;
+function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+function onMessStart(){
+  stats.mess++;saveStats();updateStats();
+  const st=nemo.state;
+  if((st==='go'||st==='sweep')&&Math.random()<.35)toast(BUSY[Math.floor(Math.random()*BUSY.length)],1800);
+}
+function handle(p,dx,dy){
+  drag.moved+=Math.hypot(dx,dy);
+  if(p.y>surfY(p.x)-28){
+    dig(p.x,dx,dy);
+    if(!drag.dug){drag.dug=true;onMessStart();}
+  }else if(Math.hypot(dx,dy)>2&&Math.random()<.3)spawnBubble(p.x,p.y);
+}
+cv.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  const p=pos(e);
+  if(Math.hypot(p.x-nemo.x,p.y-nemo.y)<nemo.s*2.2){
+    const st=nemo.state;
+    showLabel(nemo.x,nemo.y-nemo.s,
+      st==='lie'?'ニモ\n寝てる。本当に横になってる':
+      st==='sweep'?'ニモ\n掃除中。めげない':
+      st==='polish'?'ニモ\n自分の角は念入りに':
+      st==='go'?'ニモ\n現場に向かってる':
+      st==='home'?'ニモ\n角に帰るところ':'ニモ\n「！」');
+    return;
+  }
+  if(Math.abs(p.x-tree.x)<22&&p.y<surfY(tree.x)-4&&p.y>surfY(tree.x)-90){
+    showLabel(tree.x,p.y,'19の木（マングローブ）\n2026-11-01から '+Math.floor(treeDays())+' 日');
+    return;
+  }
+  try{cv.setPointerCapture(e.pointerId);}catch(_){}
+  drag={x:p.x,y:p.y,moved:0,dug:false};
+  handle(p,0,0);
+});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const p=pos(e);handle(p,p.x-drag.x,p.y-drag.y);drag.x=p.x;drag.y=p.y;
+});
+const end=()=>{drag=null;};
+cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+document.addEventListener('gesturestart',e=>e.preventDefault());
+
+/* ---------- まわす ---------- */
+function frame(){
+  t++;
+  drawWater();
+  drawBubbles();
+  drawTree();
+  drawSand();
+  drawGrains();
+  updateNemo();drawNemo();
+  drawSparks();
+  if(nemo.state!==lastState)updateStats();
+  requestAnimationFrame(frame);
+}
+window.__souji={get state(){return nemo.state;},get mess(){let m=0;for(let i=0;i<N;i++)m=Math.max(m,messAt(i));return m;},get target(){return findTarget(nemo.x);},stats:()=>stats,nemo};
+
+resize();
+for(let i=0;i<10;i++)spawnBubble(Math.random()*W,Math.random()*H*.8);
+updateStats();
+setTimeout(()=>toast('ニモのおそうじ。\n指で砂をぐちゃぐちゃにしてみて',3200),500);
+frame();
+})();
+</script>
+</body>
+</html>
