@@ -75,8 +75,8 @@ const toastEl=document.getElementById('toast');
 const labelEl=document.getElementById('label');
 
 const KEY='nemo-souji:v1';
-let stats={mess:0,shiny:0};
-try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s.mess==='number')stats=s;}catch(e){}
+let stats={mess:0,shiny:0,poked:0};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s.mess==='number')stats=Object.assign(stats,s);}catch(e){}
 function saveStats(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
 
 let W=0,H=0,DPR=1,t=0;
@@ -195,6 +195,25 @@ function spark(x,y){if(sparks.length<60)sparks.push({x,y,life:46,r:2+Math.random
 
 const WAKE=['ニモ、起きた','ニモ、出勤','「また？」という顔','ニモ、ため息ひとつ','ニモはめげない'];
 const BUSY=['ニモはめげない','ニモ、黙って片づけてる','仕事が増えた','ニモ、聞こえないふり'];
+// 網：水の中に指を置くと網が入る。ニモは気が強いので、寄ってきて威嚇して、突く
+const net={active:false,x:0,y:0,age:0,lift:0,shake:0,w:40,h:30};
+const GUARD=new Set(['guard','threat','poke','recoil']);
+const NET_IN=['ニモ、縄張りを守る','ニモ「出ていけ」','ニモ、本気','また来た、という顔'];
+const POKE=['ツン！','ガッ！','ガブッ','ツン！'];
+let pops=[],netSession=false,firstNet=true;
+function placeNet(x,y){
+  net.w=nemo.s*3.6;net.h=nemo.s*2.8;
+  const wy=Math.max(16,H*.03);
+  net.x=clamp(x,net.w/2+4,W-net.w/2-4);
+  net.y=clamp(y,wy+net.h*.6,surfY(net.x)-net.h*.8);
+}
+function netContact(side){return{x:net.x+side*(net.w/2+nemo.s*1.0),y:net.y+net.h*.05};}
+function netSide(){
+  let side=Math.sign(nemo.x-net.x)||nemo.side||1;
+  const cx_=net.x+side*(net.w/2+nemo.s*2.2);
+  if(cx_<nemo.s*1.6||cx_>W-nemo.s*1.6)side=-side;
+  return side;
+}
 let firstWake=true;
 let angry=false,angryPop=0;
 const rage=()=>angry?1.1:1;
@@ -216,11 +235,57 @@ function swimTo(tx,ty,sp){
   return Math.hypot(tx-n.x,ty-n.y);
 }
 function updateNemo(){
-  const n=nemo;n.wob+=.09;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;
+  const n=nemo;n.wob+=.09;if(n.timer>0)n.timer--;if(n.mark>0)n.mark--;if(n.grr>0)n.grr--;
+  if(net.active)net.age++;
+  const netIn=net.active&&net.age>18;
+  if(netIn&&!GUARD.has(n.state)){
+    n.mark=40;n.side=netSide();
+    if(!netSession){netSession=true;toast(firstNet?'ニモ、網を見つけた 💢':NET_IN[Math.floor(Math.random()*NET_IN.length)],1800);firstNet=false;}
+    setState('guard');
+  }else if(!netIn&&GUARD.has(n.state)){
+    n.grr=110; // 網が出ていっても、しばらく怒ってる
+    const tx=findTarget(n.x);if(tx!==null){n.tx=tx;setState('go');}else setState('home');
+  }
   if(n.state==='go'||n.state==='sweep'){n.jobT=(n.jobT||0)+1;
     if(n.jobT>60*80){for(let i=0;i<N;i++){if(messAt(i)>.05){h[i]=base;shine[i]=1;if(Math.random()<.08)spark(i*COL,surfAt(i)-2);}}n.jobT=0;setState('home');}
   }else if(n.state==='lie')n.jobT=0;
   switch(n.state){
+    case 'guard':{
+      n.side=netSide();
+      const c=netContact(n.side);
+      const d=swimTo(c.x+n.side*n.s*.9,c.y,3.0);
+      if(d<n.s*.7){n.k=2+Math.floor(Math.random()*3);n.phase=0;setState('threat');}
+      break;
+    }
+    case 'threat':{
+      // 威嚇：ぐっと前に出て、引く。体を震わせる
+      const c=netContact(n.side);
+      n.phase+=.26;
+      const jerk=Math.max(0,Math.sin(n.phase))*n.s*.7;
+      n.x=clamp(c.x+n.side*(n.s*.9-jerk),n.s*1.6,W-n.s*1.6);n.y=c.y+Math.sin(n.phase*2)*1.5;
+      n.dir=n.side>0?Math.PI:0;
+      if(n.phase>=Math.PI*2*n.k)setState('poke');
+      break;
+    }
+    case 'poke':{
+      const c=netContact(n.side),tx=c.x-n.side*n.s*.1,ty=c.y;
+      n.dir=n.side>0?Math.PI:0;
+      n.x+=(tx-n.x)*.35;n.y+=(ty-n.y)*.35;
+      if(Math.abs(tx-n.x)<1.5){
+        net.shake=1;stats.poked++;saveStats();updateStats();
+        pops.push({x:net.x+n.side*net.w*.3,y:net.y-net.h*.55,text:POKE[Math.floor(Math.random()*POKE.length)],life:52});
+        for(let j=0;j<3;j++)spawnBubble(c.x,c.y);
+        setState('recoil',16);
+      }
+      break;
+    }
+    case 'recoil':{
+      const c=netContact(n.side);
+      n.dir=n.side>0?Math.PI:0;
+      n.x+=(c.x+n.side*n.s*1.2-n.x)*.2;n.y+=(c.y-n.y)*.2;
+      if(n.timer<=0){n.k=1+Math.floor(Math.random()*3);n.phase=0;setState('threat');}
+      break;
+    }
     case 'lie':{
       n.x=bed.x;n.y=surfY(bed.x)-n.s*.45;n.dir=0;
       if(t%120===0)zz.push({x:n.x+n.s*.5,y:n.y-n.s*1.2,life:150});
@@ -477,8 +542,10 @@ function drawTree(){
 function drawNemo(){
   const n=nemo,s=n.s,lying=n.state==='lie';
   cx.save();cx.translate(n.x,n.y);
-  cx.rotate(lying?n.lieSide*.22:(n.state==='sweep'||n.state==='polish'?0:n.dir));
-  if(!lying&&(n.dir>Math.PI/2||n.dir<-Math.PI/2)&&(n.state==='sweep'||n.state==='polish'))cx.scale(-1,1);
+  const flipSt=n.state==='sweep'||n.state==='polish'||GUARD.has(n.state)&&n.state!=='guard';
+  cx.rotate(lying?n.lieSide*.22:(flipSt?0:n.dir));
+  if(!lying&&(n.dir>Math.PI/2||n.dir<-Math.PI/2)&&flipSt)cx.scale(-1,1);
+  if(n.state==='threat'){cx.rotate(Math.sin(t*.9)*.12);cx.scale(1.08,1.08);}
   const breathe=lying?1+Math.sin(t*.03)*.03:1;
   cx.scale(breathe,lying?.78:1);
   cx.shadowColor='#ff8a3d';cx.shadowBlur=lying?3:8;
@@ -503,7 +570,7 @@ function drawNemo(){
     cx.save();cx.globalAlpha=a;cx.fillStyle='#ffb347';cx.textAlign='center';
     cx.font='bold '+Math.round(16*pop)+'px sans-serif';cx.fillText('！',n.x+s*.3,n.y-s*1.4);cx.restore();
   }
-  if(angry&&!lying){
+  if((angry||GUARD.has(n.state)||n.grr>0)&&!lying){
     if(angryPop>0)angryPop--;
     const k=1+.14*Math.sin(t*.25)+angryPop/30*.6;
     cx.save();cx.textAlign='center';cx.font=Math.round(s*1.15*k)+'px sans-serif';
@@ -516,6 +583,33 @@ function drawNemo(){
       cx.globalAlpha=Math.min(1,z.life/40)*.9;cx.font=(11+(150-z.life)*.04)+'px sans-serif';cx.fillText('💤',z.x,z.y);
     }
     zz=zz.filter(z=>z.life>0&&nemo.state==='lie');
+    cx.restore();
+  }
+}
+function drawNet(){
+  if(!net.active&&net.lift<=0)return;
+  let x=net.x,y=net.y,a=1;
+  if(!net.active){net.lift-=.05;y-=(1-net.lift)*70;a=Math.max(0,net.lift);}
+  if(net.shake>0){x+=Math.sin(t*1.7)*net.shake*4;y+=Math.cos(t*1.3)*net.shake*2;net.shake*=.88;if(net.shake<.02)net.shake=0;}
+  const w=net.w,h=net.h;
+  cx.save();cx.globalAlpha=a;cx.lineCap='round';
+  cx.strokeStyle='#7d8b93';cx.lineWidth=3;
+  cx.beginPath();cx.moveTo(x+w*.1,y-h/2);cx.lineTo(x+w*.1+Math.max(0,y)*.16,-10);cx.stroke();
+  const P=new Path2D();
+  P.moveTo(x-w/2,y-h/2);P.lineTo(x+w/2,y-h/2);P.lineTo(x+w/2,y+h*.15);
+  P.quadraticCurveTo(x+w*.42,y+h*.72,x,y+h*.66);P.quadraticCurveTo(x-w*.42,y+h*.72,x-w/2,y+h*.15);P.closePath();
+  cx.fillStyle='rgba(120,160,175,.14)';cx.fill(P);
+  cx.save();cx.clip(P);cx.strokeStyle='rgba(80,105,118,.35)';cx.lineWidth=.8;
+  for(let gx=x-w/2;gx<=x+w/2;gx+=5){cx.beginPath();cx.moveTo(gx,y-h/2);cx.lineTo(gx,y+h);cx.stroke();}
+  for(let gy=y-h/2;gy<=y+h;gy+=5){cx.beginPath();cx.moveTo(x-w/2,gy);cx.lineTo(x+w/2,gy);cx.stroke();}
+  cx.restore();
+  cx.strokeStyle='#4f5f68';cx.lineWidth=2.4;
+  cx.beginPath();cx.moveTo(x-w/2,y+h*.15);cx.lineTo(x-w/2,y-h/2);cx.lineTo(x+w/2,y-h/2);cx.lineTo(x+w/2,y+h*.15);cx.stroke();
+  cx.restore();
+  if(pops.length){
+    cx.save();cx.textAlign='center';cx.font='bold 14px sans-serif';
+    for(const q of pops){q.life--;q.y-=.35;cx.globalAlpha=Math.min(1,q.life/20);cx.fillStyle='#e0632a';cx.fillText(q.text,q.x,q.y);}
+    pops=pops.filter(q=>q.life>0);
     cx.restore();
   }
 }
@@ -546,10 +640,10 @@ function showLabel(x,y,text){
   labelEl.style.left=clamp(x,60,W-60)+'px';labelEl.style.top=Math.max(50,y)+'px';
   labelEl.classList.add('show');clearTimeout(labelTimer);labelTimer=setTimeout(()=>labelEl.classList.remove('show'),1800);
 }
-const STATE_JA={lie:'寝てる',notice:'気づいた',go:'現場へ',sweep:'掃除中',home:'角へ帰る',polish:'角を磨いてる'};
+const STATE_JA={lie:'寝てる',notice:'気づいた',go:'現場へ',sweep:'掃除中',home:'角へ帰る',polish:'角を磨いてる',guard:'網へ突進',threat:'威嚇中',poke:'ツン！',recoil:'威嚇中'};
 let lastState='';
 function updateStats(){
-  statsEl.innerHTML='ぐちゃぐちゃ: <b>'+stats.mess+'</b> 回<br>ピカピカ: <b class="amber">'+stats.shiny+'</b> 回<br>ニモ: <b>'+STATE_JA[nemo.state]+'</b>';
+  statsEl.innerHTML='ぐちゃぐちゃ: <b>'+stats.mess+'</b> 回<br>ピカピカ: <b class="amber">'+stats.shiny+'</b> 回<br>突かれた: <b>'+stats.poked+'</b> 回<br>ニモ: <b>'+STATE_JA[nemo.state]+'</b>';
   lastState=nemo.state;
 }
 
@@ -578,23 +672,38 @@ cv.addEventListener('pointerdown',e=>{
       st==='sweep'?'ニモ\n掃除中。めげない':
       st==='polish'?'ニモ\n自分の角は念入りに':
       st==='go'?'ニモ\n現場に向かってる':
-      st==='home'?'ニモ\n角に帰るところ':'ニモ\n「！」');
+      st==='home'?'ニモ\n角に帰るところ':
+      GUARD.has(st)?'ニモ\n縄張りを守ってる':'ニモ\n「！」');
     return;
   }
   if(Math.abs(p.x-tree.x)<22&&p.y<surfY(tree.x)-4&&p.y>surfY(tree.x)-90){
     showLabel(tree.x,p.y,'19の木（マングローブ）\n2026-11-01から '+Math.floor(treeDays())+' 日');
     return;
   }
-  if(p.y<surfY(p.x)-28&&isRock(p.x,p.y)){showLabel(p.x,p.y,'ライブロック\n小さい生き物たちの家');return;}
   try{cv.setPointerCapture(e.pointerId);}catch(_){}
-  drag={x:p.x,y:p.y,moved:0,dug:false};
+  if(p.y<surfY(p.x)-28){
+    drag={mode:'net',x:p.x,y:p.y,moved:0,t0:performance.now()};
+    placeNet(p.x,p.y);net.active=true;net.age=0;net.lift=0;
+    return;
+  }
+  drag={mode:'dig',x:p.x,y:p.y,moved:0,dug:false};
   handle(p,0,0);
 });
 cv.addEventListener('pointermove',e=>{
   if(!drag)return;
-  const p=pos(e);handle(p,p.x-drag.x,p.y-drag.y);drag.x=p.x;drag.y=p.y;
+  const p=pos(e);
+  if(drag.mode==='net'){drag.moved+=Math.hypot(p.x-drag.x,p.y-drag.y);placeNet(p.x,p.y);}
+  else handle(p,p.x-drag.x,p.y-drag.y);
+  drag.x=p.x;drag.y=p.y;
 });
-const end=()=>{drag=null;};
+const end=e=>{
+  if(drag&&drag.mode==='net'){
+    // ちょんと触っただけなら、網は入れない（ライブロックなら名前を出す）
+    if(drag.moved<6&&performance.now()-drag.t0<260&&isRock(drag.x,drag.y))showLabel(drag.x,drag.y,'ライブロック\n小さい生き物たちの家');
+    net.active=false;net.lift=net.age>18?1:0;netSession=false;
+  }
+  drag=null;
+};
 cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
 document.addEventListener('gesturestart',e=>e.preventDefault());
 
@@ -607,7 +716,7 @@ function frame(){
   drawTree();
   drawSand();
   drawGrains();
-  updateNemo();drawNemo();
+  updateNemo();drawNet();drawNemo();
   drawSparks();
   if(t%15===0)checkAngry();
   if(t%6===0)for(let i=0;i<N;i++)if(shine[i]>.8&&shine[i]<1&&Math.abs(h[i]-base)<1.5)shine[i]=Math.min(1,shine[i]+.01);
