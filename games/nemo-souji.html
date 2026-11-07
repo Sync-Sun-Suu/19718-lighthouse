@@ -53,6 +53,14 @@
     transform:translate(-50%,-140%);white-space:pre;line-height:1.5;
   }
   #label.show{opacity:.95;}
+  #netBtn{
+    position:absolute;top:max(10px,env(safe-area-inset-top));right:10px;
+    font-family:inherit;font-size:13px;color:var(--text);letter-spacing:1px;
+    background:rgba(4,18,28,.8);border:1px solid rgba(127,212,193,.35);border-radius:8px;
+    padding:9px 14px;
+  }
+  #netBtn:active{background:rgba(4,18,28,.92);}
+  #netBtn.on{background:var(--glass);color:var(--ink);border-color:var(--glass);}
   @media (prefers-reduced-motion: reduce){ #toast,#label{transition:none;} }
 </style>
 </head>
@@ -62,6 +70,7 @@
   <div id="stats"></div>
   <div id="toast"></div>
   <div id="label"></div>
+  <button id="netBtn">お掃除の時間</button>
 </div>
 
 <script>
@@ -199,8 +208,8 @@ const BUSY=['ニモはめげない','ニモ、黙って片づけてる','仕事�
 const net={active:false,x:0,y:0,age:0,lift:0,shake:0,w:40,h:30};
 const GUARD=new Set(['guard','threat','poke','recoil']);
 const NET_IN=['ニモ、縄張りを守る','ニモ「出ていけ」','ニモ、本気','また来た、という顔'];
-const POKE=['ツン！','ガッ！','ガブッ','ツン！'];
-let pops=[],netSession=false,firstNet=true;
+const POKE=['ツン！','ツン！','ガブッ','ガッ！'];
+let pops=[],netSession=false,firstNet=true,pokeN=0;
 function placeNet(x,y){
   net.w=nemo.s*3.6;net.h=nemo.s*2.8;
   const wy=Math.max(16,H*.03);
@@ -273,7 +282,8 @@ function updateNemo(){
       n.x+=(tx-n.x)*.35;n.y+=(ty-n.y)*.35;
       if(Math.abs(tx-n.x)<1.5){
         net.shake=1;stats.poked++;saveStats();updateStats();
-        pops.push({x:net.x+n.side*net.w*.3,y:net.y-net.h*.55,text:POKE[Math.floor(Math.random()*POKE.length)],life:52});
+        const word=POKE[pokeN++%POKE.length];
+        pops.push({x:net.x+n.side*net.w*.3,y:net.y-net.h*.55,text:word,life:word==='ガブッ'?64:52,big:word==='ガブッ'});
         for(let j=0;j<3;j++)spawnBubble(c.x,c.y);
         setState('recoil',16);
       }
@@ -590,6 +600,7 @@ function drawNet(){
   if(!net.active&&net.lift<=0)return;
   let x=net.x,y=net.y,a=1;
   if(!net.active){net.lift-=.05;y-=(1-net.lift)*70;a=Math.max(0,net.lift);}
+  else if(net.drop>0){y-=net.drop*(net.y+net.h+20);net.drop=Math.max(0,net.drop-.05);}
   if(net.shake>0){x+=Math.sin(t*1.7)*net.shake*4;y+=Math.cos(t*1.3)*net.shake*2;net.shake*=.88;if(net.shake<.02)net.shake=0;}
   const w=net.w,h=net.h;
   cx.save();cx.globalAlpha=a;cx.lineCap='round';
@@ -608,7 +619,7 @@ function drawNet(){
   cx.restore();
   if(pops.length){
     cx.save();cx.textAlign='center';cx.font='bold 14px sans-serif';
-    for(const q of pops){q.life--;q.y-=.35;cx.globalAlpha=Math.min(1,q.life/20);cx.fillStyle='#e0632a';cx.fillText(q.text,q.x,q.y);}
+    for(const q of pops){q.life--;q.y-=.35;cx.globalAlpha=Math.min(1,q.life/20);cx.fillStyle='#e0632a';cx.font='bold '+(q.big?18:14)+'px sans-serif';cx.fillText(q.text,q.x,q.y);}
     pops=pops.filter(q=>q.life>0);
     cx.restore();
   }
@@ -662,9 +673,33 @@ function handle(p,dx,dy){
     if(!drag.dug){drag.dug=true;onMessStart();}
   }else if(Math.hypot(dx,dy)>2&&Math.random()<.3)spawnBubble(p.x,p.y);
 }
+function onNet(p){
+  // 柄（棒）か枠の近くなら、つかめる
+  if(!net.active||net.drop>0)return false;
+  const x0=net.x+net.w*.1,y0=net.y-net.h/2,x1=x0+Math.max(0,net.y)*.16,y1=-10;
+  const vx=x1-x0,vy=y1-y0,L=vx*vx+vy*vy;
+  const u=clamp(((p.x-x0)*vx+(p.y-y0)*vy)/L,0,1);
+  if(Math.hypot(p.x-(x0+vx*u),p.y-(y0+vy*u))<28)return true;
+  return Math.abs(p.x-net.x)<net.w/2+10&&p.y>net.y-net.h/2-10&&p.y<net.y+net.h*.7+6;
+}
+const netBtn=document.getElementById('netBtn');
+function putNetIn(){
+  placeNet(W*.24,H*.42);net.active=true;net.age=0;net.lift=0;net.drop=1;
+  netBtn.textContent='おしまい';netBtn.classList.add('on');
+}
+function takeNetOut(){
+  net.active=false;net.lift=1;netSession=false;
+  netBtn.textContent='お掃除の時間';netBtn.classList.remove('on');
+}
+netBtn.addEventListener('click',()=>{net.active?takeNetOut():putNetIn();});
 cv.addEventListener('pointerdown',e=>{
   e.preventDefault();
   const p=pos(e);
+  if(onNet(p)){
+    try{cv.setPointerCapture(e.pointerId);}catch(_){}
+    drag={mode:'net',x:p.x,y:p.y,offX:net.x-p.x,offY:net.y-p.y};
+    return;
+  }
   if(Math.hypot(p.x-nemo.x,p.y-nemo.y)<nemo.s*1.5){
     const st=nemo.state;
     showLabel(nemo.x,nemo.y-nemo.s,
@@ -682,8 +717,8 @@ cv.addEventListener('pointerdown',e=>{
   }
   try{cv.setPointerCapture(e.pointerId);}catch(_){}
   if(p.y<surfY(p.x)-28){
-    drag={mode:'net',x:p.x,y:p.y,moved:0,t0:performance.now()};
-    placeNet(p.x,p.y);net.active=true;net.age=0;net.lift=0;
+    if(isRock(p.x,p.y))showLabel(p.x,p.y,'ライブロック\n小さい生き物たちの家');
+    drag={mode:'water',x:p.x,y:p.y,moved:0};
     return;
   }
   drag={mode:'dig',x:p.x,y:p.y,moved:0,dug:false};
@@ -692,18 +727,12 @@ cv.addEventListener('pointerdown',e=>{
 cv.addEventListener('pointermove',e=>{
   if(!drag)return;
   const p=pos(e);
-  if(drag.mode==='net'){drag.moved+=Math.hypot(p.x-drag.x,p.y-drag.y);placeNet(p.x,p.y);}
+  if(drag.mode==='net')placeNet(p.x+drag.offX,p.y+drag.offY);
+  else if(drag.mode==='water'){if(Math.hypot(p.x-drag.x,p.y-drag.y)>2&&Math.random()<.3)spawnBubble(p.x,p.y);}
   else handle(p,p.x-drag.x,p.y-drag.y);
   drag.x=p.x;drag.y=p.y;
 });
-const end=e=>{
-  if(drag&&drag.mode==='net'){
-    // ちょんと触っただけなら、網は入れない（ライブロックなら名前を出す）
-    if(drag.moved<6&&performance.now()-drag.t0<260&&isRock(drag.x,drag.y))showLabel(drag.x,drag.y,'ライブロック\n小さい生き物たちの家');
-    net.active=false;net.lift=net.age>18?1:0;netSession=false;
-  }
-  drag=null;
-};
+const end=()=>{drag=null;};
 cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
 document.addEventListener('gesturestart',e=>e.preventDefault());
 
@@ -723,7 +752,7 @@ function frame(){
   if(nemo.state!==lastState)updateStats();
   requestAnimationFrame(frame);
 }
-window.__souji={get state(){return nemo.state;},get mess(){let m=0;for(let i=0;i<N;i++)m=Math.max(m,messAt(i));return m;},get target(){return findTarget(nemo.x);},stats:()=>stats,nemo};
+window.__souji={net,get state(){return nemo.state;},get mess(){let m=0;for(let i=0;i<N;i++)m=Math.max(m,messAt(i));return m;},get target(){return findTarget(nemo.x);},stats:()=>stats,nemo};
 
 resize();
 for(let i=0;i<10;i++)spawnBubble(Math.random()*W,Math.random()*H*.8);
