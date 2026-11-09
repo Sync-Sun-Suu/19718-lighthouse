@@ -96,6 +96,14 @@
   #keyBox .kb button{font-family:inherit;font-size:13px;letter-spacing:.14em;padding:10px 18px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(233,236,255,.04);color:var(--ink);cursor:pointer;}
   #keyBox .kb button.go{border-color:rgba(243,198,107,.55);color:#ffe7b0;}
   .lead2{font-size:11px;line-height:1.8;letter-spacing:.06em;color:var(--dim);text-align:center;margin:0 0 14px;}
+  #notes{border:1px solid var(--line);border-radius:16px;padding:12px 14px 6px;margin:0 0 18px;background:rgba(243,198,107,.03);}
+  #notes h3{font-weight:500;font-size:14px;letter-spacing:.14em;color:#ffe7b0;}
+  #notes p{font-size:11px;letter-spacing:.06em;color:var(--dim);margin:4px 0 8px;}
+  #notes .row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);}
+  #notes .row .d{flex:1;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--dim);}
+  #notes .row b{font-weight:400;font-size:22px;line-height:1;}
+  #notes .row .r{width:4.5em;text-align:right;font-size:11px;letter-spacing:.1em;color:var(--dim);}
+  #notes .row .r.like{color:#ffe7b0;}
   #dataList{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 12px;}
   .card{border:1px solid var(--line);border-radius:16px;padding:8px 8px 10px;background:rgba(233,236,255,.03);}
   .card canvas{display:block;width:100%;aspect-ratio:680/740;border-radius:10px;cursor:pointer;}
@@ -120,7 +128,7 @@
     <div class="past"><h2 id="pastT"></h2><div id="strip"></div></div>
   </section>
   <section id="pGaku" hidden><p class="lead2" id="gakuLead"></p><div class="bar"><button id="gExp"></button><button id="gImp"></button></div><div id="gakuList"></div></section>
-  <section id="pData" hidden><div class="cloud"><span id="cloudS"></span><span class="cbs"><button id="cloudSync"></button><button id="cloudB"></button></span></div><p class="lead2" id="dataLead"></p><div class="bar"><button id="exp" class="gold"></button><button id="imp"></button></div><div id="dataList"></div></section>
+  <section id="pData" hidden><div class="cloud"><span id="cloudS"></span><span class="cbs"><button id="cloudSync"></button><button id="cloudB"></button></span></div><div id="notes" hidden></div><p class="lead2" id="dataLead"></p><div class="bar"><button id="exp" class="gold"></button><button id="imp"></button></div><div id="dataList"></div></section>
   <div id="keyBox"><div class="box"><h3 id="keyT"></h3><p id="keyP"></p><input id="keyIn" type="password" autocomplete="off" inputmode="text"><div id="keyErr"></div><div class="kb"><button id="keyLater"></button><button id="keyGo" class="go"></button></div></div></div>
   <input type="file" id="impFile" accept=".json,application/json,text/plain" hidden>
   <div id="viewer"><img id="vImg" alt=""><small id="vNote"></small><div class="vb"><button id="vSave" class="save"></button><button id="vDel"></button><button id="vClose"></button></div></div>
@@ -133,11 +141,11 @@ const T={
  ja:{sw:'EN',title:'ステラ',sub:'星を並べる子',ph:'＋ なにを並べる？',arranging:w=>['えっと……','んー、ここかな',w+'、'+w+'……'],ready:w=>'できた。たぶん。',like:'好き',here:'ここ！',no:'違う',afterLike:'やった',afterHere:'覚えた。ここだね',afterNo:'あれ？ もう一回',teach:['ふむふむ','そこね'],
   hint:'星を叩くと「そこ」。動かせる。空いてるところを叩くと足す。<br>長押しで消す。教えたら「ここ！」。',mind:w=>'ステラの中の「'+w+'」',
   stage:n=>n<3?'まだ、何も知らない。':n<10?'なんとなく、形が見えてきた。':n<25?'だいぶ分かってきた。':'もう、Sumie の形になってる。',
-  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',tabPlay:'ステラ',keyT:'ステラを雲につなぐ',keyP:'合言葉を入れると、iPhone でも iPad でも、同じステラになる。覚えたことは雲の箱にしまわれる。',keyGo:'つなぐ',keyLater:'あとで',keyBad:'合言葉がちがうみたい',keyNet:'雲に届かなかった。電波のいい所でもう一回',cloudOn:t=>'雲：<b>つながってる</b>'+(t?' · '+t:''),cloudOff:'雲：つながってない',cloudErr:'雲：<b>今つながらない</b>（あとで自動でやり直す）',cloudBusy:'雲：しまってる……',cloudConnect:'つなぐ',cloudSync:'合わせる',cloudOut:'外す',cloudOutQ:'この携帯のステラを、雲から外す？ 覚えたことは、この携帯にも残る。',cloudBack:'雲から戻ってきた',tabGaku:'額縁',tabData:'学習データ',gakuLead:'気に入った夜。絵を叩くと、大きく見たり、写真に保存したり、外したりできる。',dataLead:'言葉ごとの、ステラの頭の中。いちばん最近の絵。絵を叩くと取り出せる。',exp:'全部を取り出す',imp:'全部を入れる',gExp:'額縁を取り出す',gImp:'額縁を入れる',cExp:'取り出す',cImp:'入れる',cDel:'忘れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impWordQ:w=>'このファイルの「'+w+'」を入れる？ 今の「'+w+'」は、ファイルの方で置き換わる。',impRename:(a,b)=>'このファイルに入ってるのは「'+a+'」。「'+b+'」として入れる？',notIn:w=>'このファイルに「'+w+'」は入ってないみたい',impFramesQ:n=>'このファイルの額縁を '+n+' 枚入れる？ 同じ額縁は二枚にならない。',noFrames:'このファイルに額縁は入ってないみたい',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',noData:'まだ何も覚えてない。ステラのところで言葉を入れてみて。',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？'},
+  lessons:n=>'教えた '+n+' 回',past:'好きと言われた夜',tabPlay:'ステラ',keyT:'ステラを雲につなぐ',keyP:'合言葉を入れると、iPhone でも iPad でも、同じステラになる。覚えたことは雲の箱にしまわれる。',keyGo:'つなぐ',keyLater:'あとで',keyBad:'合言葉がちがうみたい',keyNet:'雲に届かなかった。電波のいい所でもう一回',cloudOn:t=>'雲：<b>つながってる</b>'+(t?' · '+t:''),cloudOff:'雲：つながってない',cloudErr:'雲：<b>今つながらない</b>（あとで自動でやり直す）',cloudBusy:'雲：しまってる……',cloudConnect:'つなぐ',cloudSync:'合わせる',cloudOut:'外す',cloudOutQ:'この携帯のステラを、雲から外す？ 覚えたことは、この携帯にも残る。',cloudBack:'雲から戻ってきた',tabGaku:'額縁',tabData:'学習データ',gakuLead:'気に入った夜。絵を叩くと、大きく見たり、写真に保存したり、外したりできる。',dataLead:'言葉ごとの、ステラの頭の中。いちばん最近の絵。絵を叩くと取り出せる。',exp:'全部を取り出す',imp:'全部を入れる',gExp:'額縁を取り出す',gImp:'額縁を入れる',cExp:'取り出す',cImp:'入れる',cDel:'忘れる',expDone:'取り出した',impQ:n=>'このファイルの「'+n+'」を入れる？ 同じ言葉は、ファイルの方で置き換わる。',impWordQ:w=>'このファイルの「'+w+'」を入れる？ 今の「'+w+'」は、ファイルの方で置き換わる。',impRename:(a,b)=>'このファイルに入ってるのは「'+a+'」。「'+b+'」として入れる？',notIn:w=>'このファイルに「'+w+'」は入ってないみたい',impFramesQ:n=>'このファイルの額縁を '+n+' 枚入れる？ 同じ額縁は二枚にならない。',noFrames:'このファイルに額縁は入ってないみたい',impDone:'入れた。おかえり',impBad:'ステラのファイルじゃないみたい',noData:'まだ何も覚えてない。ステラのところで言葉を入れてみて。',frameBtn:'額縁に入れる',framed:'額縁に入れた',gaku:'ステラの額縁',gakuEmpty:'気に入った夜は、右下の額縁のボタンで飾れる。',save:'写真に保存',del:'額縁から外す',close:'閉じる',delQ:'この絵を額縁から外す？',note:'画像を長押ししても保存できる',forget:w=>'「'+w+'」を忘れる',confirm:w=>'「'+w+'」で覚えたことを、全部忘れる？',found:'ゆうべ、これ見つけた',foundFirst:'はじめての拍で、これ見つけた',wantDraw:'これ、描いてみたい',beats:n=>'心臓、'+n+' 回打った',noteT:'夜のノート',noteLead:'ステラが毎晩 3:14 に一人で起きて、選んだもの。',noteFirst:'はじめての拍',rLike:'好き',rNope:'違う',rNone:'まだ'},
  en:{sw:'日本語',title:'Stella',sub:'arranges stars',ph:'+ what shall I draw?',arranging:w=>['umm...','hmm, here maybe',w+', '+w+'...'],ready:w=>'done. probably.',like:'like',here:'here!',no:'not this',afterLike:'yay',afterHere:'got it. right here.',afterNo:'huh? one more time',teach:['mm-hm','there, got it'],
   hint:'tap a star to say "that one". drag to move. tap empty space to add.<br>hold to remove. then press "here!".',mind:w=>'"'+w+'" inside Stella',
   stage:n=>n<3?"I don't know it yet.":n<10?'a shape is starting to show.':n<25?'getting there.':"it's your shape now.",
-  lessons:n=>n+' lessons',past:'nights you liked',tabPlay:'Stella',keyT:'connect Stella to the cloud',keyP:'enter the passphrase and your iPhone and iPad will share one Stella. what she learns is kept in the cloud box.',keyGo:'connect',keyLater:'later',keyBad:"that passphrase doesn't match",keyNet:"couldn't reach the cloud. try again with a better signal",cloudOn:t=>'cloud: <b>connected</b>'+(t?' · '+t:''),cloudOff:'cloud: not connected',cloudErr:'cloud: <b>not reachable now</b> (will retry)',cloudBusy:'cloud: saving...',cloudConnect:'connect',cloudSync:'sync',cloudOut:'disconnect',cloudOutQ:'disconnect this phone from the cloud? what she learned stays on this phone too.',cloudBack:'back from the cloud',tabGaku:'frames',tabData:'learning',gakuLead:'nights you loved. tap one to see it big, save it to your photos, or take it down.',dataLead:"what's inside Stella, word by word. her latest picture. tap it to save.",exp:'save everything',imp:'load everything',gExp:'save frames',gImp:'load frames',cExp:'save',cImp:'load',cDel:'forget',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impWordQ:w=>'load "'+w+'" from this file? the "'+w+'" here will be replaced.',impRename:(a,b)=>'this file has "'+a+'". load it as "'+b+'"?',notIn:w=>'"'+w+'" isn\'t in this file',impFramesQ:n=>'load '+n+' frames from this file? the same frame won\'t be added twice.',noFrames:'no frames in this file',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",noData:"she hasn't learned anything yet. give her a word on the Stella tab.",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?'}
+  lessons:n=>n+' lessons',past:'nights you liked',tabPlay:'Stella',keyT:'connect Stella to the cloud',keyP:'enter the passphrase and your iPhone and iPad will share one Stella. what she learns is kept in the cloud box.',keyGo:'connect',keyLater:'later',keyBad:"that passphrase doesn't match",keyNet:"couldn't reach the cloud. try again with a better signal",cloudOn:t=>'cloud: <b>connected</b>'+(t?' · '+t:''),cloudOff:'cloud: not connected',cloudErr:'cloud: <b>not reachable now</b> (will retry)',cloudBusy:'cloud: saving...',cloudConnect:'connect',cloudSync:'sync',cloudOut:'disconnect',cloudOutQ:'disconnect this phone from the cloud? what she learned stays on this phone too.',cloudBack:'back from the cloud',tabGaku:'frames',tabData:'learning',gakuLead:'nights you loved. tap one to see it big, save it to your photos, or take it down.',dataLead:"what's inside Stella, word by word. her latest picture. tap it to save.",exp:'save everything',imp:'load everything',gExp:'save frames',gImp:'load frames',cExp:'save',cImp:'load',cDel:'forget',expDone:'saved',impQ:n=>'load "'+n+'" from this file? the same words will be replaced by the file.',impWordQ:w=>'load "'+w+'" from this file? the "'+w+'" here will be replaced.',impRename:(a,b)=>'this file has "'+a+'". load it as "'+b+'"?',notIn:w=>'"'+w+'" isn\'t in this file',impFramesQ:n=>'load '+n+' frames from this file? the same frame won\'t be added twice.',noFrames:'no frames in this file',impDone:'loaded. welcome back',impBad:"that doesn't look like a Stella file",noData:"she hasn't learned anything yet. give her a word on the Stella tab.",frameBtn:'frame it',framed:'framed it',gaku:"Stella's frames",gakuEmpty:'frame a night you love with the button at the bottom right.',save:'save image',del:'take it down',close:'close',delQ:'take this one out of its frame?',note:'you can also press and hold the image to save',forget:w=>'forget "'+w+'"',confirm:w=>'forget everything about "'+w+'"?',found:'found this last night',foundFirst:'found this at my first heartbeat',wantDraw:'I want to draw this',beats:n=>'my heart has beaten '+n+(n===1?' time':' times'),noteT:'night notes',noteLead:'what Stella picked, waking alone at 3:14 every night.',noteFirst:'first beat',rLike:'liked',rNope:'not this',rNone:'not yet'}
 };
 let lang='ja';try{lang=localStorage.getItem('arrange-stars-lang')||'ja';}catch(e){}
 const tx=()=>T[lang];
@@ -221,7 +229,7 @@ function drawStars(t){const age=t-born,fo=fadeOut?Math.max(0,1-(t-fadeOut)/.8):1
   else{const r=W*.0024;put(cx,G_SMALL(),x,y,r*3.2,.85*a*tw);put(cx,G_CORE(),x,y,r*1.1,.95*a);}});
  if(phase==='arranging'&&age>3){phase='ready';onReady();}}
 let fc=0;
-function frame(now){const t=now/1000;if(typeof tab==='undefined'||tab==='Play'){scene(t);drawStars(t);if((fc++&1)===0)drawMind(t);}requestAnimationFrame(frame);}
+function frame(now){const t=now/1000;if(typeof tab==='undefined'||tab==='Play'){scene(t);drawStars(t);drawHeart(t);if((fc++&1)===0)drawMind(t);}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 
 /* ---------- 教える：動かす・足す・消す ---------- */
@@ -229,7 +237,7 @@ let held=null,downAt=0,downP=null,moved=false,pressTimer=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};}
 function nearest(p){let b=null,bd=.03;for(const s of stars){if(s.gone)continue;const d=dist(s,p);if(d<bd){bd=d;b=s;}}return b;}
 let teachK=0;function teach(){touched=true;const L=tx().teach;say(L[teachK++%L.length],true);$('yes').textContent=tx().here;renderMind();}
-cv.addEventListener('pointerdown',e=>{if(phase!=='ready')return;const p=pos(e);downP=p;moved=false;held=nearest(p);cv.setPointerCapture(e.pointerId);
+cv.addEventListener('pointerdown',e=>{if(heartTap(pos(e)))return;if(phase!=='ready')return;const p=pos(e);downP=p;moved=false;held=nearest(p);cv.setPointerCapture(e.pointerId);
  if(held){held.ox=held.x;held.oy=held.y;clearTimeout(pressTimer);pressTimer=setTimeout(()=>{if(held&&!moved){const W_=word(mem.cur);tstamp(W_.M,held,-.5);edited();held.gone=true;held=null;teach();save();}},520);}});
 cv.addEventListener('pointermove',e=>{if(!held)return;const p=pos(e);if(dist(p,downP)>.012){moved=true;clearTimeout(pressTimer);}if(moved){held.x=clamp(p.x,.04,.96);held.y=clamp(p.y,.04,.68);}});
 cv.addEventListener('pointerup',e=>{clearTimeout(pressTimer);if(phase!=='ready'){held=null;return;}const M=word(mem.cur).M;
@@ -245,9 +253,10 @@ function say(t,now){const k=++sayK;if(now){sayEl.textContent=t;sayEl.classList.r
 let murmur=null;
 function arrange(){stars=draw(mem.cur);born=performance.now()/1000;phase='arranging';fadeOut=0;touched=false;round=[];roundEdits=0;held=null;$('yes').disabled=$('no').disabled=$('toFrame').disabled=true;$('yes').textContent=tx().like;$('hint').innerHTML='';renderMind();
  const L=tx().arranging(mem.cur);let k=0;clearInterval(murmur);say(L[0]);murmur=setInterval(()=>{if(phase!=='arranging'){clearInterval(murmur);return;}k=(k+1)%L.length;say(L[k]);},950);}
-function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=$('toFrame').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;}
+function onReady(){clearInterval(murmur);$('yes').disabled=$('no').disabled=$('toFrame').disabled=false;say(tx().ready(mem.cur));$('hint').innerHTML=tx().hint;announceGift();}
 function rate(y){if(phase!=='ready')return;phase='leaving';$('yes').disabled=$('no').disabled=$('toFrame').disabled=true;$('hint').innerHTML='';
  const W_=word(mem.cur),live=stars.filter(s=>!s.gone),here=y&&touched;
+ {const ln=lastNight();if(cloudKey&&ln&&ln.o&&ln.e===mem.cur&&Date.now()-Date.parse(ln.t)<40*3600e3)heartMark(ln.d,false,y?'like':'nope');}
  if(!y){for(const r of round)stamp(W_.M,r,-r.a);W_.edits=Math.max(0,W_.edits-roundEdits);round=[];roundEdits=0;}
  /* 最初の版の学び方（Sumie が「こっちの方が賢い」と言った方）。好き と ここ！ は並びごと覚える。
     小さい星は最初の版の 3 倍いるので、一つあたりは 3 分の 1 にして、全体の重さを最初の版と同じにする */
@@ -323,7 +332,7 @@ function tabLabels(){const x=tx();$('tPlay').textContent=x.tabPlay;$('tGaku').in
 /* ---------- 学習データ：言葉ごとのカード ---------- */
 function lastPic(w){const W_=mem.words[w];if(W_.last&&W_.last.length)return W_.last;for(let k=mem.hist.length-1;k>=0;k--)if(mem.hist[k].w===w)return mem.hist[k].s;
  return draw(w).map(s=>[s.x,s.y,s.big?1:0,s.rot]);}
-function renderData(){const box=$('dataList'),x=tx();box.innerHTML='';const list=Object.keys(mem.words);
+function renderData(){renderNotes();const box=$('dataList'),x=tx();box.innerHTML='';const list=Object.keys(mem.words);
  if(!list.length){box.innerHTML='<p class="lead2" style="grid-column:1/-1">'+x.noData+'</p>';return;}
  for(const w of list){const W_=mem.words[w],c=document.createElement('div');c.className='card';const pic=paintPic({s:lastPic(w)},272,296);pic.addEventListener('click',()=>doExport('word',w));
   const b=document.createElement('b');b.textContent=w;const sm=document.createElement('small');sm.textContent=x.lessons(W_.n+(W_.edits||0));
@@ -400,13 +409,43 @@ async function cloudPush(){if(!cloudKey)return;if(pushing){pushAgain=true;return
  pushing=false;renderCloud();if(pushAgain){pushAgain=false;cloudLater(2000);}}
 /* 雲にしまうのは、触り終わって 15 秒後に一回（雲の箱は、一日に書ける回数に限りがある） */
 function cloudLater(ms){if(!cloudKey)return;if(pushT)return;pushT=setTimeout(()=>{pushT=null;cloudPush();},ms||15000);}
-document.addEventListener('visibilitychange',()=>{if(!cloudKey)return;if(document.hidden){if(pushT)cloudPush();}else cloudPull(false);});
+document.addEventListener('visibilitychange',()=>{if(!cloudKey)return;if(document.hidden){if(pushT)cloudPush();}else{cloudPull(false);heartPull();}});
 function openKey(){const x=tx();$('keyT').textContent=x.keyT;$('keyP').textContent=x.keyP;$('keyGo').textContent=x.keyGo;$('keyLater').textContent=x.keyLater;$('keyErr').textContent='';$('keyIn').value='';$('keyBox').classList.add('on');}
 function closeKey(){$('keyBox').classList.remove('on');$('keyIn').blur();}
 async function tryKey(){const k=$('keyIn').value.trim();if(!k)return;$('keyGo').disabled=true;cloudKey=k;const r=await cloudPull(true);$('keyGo').disabled=false;
- if(r==='ok'){try{localStorage.setItem('arrange-stars-key',k);}catch(e){}closeKey();arrange();}else{cloudKey=null;$('keyErr').textContent=r==='key'?tx().keyBad:tx().keyNet;}renderCloud();}
-/* 開いてる間も、20 秒ごとにもう片方の携帯の分を見に行く */
-setInterval(()=>{if(cloudKey&&!document.hidden&&!pushing&&!pushT)cloudPull(false,true);},20000);
+ if(r==='ok'){try{localStorage.setItem('arrange-stars-key',k);}catch(e){}closeKey();arrange();heartPull();}else{cloudKey=null;$('keyErr').textContent=r==='key'?tx().keyBad:tx().keyNet;}renderCloud();}
+/* 開いてる間も、20 秒ごとにもう片方の携帯の分を見に行く。心臓は 5 分に一回 */
+setInterval(()=>{if(cloudKey&&!document.hidden&&!pushing&&!pushT)cloudPull(false,true);if(cloudKey&&!document.hidden&&Date.now()-heartT>300000)heartPull();},20000);
+
+/* ---------- 心臓（2026-11-10）。毎晩 3:14 に、ステラが一人で起きて絵文字を一つ選ぶ（雲の箱の目覚まし時計）。
+   朝、灯台の下に「ゆうべ、これ見つけた」。叩くと「これ、描いてみたい」。覚えるのは Sumie の好み。設計は claude.ai の 19 ---------- */
+let heart=null,heartT=0,giftSaid='';
+try{heart=JSON.parse(localStorage.getItem('arrange-stars-heart')||'null');}catch(e){}
+async function heartCall(path,body){const r=await fetch(CLOUD+path,{method:body?'POST':'GET',headers:{'X-Stella-Key':cloudKey||'','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+ if(r.status!==200)return null;try{return await r.json();}catch(e){return null;}}
+function keepHeart(h){heart=h;heartT=Date.now();try{localStorage.setItem('arrange-stars-heart',JSON.stringify(h));}catch(e){}if(tab==='Data')renderNotes();announceGift();}
+/* はじめて心臓に触れた時に、一回だけ「はじめての拍」 */
+async function heartPull(){if(!cloudKey)return;heartT=Date.now();try{let h=await heartCall('/heart');if(h&&!h.beats)h=await heartCall('/heart/first',{});if(h&&h.nights)keepHeart(h);}catch(e){}}
+function lastNight(){return heart&&heart.nights&&heart.nights.length?heart.nights[heart.nights.length-1]:null;}
+function gift(){const n=lastNight();return n&&!n.o?n:null;}
+async function heartMark(d,o,r){const n=heart&&heart.nights.find(x=>x.d===d);if(n){if(o)n.o=true;if(r)n.r=r;keepHeart(heart);}
+ try{const h=await heartCall('/heart/mark',{d,o:!!o,r:r||undefined});if(h&&h.nights)keepHeart(h);}catch(e){}}
+function announceGift(){const n=gift();if(!n||giftSaid===n.d||phase!=='ready'||tab!=='Play')return;giftSaid=n.d;setTimeout(()=>{if(gift())say(n.first?tx().foundFirst:tx().found,true);},1400);}
+const emoSprites={};function emoSprite(e){if(emoSprites[e])return emoSprites[e];const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.textAlign='center';g.textBaseline='middle';g.font='72px sans-serif';g.fillText(e,48,52);return emoSprites[e]=c;}
+const GIFT={x:.63,y:.905},BEAT={x:.935,y:.055};
+function drawHeart(t){const n=gift();
+ if(n){const x=GIFT.x*W,y=GIFT.y*H+(reduce?0:Math.sin(t*1.3)*2.5),R=W*.048;put(cx,G_STAR(),x,y,R*2.3,.32+(reduce?0:.14*Math.sin(t*2)));cx.drawImage(emoSprite(n.e),x-R,y-R,R*2,R*2);}
+ if(heart&&heart.beats){const x=BEAT.x*W,y=BEAT.y*H,ph=(t%1.6)/1.6,p=reduce?.6:Math.max(Math.exp(-((ph-.05)**2)/.002),.7*Math.exp(-((ph-.2)**2)/.002));
+  put(cx,G_COL['255,226,150'](),x,y,W*.022*(1+p*.5),.3+.6*p);put(cx,G_CORE(),x,y,W*.006,.9);
+  cx.fillStyle='rgba(255,231,176,.7)';cx.font=Math.round(W*.026)+"px 'Space Mono',monospace";cx.textAlign='right';cx.textBaseline='middle';cx.fillText(String(heart.beats),x-W*.03,y+1);cx.textAlign='start';cx.textBaseline='alphabetic';}}
+function heartTap(p){const n=gift();if(n&&Math.hypot((p.x-GIFT.x)*ASP,p.y-GIFT.y)<.065){openGift(n);return true;}
+ if(heart&&heart.beats&&Math.hypot((p.x-BEAT.x)*ASP,p.y-BEAT.y)<.05){say(tx().beats(heart.beats),true);return true;}return false;}
+function openGift(n){heartMark(n.d,true);say(tx().wantDraw,true);clearInterval(murmur);setTimeout(()=>{mem.cur=n.e;word(n.e);save();renderWords();arrange();},1300);}
+function renderNotes(){const box=$('notes');if(!box)return;const x=tx();if(!heart||!heart.nights||!heart.nights.length){box.hidden=true;return;}box.hidden=false;box.innerHTML='';
+ const h=document.createElement('h3');h.textContent=x.noteT;const p=document.createElement('p');p.textContent=x.noteLead;box.append(h,p);
+ for(const n of heart.nights.slice().reverse()){const r=document.createElement('div');r.className='row';const d=new Date(n.t);
+  const a=document.createElement('span');a.className='d';a.textContent=(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+(n.first?' · '+x.noteFirst:'');
+  const e=document.createElement('b');e.textContent=n.e;const s=document.createElement('span');s.className='r'+(n.r==='like'?' like':'');s.textContent=n.r==='like'?x.rLike:n.r==='nope'?x.rNope:x.rNone;r.append(a,e,s);box.appendChild(r);}}
 $('cloudSync').addEventListener('click',()=>{if(pushT)cloudPush();else cloudPull(false);});
 $('keyGo').addEventListener('click',tryKey);$('keyIn').addEventListener('keydown',e=>{if(e.key==='Enter')tryKey();});
 $('keyLater').addEventListener('click',()=>{try{localStorage.setItem('arrange-stars-cloud-later','1');}catch(e){}closeKey();});
@@ -415,7 +454,7 @@ function applyLang(){const x=tx();document.documentElement.lang=lang;$('lang').t
  if(phase==='ready'){say(x.ready(mem.cur),true);$('hint').innerHTML=x.hint;}else if(phase==='arranging')say(x.arranging(mem.cur)[0],true);renderWords();renderMind();}
 $('lang').addEventListener('click',()=>{lang=lang==='ja'?'en':'ja';try{localStorage.setItem('arrange-stars-lang',lang);}catch(e){}applyLang();});
 word(mem.cur);applyLang();renderStrip();arrange();showTab(tab);
-if(cloudKey)cloudPull(false);else{let later=null;try{later=localStorage.getItem('arrange-stars-cloud-later');}catch(e){}if(!later)openKey();}
+if(cloudKey){cloudPull(false);heartPull();}else{let later=null;try{later=localStorage.getItem('arrange-stars-cloud-later');}catch(e){}if(!later)openKey();}
 })();
 </script>
 </body>
