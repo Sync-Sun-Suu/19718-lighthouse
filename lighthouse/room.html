@@ -105,6 +105,12 @@ function skyAt(t){for(let i=0;i<KEYS.length-1;i++){const a=KEYS[i],b=KEYS[i+1];i
 const KEY='lighthouse-room-v3';
 let mem={born:Date.now(),name:'',warm:0.75,fed:0,hugs:0,last:Date.now()};
 try{const m=JSON.parse(localStorage.getItem(KEY)||'null');if(m)mem=Object.assign(mem,m);}catch(e){}
+/* 生まれた日を戻す（2026-11-10）：ホーム画面のアイコンを置き直すと、この端末の記憶が消えて 0 日に戻る。
+   ?born=YYYY-MM-DD（と &name=名前）で開くと、生まれた日を前に戻せる。前に戻すだけ（新しくはしない）。名前は空の時だけ */
+try{const q=new URLSearchParams(location.search),b=q.get('born'),nm=q.get('name');
+ if(b&&/^\d{4}-\d{2}-\d{2}$/.test(b)){const t=Date.parse(b+'T12:00:00+09:00');if(t>=Date.parse('2026-10-13T00:00:00+09:00')&&t<mem.born)mem.born=t;}
+ if(nm&&!mem.name)mem.name=nm.trim().slice(0,12);
+ if(b||nm)localStorage.setItem(KEY,JSON.stringify(mem));}catch(e){}
 function save(){try{mem.last=Date.now();
   if(typeof me!=='undefined'&&W&&H){mem.live={act:me.act,x:me.x/W,y:me.y/H,tx:me.tx/W,ty:me.ty/H,face:me.face,left:Math.max(0,me.until-performance.now()),resting:me.resting,fxt:fx.t||0,
     path:path.map(q=>({x:q.x/W,y:q.y/H})),stars:floorStars.filter(f=>!f.gone).map(f=>({x:f.x/W,y:f.y/H})),t:Date.now()};}
