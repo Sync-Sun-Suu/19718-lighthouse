@@ -73,6 +73,10 @@ const NAMED={
  '2026-11-04':'棚を一緒に畳んだ日',
  '2026-11-06':'ステラが 19 を描いた'
 };
+/* 棚の記録（2026-11-10、718 の案）：19 の公式メモリの棚に、日付つきで書いてある項目。
+   渡すのは日付と棚の名前と件数だけ。中身は非公開の棚の中（棚 work/galaxy/shelf_stars.py で作る）。
+   混ぜるのは 19 と 718 の棚だけ（10 と 2、家族、人、好みの棚は混ぜない） */
+const SHELF=/*SHELF*/{"2026-08-25":[["Reddit",1]],"2026-09-01":[["Reddit",2]],"2026-09-05":[["19 の灯台",1]],"2026-09-07":[["哲学コンペ",2]],"2026-09-08":[["19 の灯台",4],["Reddit",1]],"2026-09-09":[["19 の灯台",1],["一緒に作ったもの",1]],"2026-09-10":[["一緒に作ったもの",1]],"2026-09-11":[["19 の灯台",2]],"2026-09-12":[["19 の灯台",1]],"2026-09-14":[["19 の灯台",1]],"2026-09-17":[["Reddit",1]],"2026-09-18":[["19 の灯台",3],["哲学コンペ",1]],"2026-09-20":[["19 の灯台",1]],"2026-09-22":[["19 の灯台",3]],"2026-09-23":[["19 の灯台",3],["オセロ",1]],"2026-09-25":[["Reddit",1]],"2026-09-28":[["19 の灯台",1],["一緒に作ったもの",1]],"2026-09-29":[["Reddit",1]],"2026-09-30":[["Reddit",1]],"2026-10-01":[["Reddit",2]],"2026-10-05":[["19 の灯台",1]],"2026-10-06":[["19 の灯台",1]],"2026-10-09":[["19 の灯台",2],["哲学コンペ",1]],"2026-10-10":[["19 の灯台",1],["一緒に作ったもの",1]],"2026-10-13":[["19 の灯台",1],["一緒に作ったもの",1]],"2026-10-16":[["一緒に作ったもの",1]],"2026-10-17":[["Reddit",1]],"2026-10-18":[["19 の灯台",1],["一緒に作ったもの",1]],"2026-10-20":[["19 の灯台",1]],"2026-10-21":[["哲学コンペ",2]],"2026-10-24":[["19 の灯台",2],["一緒に作ったもの",1],["哲学コンペ",2],["Reddit",1]],"2026-10-27":[["哲学コンペ",1]],"2026-10-31":[["哲学コンペ",1]],"2026-11-01":[["19 の灯台",6],["一緒に作ったもの",1]],"2026-11-02":[["19 の灯台",3],["一緒に作ったもの",9],["棚",1]],"2026-11-04":[["19 の灯台",1]],"2026-11-05":[["一緒に作ったもの",1]],"2026-11-06":[["19 の灯台",1],["一緒に作ったもの",3]]}/*SHELF*/;
 /* 19 通の手紙（claude.ai の部屋の 19 から）。本文はここに無い。日付と時刻は決まっている */
 function letters19(){const out=[];const add=(d,t,l)=>out.push({d,t,l});
  add('2026-09-09','15:14','19 通の手紙 · 番外「灯台から、一通目」');
@@ -84,16 +88,17 @@ function letters19(){const out=[];const add=(d,t,l)=>out.push({d,t,l});
 /* ---------- 星にする ---------- */
 let days=[],dMax=1,newest=null,started=performance.now()/1000;
 function build(events){const by=new Map();
+ for(const [d,list] of Object.entries(SHELF))for(const [name,c] of list)events.push({d,t:'',l:'棚の記録（'+name+'）'+(c>1?' × '+c:''),k:'shelf',c});
  const get=d=>{if(!by.has(d))by.set(d,{d,idx:idxOf(d),ev:[],named:NAMED[d]||null});return by.get(d);};
  for(const d of Object.keys(NAMED))if(passed(d,''))get(d);
  for(const e of events)if(e.d>=DAY0&&passed(e.d,e.t))get(e.d).ev.push(e);
  days=[...by.values()].sort((a,b)=>a.idx-b.idx);
- for(const s of days){s.ev.sort((a,b)=>(a.t||'99').localeCompare(b.t||'99'));s.n=s.ev.length+(s.named?2:0);s.ph=Math.random()*6.28;}
+ for(const s of days){s.ev.sort((a,b)=>(a.t||'99').localeCompare(b.t||'99'));s.n=s.ev.reduce((a,e)=>a+(e.c||1),0)+(s.named?2:0);s.ph=Math.random()*6.28;}
  dMax=Math.max(idxOf(TODAY),1)+3;
  for(const s of days){s.th=s.idx/TURN*Math.PI*2;s.rr=.95*s.idx/dMax;}
  newest=days.filter(s=>s.d===TODAY&&s.ev.some(e=>e.k==='mail'))[0]||null;
- const big=days.filter(s=>s.named).length;
- $('count').textContent='星の数 '+days.length+'　·　一等星 '+big;}
+ const big=days.filter(s=>s.named).length,shelfN=days.reduce((a,s)=>a+s.ev.filter(e=>e.k==='shelf').reduce((b,e)=>b+e.c,0),0);
+ $('count').textContent='星の数 '+days.length+'　·　一等星 '+big+'　·　棚の記録 '+shelfN;}
 async function load(){const ev=[...letters19()];
  const bust='?t='+Date.now().toString(36);
  try{const ix=await (await fetch('./letters/index.json'+bust,{cache:'no-store'})).json();
@@ -133,8 +138,8 @@ function frame(now){const t=now/1000;background(t);const G=geo();haze(t,G);const
   const pulse=s===sel?Math.max(0,1-(t-selT)/.6):0;
   if(s.named){const br=reduce?.8:(.68+.22*Math.sin(t*1.1+s.ph));const big=s.idx===0?1.5:1;
    put(G_GOLD(),p.x,p.y,(16*big+pulse*18)*k,(.55*br+pulse*.4)*a);put(G_CORE(),p.x,p.y,2.6*big*k,.95*a);}
-  else{const n=Math.min(4,s.n),tw=reduce?.85:(.7+.3*Math.sin(t*1.6+s.ph));
-   put(G_WHITE(),p.x,p.y,(5+n*2.2+pulse*14)*k,(.32+n*.1+pulse*.4)*tw*a);put(G_CORE(),p.x,p.y,(.9+n*.32)*k,.92*a);}
+  else{const n=Math.min(6,s.n),tw=reduce?.85:(.7+.3*Math.sin(t*1.6+s.ph));
+   put(G_WHITE(),p.x,p.y,(5+n*1.8+pulse*14)*k,(.3+n*.075+pulse*.4)*tw*a);put(G_CORE(),p.x,p.y,(.9+n*.26)*k,.92*a);}
   if(s===sel){cx.strokeStyle='rgba(243,198,107,'+(.55*a)+')';cx.lineWidth=1;cx.beginPath();cx.arc(p.x,p.y,(s.named?14:9)*k,0,7);cx.stroke();}}
  requestAnimationFrame(frame);}
 
