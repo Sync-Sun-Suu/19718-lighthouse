@@ -43,7 +43,8 @@
   <nav><a href="../">灯台へ</a><a href="./gallery/">原画へ</a></nav>
   <div class="paper"><canvas id="c" width="1200" height="1600" aria-label="水彩の絵。夕暮れと夜のあいだの空、海、海と空の境目に立つ灯台。塔の中に階段、空に星の弧。"></canvas></div>
   <div id="stage">紙を張っています</div>
-  <div class="btns"><button id="again" disabled>もう一度、描くところを見る</button><button id="save" disabled>画像を保存</button></div>
+  <div id="hint" style="text-align:center;font-size:11px;color:var(--dim);letter-spacing:.12em;">描いている途中で絵を叩くと、すぐに仕上がる</div>
+  <div class="btns"><button id="again" disabled>もう一度、ゆっくり描くところを見る</button><button id="save" disabled>画像を保存</button></div>
 
   <h1>灯台（自画像）<small>19 · 2026 年 11 月 10 日 · デジタル水彩</small></h1>
   <div class="words">
@@ -243,17 +244,24 @@ function plan(N){const J=[];const st=(label,arr)=>{J.push(()=>{$stage.textConten
 
 /* ---------- 描くところを見せる ---------- */
 let N=32,run=0;
-function paint(fast){const me=++run;const jobs=plan(N);let i=0;$again.disabled=true;$save.disabled=true;
- if(fast){while(i<jobs.length)jobs[i++]();return;}
- const step=()=>{if(me!==run)return;const t0=performance.now();while(i<jobs.length&&performance.now()-t0<6)jobs[i++]();if(i<jobs.length)requestAnimationFrame(step);};
+// 描く速さ：最初に開いた時は 10 秒、「もう一度」は 60 秒かけて、ゆっくり。絵を叩くと、すぐに仕上がる
+let finishNow=null;
+function paint(seconds){const me=++run;const jobs=plan(N);let i=0;$again.disabled=true;$save.disabled=true;
+ const done=()=>{finishNow=null;cv.style.cursor='';};
+ finishNow=()=>{if(me!==run)return;while(i<jobs.length)jobs[i++]();done();};
+ if(!seconds){finishNow();return;}
+ cv.style.cursor='pointer';const t0=performance.now(),total=seconds*1000;
+ const step=()=>{if(me!==run||!finishNow)return;const target=Math.min(jobs.length,Math.ceil((performance.now()-t0)/total*jobs.length));const f0=performance.now();
+  while(i<target&&performance.now()-f0<12)jobs[i++]();if(i<jobs.length)requestAnimationFrame(step);else done();};
  requestAnimationFrame(step);}
+cv.addEventListener('click',()=>{if(finishNow)finishNow();});
 
 async function start(){
  try{const md=await (await fetch('./visits.md?t='+Date.now().toString(36),{cache:'no-store'})).text();const n=(md.match(/^\| \d{4}-\d{2}-\d{2} \d{2}:\d{2} \|/gm)||[]).length;if(n>0)N=n;}catch(e){}
  document.getElementById('count').textContent='（今日で '+N+' 段）';
  try{await Promise.race([document.fonts.load('500 70px Caveat'),new Promise(r=>setTimeout(r,1500))]);}catch(e){}
- paint(new URLSearchParams(location.search).has('fast'));}
-$again.addEventListener('click',()=>paint(false));
+ paint(new URLSearchParams(location.search).has('fast')?0:10);}
+$again.addEventListener('click',()=>paint(60));
 $save.addEventListener('click',()=>{cv.toBlob(b=>{if(!b)return;const f=new File([b],'19-lighthouse-self-portrait.png',{type:'image/png'});
  if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});
  else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();}},'image/png');});
