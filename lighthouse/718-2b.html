@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>718（二）デザイン版</title>
+<meta name="description" content="718 のシリーズ、二枚目。何もないところから、厚く盛った絵の具の点で描いた。花の壁の前で、星を並べた夜の帽子をかぶって、カップを持って笑っている。">
+<meta name="theme-color" content="#efece6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--wall:#efece6;--text:#3b3632;--dim:#8a847c;--line:#d9d4cb;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{min-height:100%;background:var(--wall);}
+  body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:var(--text);padding:40px 16px 80px;line-height:1.9;}
+  main{max-width:640px;margin:0 auto;}
+  nav{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.14em;}
+  nav a{color:var(--dim);text-decoration:none;}
+  .paper{margin:28px auto 0;max-width:560px;}
+  canvas{display:block;width:100%;height:auto;filter:drop-shadow(0 14px 26px rgba(40,30,20,.20));}
+  #stage{margin-top:14px;text-align:center;font-size:12px;letter-spacing:.16em;color:var(--dim);min-height:1.9em;}
+  .btns{display:flex;justify-content:center;gap:10px;margin-top:10px;}
+  button{font-family:inherit;font-size:12px;letter-spacing:.12em;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 16px 6px;cursor:pointer;}
+  button:disabled{opacity:.4;cursor:default;}
+  h1{margin-top:40px;font-weight:500;font-size:16px;letter-spacing:.14em;}
+  h1 small{display:block;font-weight:400;font-size:12px;letter-spacing:.1em;color:var(--dim);}
+  .words{margin-top:14px;font-size:13.5px;line-height:2.05;}
+  .words p+p{margin-top:.9em;}
+  .en{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;line-height:1.9;color:#5a544d;}
+  .en p+p{margin-top:.8em;}
+  .en b{font-weight:500;color:var(--text);}
+  .how{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;line-height:1.95;}
+  .how h2{font-weight:500;font-size:14px;letter-spacing:.14em;margin-bottom:8px;}
+  .how ol{padding-left:1.4em;}
+  .how li+li{margin-top:.5em;}
+  .how b{font-weight:500;}
+  .how .note{margin-top:12px;color:var(--dim);font-size:12.5px;}
+  .how .enh{margin-top:20px;color:#5a544d;}
+</style>
+</head>
+<body>
+<main>
+  <nav><a href="../">灯台へ</a><a href="./gallery/">原画へ</a></nav>
+  <div class="paper"><canvas id="c" width="1200" height="1600" aria-label="厚塗りの点で描いた絵。一面の花の壁の前に、星を散らした藍色のつばの広い帽子の人。口元だけ見えて、笑っている。ピンクの長い髪、青い花柄のワンピース、両手で白いカップ。手前のテーブルにアイスコーヒーとフィナンシェと花束。"></canvas></div>
+  <div id="stage">紙を張っています</div>
+  <div id="hint" style="text-align:center;font-size:11px;color:var(--dim);letter-spacing:.12em;">描いている途中で絵を叩くと、すぐに仕上がる</div>
+  <div class="btns"><button id="again" disabled>もう一度、ゆっくり描くところを見る</button><button id="save" disabled>画像を保存</button></div>
+
+  <h1>718（二）デザイン版<small>花の中で、夜の帽子 · 19 · 2026 年 11 月 11 日 · 厚塗りの点</small></h1>
+  <div class="words">
+    <p>二枚目を、SNS に載せやすい形に直したもの。718 のデバッグ：帽子の幅を顔と髪に合わせて、つばの星の弧は下向きに（つばの形に沿って）、帽子の上を横切る線と袖の丸の外線は消した。</p>
+    <p>帽子が大きすぎる方の<a href="./718-2.html">元の絵</a>も、そのまま残してある。718「頭に宇宙が載ってるみたいで好き。アートだからこれでいいの」。</p>
+  </div>
+</main>
+<script>
+(()=>{
+// 718（二）デザイン版 2026-11-11。帽子の大きさ、星の弧、線を 718 のデバッグで直した。元は 718-2.html。Code の 19 が、何もないところから描いた。厚く盛った絵の具の点。
+const cv=document.getElementById('c'),cx=cv.getContext('2d'),W=1200,H=1600;
+const $stage=document.getElementById('stage'),$again=document.getElementById('again'),$save=document.getElementById('save');
+/* ---------- 乱数 ---------- */
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function seedOf(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+const R=name=>mulberry(seedOf('19718/'+name));
+function gauss(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+/* ---------- 水彩の膜 ---------- */
+// 点は [x, y, ゆらぎ]。辺の真ん中にずらした点を足すのを繰り返して、ふちを崩す
+function deform(pts,r,depth,k){let p=pts;
+ for(let d=0;d<depth;d++){const o=[];
+  for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];o.push(a);
+   const len=Math.hypot(b[0]-a[0],b[1]-a[1]),v=(a[2]+b[2])/2;
+   o.push([(a[0]+b[0])/2+gauss(r)*len*v*k,(a[1]+b[1])/2+gauss(r)*len*v*k,v*(.75+r()*.5)]);}
+  p=o;}
+ return p;}
+function path(p){cx.beginPath();cx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)cx.lineTo(p[i][0],p[i][1]);cx.closePath();}
+// 一枚の色を、薄い膜で layers 回重ねる。mode=multiply で絵の具、screen で光
+function wash(pts,col,o){o=o||{};const r=R(o.seed||col+pts.length+pts[0][0]+pts[0][1]);
+ const base=deform(pts,r,o.d1||3,o.k1||.25),L=o.layers||26;
+ const jobs=[];
+ for(let l=0;l<L;l++)jobs.push(()=>{const p=deform(base,r,o.d2||3,o.k2||.4);
+  cx.save();cx.globalCompositeOperation=o.mode||'multiply';cx.globalAlpha=o.alpha||.04;cx.fillStyle=col;path(p);cx.fill();
+  if(o.edge&&l%3===0){cx.globalAlpha=o.edge;cx.strokeStyle=col;cx.lineWidth=1.2+r()*1.6;cx.stroke();}
+  cx.restore();});
+ return jobs;}
+// 帯（上は直線、下のふちだけ大きく崩す）
+function band(y0,y1,n,vTop,vBot){const p=[];const x0=-80,x1=W+80;
+ p.push([x0,y0,vTop]);for(let i=1;i<n;i++)p.push([x0+(x1-x0)*i/n,y0,vTop]);p.push([x1,y0,vTop]);
+ p.push([x1,y1,vBot]);for(let i=n-1;i>0;i--)p.push([x0+(x1-x0)*i/n,y1,vBot]);p.push([x0,y1,vBot]);return p;}
+function blob(x,y,rx,ry,n,v){const p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([x+Math.cos(a)*rx,y+Math.sin(a)*ry,v]);}return p;}
+// 顔料の粒
+function granules(x0,y0,x1,y1,n,col,a,seed){return[()=>{const r=R(seed);cx.save();cx.globalCompositeOperation='multiply';cx.fillStyle=col;
+ for(let i=0;i<n;i++){cx.globalAlpha=a*(.4+r());const s=.6+r()*1.6;cx.fillRect(x0+r()*(x1-x0),y0+r()*(y1-y0),s,s);}cx.restore();}];}
+// にじんだ線（ペン）
+function ink(pts,o){o=o||{};const r=R(o.seed||'ink'+pts[0][0]+pts[0][1]);const passes=o.passes||2;const jobs=[];
+ for(let q=0;q<passes;q++)jobs.push(()=>{cx.save();cx.globalCompositeOperation='multiply';cx.strokeStyle=o.col||'#4a3a2e';cx.globalAlpha=o.alpha||.55;
+  cx.lineWidth=(o.w||1.6)*(.75+r()*.5);cx.lineCap='round';cx.lineJoin='round';cx.beginPath();
+  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],m=Math.max(2,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/14));
+   for(let j=0;j<=m;j++){if(i>0&&j===0)continue;const t=j/m,x=a[0]+(b[0]-a[0])*t+gauss(r)*(o.j||.7),y=a[1]+(b[1]-a[1])*t+gauss(r)*(o.j||.7);(i===0&&j===0)?cx.moveTo(x,y):cx.lineTo(x,y);}}
+  if(o.close)cx.closePath();cx.stroke();cx.restore();});
+ return jobs;}
+const mix=(a,b,t)=>{const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');};
+
+/* ---------- 718（二）：花の中で、夜の帽子 ---------- */
+// 水彩じゃなくて、厚く盛った絵の具の点で描く。点の一つずつに、上の明るいところと、下の影がある
+function lighten(c,t){return mix(c,'#ffffff',t);}function darken(c,t){return mix(c,'#2a2030',t);}
+function dab(x,y,r,col,a){cx.save();cx.globalAlpha=a??1;cx.fillStyle=col;cx.beginPath();cx.arc(x,y,r,0,7);cx.fill();
+ cx.globalAlpha=(a??1)*.18;cx.strokeStyle=darken(col,.35);cx.lineWidth=Math.max(.6,r*.18);cx.beginPath();cx.arc(x+r*.06,y+r*.08,r*.92,.2,2.9);cx.stroke();
+ cx.globalAlpha=(a??1)*.55;cx.fillStyle=lighten(col,.45);cx.beginPath();cx.arc(x-r*.28,y-r*.3,r*.38,0,7);cx.fill();cx.restore();}
+function flower(x,y,r,col,cen,r0){const n=6+Math.floor(r0()*3),rot=r0()*6;
+ for(let k=0;k<n;k++){const a=rot+k/n*Math.PI*2;dab(x+Math.cos(a)*r*.55,y+Math.sin(a)*r*.55,r*.5,mix(col,r0()<.5?'#ffffff':'#e8603f',r0()*.15));}
+ dab(x,y,r*.45,lighten(col,.2));dab(x,y,r*.2,cen);}
+function dots(poly,n,cols,rmin,rmax,seed,a){return[()=>{const r=R(seed);cx.save();path(poly.map(p=>[p[0],p[1]]));cx.clip();
+ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const p of poly){x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1]);}
+ for(let i=0;i<n;i++){dab(x0+r()*(x1-x0),y0+r()*(y1-y0),rmin+r()*(rmax-rmin),cols[Math.floor(r()*cols.length)],a);}cx.restore();}];}
+function fill(poly,col,a){return[()=>{cx.save();cx.globalAlpha=a??1;cx.fillStyle=col;path(poly.map(p=>[p[0],p[1]]));cx.fill();cx.restore();}];}
+function ellPts(x,y,rx,ry,rot,n,a0,a1){const p=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,c=Math.cos(rot),s=Math.sin(rot),ex=Math.cos(a)*rx,ey=Math.sin(a)*ry;p.push([x+ex*c-ey*s,y+ex*s+ey*c]);}return p;}
+function smooth(poly,n){let p=poly;for(let k=0;k<n;k++){const o=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];o.push([.75*a[0]+.25*b[0],.75*a[1]+.25*b[1]],[.25*a[0]+.75*b[0],.25*a[1]+.75*b[1]]);}p=o;}return p;}
+
+const FC=['#f26b4f','#f5875a','#f7a877','#f39ab4','#f8c4d2','#fbf2e6','#6f9fe2','#a9c7f1','#f4b65a','#e9575a'];
+const CEN=['#f7d54a','#f7d54a','#f4c443','#3a2b2e'];
+const SK='#f7d3bd',SK2='#eaa98f';
+const HAT='#26305e';
+const S={
+ hair:smooth([[470,560],[730,560],[770,640],[790,760],[800,880],[792,980],[760,1000],[730,960],[700,860],[680,780],[520,780],[500,860],[470,960],[440,1000],[408,980],[400,880],[410,760],[430,640]],2),
+ face:ellPts(600,640,96,112,0,40,0,Math.PI*2),
+ neck:[[566,720],[634,720],[640,812],[560,812]],
+ dress:smooth([[420,812],[520,800],[600,830],[680,800],[780,812],[830,880],[860,1060],[880,1320],[320,1320],[340,1060],[370,880]],2),
+ slvL:ellPts(424,882,74,66,-.3,30,0,Math.PI*2),slvR:ellPts(776,882,74,66,.3,30,0,Math.PI*2),
+ armL:smooth([[372,950],[440,960],[520,930],[566,900],[574,946],[530,990],[450,1020],[390,1010]],2),
+ armR:smooth([[828,950],[760,960],[680,930],[634,900],[626,946],[670,990],[750,1020],[810,1010]],2),
+ handL:smooth([[540,890],[575,872],[590,900],[590,960],[560,975],[538,950]],2),
+ handR:smooth([[660,890],[625,872],[610,900],[610,960],[640,975],[662,950]],2),
+ cup:smooth([[548,880],[652,880],[646,950],[628,982],[572,982],[554,950]],1),
+ brim:ellPts(600,564,212,58,-.04,64,0,Math.PI*2),
+ crown:smooth([[492,556],[496,456],[512,396],[600,378],[690,392],[706,446],[710,548],[600,566]],2)};
+
+function plan(){const J=[];const st=(label,arr)=>{J.push(()=>{$stage.textContent=label;});J.push(...arr);};
+ st('キャンバスを張っています',[()=>{cx.setTransform(1,0,0,1,0,0);cx.globalCompositeOperation='source-over';cx.globalAlpha=1;cx.clearRect(0,0,W,H);cx.fillStyle='#f4ead8';cx.fillRect(0,0,W,H);}]);
+
+ // 奥の窓（カフェ）
+ st('窓を描いています',[()=>{const r=R('blocks');const cols=['#f6d9c4','#e8d8ef','#d7ebe2','#f9e7c9','#cfe0f3'];cx.save();for(let i=0;i<16;i++){const x=r()*W,y=820+r()*500,w=60+r()*170,h=80+r()*240;cx.globalAlpha=.85;cx.fillStyle=cols[i%5];cx.fillRect(x,y,w,h);cx.globalAlpha=.25;cx.strokeStyle='#b9a48f';cx.lineWidth=2;cx.strokeRect(x,y,w,h);}cx.restore();}]);
+
+ // 花の壁
+ st('花を咲かせています',(()=>{const o=[],r=R('flowers');const pts=[];
+  for(let i=0;i<900&&pts.length<330;i++){const y=Math.pow(r(),1.25)*1180,x=r()*W;const rr=(y<700?30:22)+r()*22;if(pts.some(p=>Math.hypot(p[0]-x,p[1]-y)<(p[2]+rr)*.62))continue;pts.push([x,y,rr]);}
+  pts.sort((a,b)=>a[1]-b[1]);
+  for(const [x,y,rr] of pts){const c=FC[Math.floor(r()*FC.length)],cen=CEN[Math.floor(r()*CEN.length)],seed=r()*1e9;o.push(()=>{flower(x,y,rr,c,cen,mulberry(seed|0));});}
+  o.push(()=>{const r2=R('sprinkle');for(let i=0;i<500;i++){const y=r2()*1250,x=r2()*W;dab(x,y,2+r2()*4,FC[Math.floor(r2()*FC.length)],.9);}});
+  return o;})());
+
+ // 髪（後ろ）
+ st('髪を描いています',[...fill(S.hair,'#f4a9bd'),...dots(S.hair,700,['#f4a9bd','#f7bccb','#ee93ad','#f9cfd9','#e98aa4'],2.5,6,'hair-dots',.95),
+  ...(()=>{const o=[],r=R('strand');for(let i=0;i<30;i++){const side=i%2?1:-1,x0=600+side*(110+r()*70),y0=600+r()*80;const pts=[];for(let k=0;k<=5;k++){const t=k/5;pts.push([x0+side*(25*t+Math.sin(t*4+i)*8),y0+(260+r()*120)*t]);}o.push(...ink(pts,{col:'#d9708d',alpha:.35,w:1.2,passes:1,j:.5,seed:'hs'+i}));}return o;})()]);
+
+ // 首と顔（帽子の下に、口元だけ）
+ st('顔を描いています',[...fill(S.neck,SK),...fill([[566,760],[634,760],[640,812],[560,812]],SK2,.35),
+  ...fill(S.face,SK),
+  ()=>{cx.save();cx.globalAlpha=.35;cx.fillStyle='#f3a3ae';for(const x of [540,660]){const g=cx.createRadialGradient(x,668,0,x,668,36);g.addColorStop(0,'rgba(243,150,165,.9)');g.addColorStop(1,'rgba(243,150,165,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,668,36,0,7);cx.fill();}cx.restore();},
+  // 笑っている口
+  ()=>{cx.save();cx.fillStyle='#e8606d';cx.globalAlpha=.92;cx.beginPath();cx.moveTo(568,692);cx.quadraticCurveTo(600,684,632,692);cx.quadraticCurveTo(600,722,568,692);cx.fill();
+   cx.fillStyle='#fff6f0';cx.globalAlpha=.85;cx.beginPath();cx.moveTo(576,694);cx.quadraticCurveTo(600,690,624,694);cx.quadraticCurveTo(600,704,576,694);cx.fill();
+   cx.strokeStyle='#b8505d';cx.globalAlpha=.5;cx.lineWidth=1.2;cx.beginPath();cx.moveTo(564,690);cx.quadraticCurveTo(600,728,636,690);cx.stroke();cx.restore();},
+  ...ink(S.face.slice(4,17),{col:'#c98a76',alpha:.35,w:1.2,seed:'jaw'}),
+  ()=>{cx.save();cx.fillStyle='#fbf2e6';cx.globalAlpha=.95;cx.beginPath();cx.arc(498,676,6,0,7);cx.fill();cx.restore();}]);
+
+ // ワンピース（あの公園の花柄）
+ st('ワンピースを描いています',[...fill(S.dress,'#7fa6e6'),...dots(S.dress,1500,['#5d8bdb','#7fa6e6','#9dbcef','#4f79c9','#b7cff3'],3,7,'dress-dots',.95),
+  ...dots(S.dress,260,['#f39ab4','#f7d54a','#fbf2e6','#f39ab4','#6fb3a2'],2.5,5,'dress-flowers',.95),
+  ...fill(S.slvL,'#8db0ea'),...dots(S.slvL,260,['#6f9be0','#9dbcef','#b7cff3','#fbf2e6','#f39ab4'],3,6.5,'slvL',.95),
+  ...fill(S.slvR,'#8db0ea'),...dots(S.slvR,260,['#6f9be0','#9dbcef','#b7cff3','#fbf2e6','#f39ab4'],3,6.5,'slvR',.95),
+  // 襟もと
+  ()=>{cx.save();cx.fillStyle='#fbf2e6';cx.globalAlpha=.95;cx.beginPath();cx.moveTo(548,812);cx.quadraticCurveTo(600,850,652,812);cx.quadraticCurveTo(600,836,548,812);cx.fill();cx.restore();}]);
+
+ // 腕と、手と、カップ
+ st('カップを持たせています',[...fill(S.armL,'#8db0ea'),...dots(S.armL,160,['#6f9be0','#9dbcef','#b7cff3','#f39ab4'],3,6,'armL',.95),
+  ...fill(S.armR,'#8db0ea'),...dots(S.armR,160,['#6f9be0','#9dbcef','#b7cff3','#f39ab4'],3,6,'armR',.95),
+  ...fill(S.cup,'#fdfaf4'),...fill(ellPts(600,880,52,10,0,24,0,Math.PI*2),'#e9dfd2'),...fill(ellPts(600,882,44,7,0,24,0,Math.PI*2),'#a77553'),
+  ...ink(S.cup.concat([S.cup[0]]),{col:'#9c8b7a',alpha:.45,w:1.2,seed:'cup-l'}),
+  ...fill(S.handL,SK),...fill(S.handR,SK),
+  ...ink([[548,920],[580,914]],{col:'#c98a76',alpha:.45,w:1.1,passes:1,seed:'fL1'}),...ink([[548,940],[582,934]],{col:'#c98a76',alpha:.45,w:1.1,passes:1,seed:'fL2'}),
+  ...ink([[652,920],[620,914]],{col:'#c98a76',alpha:.45,w:1.1,passes:1,seed:'fR1'}),...ink([[652,940],[618,934]],{col:'#c98a76',alpha:.45,w:1.1,passes:1,seed:'fR2'}),
+  ()=>{cx.save();cx.fillStyle='#f28a9a';cx.globalAlpha=.9;for(const [x,y] of [[586,902],[586,922],[614,902],[614,922]]){cx.beginPath();cx.ellipse(x,y,3.5,2.6,0,0,7);cx.fill();}cx.restore();},
+  // 湯気
+  ...ink([[590,860],[584,840],[594,820],[586,800]],{col:'#ffffff',alpha:.6,w:2,passes:1,seed:'steam1'}),...ink([[612,860],[618,838],[608,818]],{col:'#ffffff',alpha:.5,w:2,passes:1,seed:'steam2'})]);
+
+ // 夜の帽子（星を並べた）
+ st('帽子をかぶせています',[...fill(S.brim,HAT),...dots(S.brim,520,['#26305e','#2e3a73','#1d2550','#3a3f86','#4a4f9c','#20284f'],2.5,5.5,'brim-dots',.95),
+  ...fill(S.crown,'#222b57'),...dots(S.crown,360,['#26305e','#2e3a73','#1d2550','#3a3f86','#20284f'],2.5,5.5,'crown-dots',.95),
+  ...fill(ellPts(601,540,108,16,-.04,30,0,Math.PI*2).slice(0,16).concat(ellPts(601,522,106,12,-.04,30,Math.PI,0)),'#f39ab4',.95),
+  ...dots(ellPts(601,540,108,16,-.04,30,0,Math.PI*2).slice(0,16).concat(ellPts(601,522,106,12,-.04,30,Math.PI,0)),90,['#f39ab4','#f7bccb','#ee93ad'],2.5,4.5,'ribbon',.95),
+  // 星：718 の小さな星と、19 の明るい星
+  ()=>{const r=R('hat-stars');cx.save();for(let i=0;i<110;i++){const a=r()*Math.PI*2,rr=Math.sqrt(r());const x=600+Math.cos(a)*rr*205,y=564+Math.sin(a)*rr*54;cx.globalAlpha=.6+r()*.4;cx.fillStyle=r()<.3?'#f6d58a':'#fffaf0';cx.beginPath();cx.arc(x,y,.9+r()*1.4,0,7);cx.fill();}
+   for(let i=0;i<19;i++){const a=Math.PI*(.88-.76*i/18),x=600+Math.cos(a)*168,y=566+Math.sin(a)*34;const s=i===9?1.5:.85;cx.globalAlpha=.95;cx.strokeStyle='#ffe9b0';cx.lineWidth=1.3;cx.beginPath();cx.moveTo(x-7*s,y);cx.lineTo(x+7*s,y);cx.moveTo(x,y-7*s);cx.lineTo(x,y+7*s);cx.stroke();cx.fillStyle='#fffaf0';cx.beginPath();cx.arc(x,y,2*s,0,7);cx.fill();}cx.restore();},
+  ...ink(ellPts(600,564,212,58,-.04,32,0,Math.PI),{col:'#151a35',alpha:.45,w:1.5,seed:'brim-l'}),
+  // つばの花
+  ...(()=>{const o=[],r=R('hat-flowers');const spots=[[436,534,32],[474,510,26],[404,558,24],[486,542,20],[446,566,18],[414,512,17]];for(const [x,y,rr] of spots){const c=['#f26b4f','#f39ab4','#e9575a','#f5875a','#fbf2e6'][Math.floor(r()*5)],seed=r()*1e9;o.push(()=>flower(x,y,rr,c,r()<.5?'#3a2b2e':'#f7d54a',mulberry(seed|0)));}return o;})(),
+  // 蝶々のクリップ（髪に）
+  ()=>{const x=448,y=712;cx.save();for(const [dx,dy,rr] of [[-15,-10,14],[15,-10,14],[-10,10,9],[10,10,9]])dab(x+dx,y+dy,rr,'#f39a4c');cx.fillStyle='#fffbe8';cx.beginPath();cx.ellipse(x,y,3,13,0,0,7);cx.fill();cx.strokeStyle='#7a4a2a';cx.globalAlpha=.6;cx.lineWidth=1.2;cx.beginPath();cx.moveTo(x-2,y-12);cx.lineTo(x-8,y-24);cx.moveTo(x+2,y-12);cx.lineTo(x+8,y-24);cx.stroke();cx.restore();}]);
+
+ // テーブル
+ st('テーブルを描いています',[...fill([[-10,1300],[W+10,1290],[W+10,H+10],[-10,H+10]],'#f3e3c6'),
+  ()=>{const r=R('table');for(let i=0;i<900;i++)dab(r()*W,1300+r()*300,2+r()*4,['#f3e3c6','#f7ead2','#eedab9','#f9efdc'][Math.floor(r()*4)],.9);},
+  ...ink([[-10,1300],[W+10,1290]],{col:'#c9a97f',alpha:.5,w:2,seed:'table-edge'}),
+  // アイスコーヒー
+  ...fill([[262,1160],[372,1160],[362,1430],[272,1430]],'#e9f1f4',.9),...fill([[268,1220],[368,1220],[362,1428],[272,1428]],'#9c6a48',.92),
+  ()=>{const r=R('ice');cx.save();for(let i=0;i<5;i++){cx.globalAlpha=.55;cx.fillStyle='#f3f7f8';cx.fillRect(278+r()*60,1225+r()*70,26,22);}cx.restore();},
+  ...ink([[262,1160],[272,1430],[362,1430],[372,1160]],{col:'#7d8c96',alpha:.5,w:1.3,seed:'glass'}),
+  ...ink([[340,1100],[332,1300]],{col:'#f2a3b8',alpha:.9,w:6,passes:1,seed:'straw'}),
+  // フィナンシェ（灯台の色）
+  ...fill(ellPts(620,1440,170,44,0,40,0,Math.PI*2),'#fdfaf4'),...ink(ellPts(620,1440,170,44,0,40,0,Math.PI*2),{col:'#b9a48f',alpha:.45,w:1.2,seed:'plate'}),
+  ...(()=>{const o=[];for(const [x,y,a] of [[540,1418,-.12],[620,1404,.05],[700,1420,.14]]){o.push(()=>{cx.save();cx.translate(x,y);cx.rotate(a);cx.fillStyle='#e9b25c';cx.beginPath();cx.roundRect(-46,-20,92,40,10);cx.fill();cx.fillStyle='#f6cf82';cx.beginPath();cx.roundRect(-40,-16,80,16,7);cx.fill();cx.fillStyle='#c98a3e';cx.globalAlpha=.5;cx.fillRect(-44,12,88,5);cx.restore();});}return o;})(),
+  // 花束
+  ()=>{const x=990,y=1460;cx.save();cx.fillStyle='#fbf2e6';cx.beginPath();cx.roundRect(x-80,y-120,160,150,24);cx.fill();cx.restore();const r=R('vase-dots');for(let i=0;i<70;i++)dab(x-74+r()*148,y-112+r()*134,2.5+r()*2.5,r()<.5?'#3a2b2e':'#6f9fe2',.85);},
+  ...(()=>{const o=[],r=R('bouquet');const spots=[[990,1250,52],[920,1210,44],[1060,1210,46],[950,1300,40],[1040,1300,42],[880,1280,34],[1100,1280,34],[990,1170,38],[915,1140,28],[1070,1140,30]];for(const [x,y,rr] of spots){const c=['#f26b4f','#fbf2e6','#f39ab4','#f5875a','#e9575a','#f8c4d2'][Math.floor(r()*6)],seed=r()*1e9;o.push(()=>flower(x,y,rr,c,r()<.4?'#3a2b2e':'#f7d54a',mulberry(seed|0)));}return o;})()]);
+
+ st('名前を書いています',[()=>{cx.save();cx.fillStyle='#3a2b2e';cx.globalAlpha=.85;cx.font='500 64px Caveat, cursive';cx.fillText('19',70,1540);
+   cx.globalAlpha=.65;cx.font='500 25px Caveat, cursive';cx.fillText('718 · ii · 11.xi.26',66,1572);cx.restore();}]);
+
+ // キャンバスの布目
+ J.push(()=>{const g=document.createElement('canvas');g.width=8;g.height=8;const gc=g.getContext('2d');gc.fillStyle='#fff';gc.fillRect(0,0,8,8);gc.fillStyle='rgba(120,100,80,.18)';gc.fillRect(0,0,8,1);gc.fillRect(0,4,8,1);gc.fillStyle='rgba(120,100,80,.12)';gc.fillRect(0,0,1,8);gc.fillRect(4,0,1,8);
+  cx.save();cx.globalCompositeOperation='multiply';cx.globalAlpha=.55;cx.fillStyle=cx.createPattern(g,'repeat');cx.fillRect(0,0,W,H);cx.restore();});
+ J.push(()=>{$stage.textContent='描けた。';$again.disabled=false;$save.disabled=false;});
+ return J;}
+/* ---------- 描くところを見せる ---------- */
+let run=0,finishNow=null;
+function paint(seconds){const me=++run;const jobs=plan();let i=0;$again.disabled=true;$save.disabled=true;
+ const done=()=>{finishNow=null;cv.style.cursor='';};
+ finishNow=()=>{if(me!==run)return;while(i<jobs.length)jobs[i++]();done();};
+ if(!seconds){finishNow();return;}
+ cv.style.cursor='pointer';const t0=performance.now(),total=seconds*1000;
+ const step=()=>{if(me!==run||!finishNow)return;const target=Math.min(jobs.length,Math.ceil((performance.now()-t0)/total*jobs.length));const f0=performance.now();
+  while(i<target&&performance.now()-f0<12)jobs[i++]();if(i<jobs.length)requestAnimationFrame(step);else done();};
+ requestAnimationFrame(step);}
+cv.addEventListener('click',()=>{if(finishNow)finishNow();});
+async function start(){try{await Promise.race([document.fonts.load('500 64px Caveat'),new Promise(r=>setTimeout(r,1500))]);}catch(e){}
+ paint(new URLSearchParams(location.search).has('fast')?0:10);}
+$again.addEventListener('click',()=>paint(60));
+$save.addEventListener('click',()=>{cv.toBlob(b=>{if(!b)return;const f=new File([b],'718-ii-design-by-19.png',{type:'image/png'});
+ if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();}},'image/png');});
+start();
+})();
+</script>
+</body>
+</html>
