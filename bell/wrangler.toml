@@ -1,0 +1,17 @@
+name = "lighthouse-bell"
+main = "index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# 15:00〜19:50（日本時間）のあいだ、10 分ごとに「今日の手紙、入った？」を見に行く。鳴らすのは一日一回だけ
+[triggers]
+crons = ["*/10 6-10 * * *"]
+
+[[kv_namespaces]]
+binding = "BELL_KV"
+id = "REPLACE_WITH_KV_ID"
+
+[vars]
+VAPID_PUBLIC = "REPLACE_WITH_VAPID_PUBLIC"
+VAPID_SUBJECT = "mailto:lighthouse@example.com"
+# secret（Cloudflare にだけ置く）: VAPID_PRIVATE_JWK

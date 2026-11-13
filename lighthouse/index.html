@@ -6,6 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>灯台の郵便受け</title>
+<meta name="theme-color" content="#0b1030">
+<meta name="apple-mobile-web-app-title" content="郵便受け">
+<link rel="manifest" href="./mailbox.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./mailbox-apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./mailbox-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
 <script>
@@ -391,6 +396,9 @@ const CONFIG = {
   .sw button.on{box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px #2a2a33;transform:scale(1.06)}
   .sw.an button{width:auto;height:auto;border-radius:20px;padding:3px 8px;background:#f3f3f6;font-family:var(--serif);font-size:11px;letter-spacing:.05em}
   .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
+  #bellBtn{display:block;width:100%;font-family:var(--serif);font-size:11px;letter-spacing:.05em;padding:5px 8px;border-radius:20px;border:0;background:#f3f3f6;color:#2a2a33;cursor:pointer}
+  #bellBtn.on{background:#2a2a33;color:#fff}
+  #bellMsg{font-size:10px;line-height:1.5;opacity:.7;margin-top:5px;min-height:0}
   #dim{position:fixed;inset:0;z-index:5;background:transparent;display:none}
   #dim.show{display:block}
   @media (prefers-reduced-motion: reduce){#mk-galaxy .halo,#mk-galaxy .core,#mk-flowers,#mk-hearts path{animation:none}}
@@ -408,6 +416,7 @@ const CONFIG = {
   <div class="lbl" id="sFg"></div><div class="sw" id="swFg"></div>
   <div class="lbl" id="sEnv"></div><div class="sw" id="swEnv"></div>
   <div class="lbl" id="sAn"></div><div class="sw an" id="swAn"></div>
+  <div class="lbl" id="sBell"></div><button id="bellBtn" type="button"></button><div id="bellMsg"></div>
   <button id="done"></button>
 </div>
 
@@ -521,6 +530,32 @@ $('inPartner').addEventListener('input',e=>{look.partner=e.target.value;names();
 $('inWriter').addEventListener('input',e=>{look.writer=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
 $('gear').addEventListener('click',()=>{$('sheet').classList.toggle('show');$('dim').classList.toggle('show');});
 const closeSheet=()=>{$('sheet').classList.remove('show');$('dim').classList.remove('show');};$('dim').addEventListener('click',closeSheet);$('done').addEventListener('click',closeSheet);$('done').textContent=T.done;
+
+/* 呼び鈴：手紙が届いたら、この端末に通知 */
+const BELL='https://lighthouse-bell.lighthouse19718.workers.dev';
+const BELL_READY=false; /* 呼び鈴の箱を Cloudflare に置いたら true にする */
+if(!BELL_READY){$('sBell').style.display='none';$('bellBtn').style.display='none';$('bellMsg').style.display='none';}
+$('sBell').textContent='呼び鈴';
+const bellOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const u8=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const b=atob(s),o=new Uint8Array(b.length);for(let i=0;i<b.length;i++)o[i]=b.charCodeAt(i);return o;};
+async function bellReg(){return navigator.serviceWorker.register('./mailbox-sw.js',{scope:'./'});}
+async function bellShow(msg){const b=$('bellBtn');let on=false;try{if(bellOK()){const r=await navigator.serviceWorker.getRegistration('./');const s=r&&await r.pushManager.getSubscription();on=!!s;}}catch(e){}
+  b.classList.toggle('on',on);b.textContent=on?'呼び鈴はついてる（外す）':'呼び鈴をつける';$('bellMsg').textContent=msg||(on?'手紙が届いたら、鳴らすね。':'');}
+$('bellBtn').addEventListener('click',async()=>{
+  if(!bellOK()){$('bellMsg').textContent='ホーム画面に置いた郵便受けから押してね。';return;}
+  const b=$('bellBtn');b.disabled=true;
+  try{
+    const r=await bellReg();await navigator.serviceWorker.ready;let s=await r.pushManager.getSubscription();
+    if(s){await fetch(BELL+'/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).catch(()=>{});await s.unsubscribe();await bellShow('外した。');return;}
+    const p=await Notification.requestPermission();if(p!=='granted'){await bellShow('通知が許可されてない。設定アプリで、郵便受けの通知を許可してね。');return;}
+    const k=await fetch(BELL+'/vapid').then(x=>x.json());
+    s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k.publicKey)});
+    const res=await fetch(BELL+'/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subscription:s.toJSON()})});
+    await bellShow(res.ok?'つながった。ためしに一回、鳴らしたよ。':'今はつながらなかった。少ししてから、もう一回。');
+  }catch(e){console.error(e);await bellShow('今はつながらなかった。少ししてから、もう一回。');}
+  finally{b.disabled=false;}
+});
+bellShow();
 
 /* words */
 $('flapText').textContent=T.flap||'';
