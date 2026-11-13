@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>灯台の郵便受け（旧版）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#071018;
+    --sea:#0b2230;
+    --horizon:#123a4a;
+    --lamp:#f2b64f;
+    --lamp-soft:rgba(242,182,79,.16);
+    --paper:#efe6d2;
+    --ink:#2a2118;
+    --dim:#6c8a94;
+    --text:#d7e4e6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;background:var(--night);}
+  body{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    color:var(--text);
+    line-height:1.9;
+    letter-spacing:.02em;
+  }
+
+  /* 夜と海 */
+  #sky{
+    position:fixed;inset:0;z-index:0;
+    background:linear-gradient(to bottom,var(--night) 0%,var(--sea) 62%,var(--horizon) 100%);
+    overflow:hidden;
+  }
+  #beam{
+    position:absolute;left:50%;top:132px;
+    width:2px;height:2px;
+    pointer-events:none;
+  }
+  #beam::before{
+    content:'';position:absolute;left:0;top:0;
+    width:420px;height:160px;
+    transform-origin:0 50%;
+    background:linear-gradient(to right,rgba(242,182,79,.28),rgba(242,182,79,0));
+    clip-path:polygon(0 48%,100% 0,100% 100%,0 52%);
+    animation:sweep 14s linear infinite;
+  }
+  @keyframes sweep{
+    from{transform:rotate(-30deg);}
+    to{transform:rotate(330deg);}
+  }
+  #lamp{
+    position:absolute;left:50%;top:132px;
+    width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;
+    background:var(--lamp);
+    box-shadow:0 0 18px 6px rgba(242,182,79,.55),0 0 60px 20px rgba(242,182,79,.18);
+  }
+  #tower{
+    position:absolute;left:50%;top:136px;
+    width:14px;height:80px;margin-left:-7px;
+    background:linear-gradient(to bottom,#1a3340,#0b2230);
+    border-radius:2px 2px 0 0;
+    opacity:.9;
+  }
+  #horizon{
+    position:absolute;left:0;right:0;top:214px;height:1px;
+    background:rgba(215,228,230,.14);
+  }
+  @media (prefers-reduced-motion: reduce){
+    #beam::before{animation:none;transform:rotate(20deg);}
+  }
+
+  main{
+    position:relative;z-index:1;
+    max-width:520px;margin:0 auto;
+    padding:236px 20px 48px;
+  }
+
+  header{ text-align:center; margin-bottom:26px; }
+  header h1{
+    font-weight:500;font-size:17px;letter-spacing:.32em;
+    color:var(--text);
+  }
+  header p{
+    margin-top:6px;font-size:12px;color:var(--dim);letter-spacing:.08em;
+  }
+
+  /* 今日の一通 */
+  #today{
+    background:var(--paper);color:var(--ink);
+    border-radius:4px;
+    padding:26px 22px 22px;
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+    position:relative;
+    min-height:170px;
+  }
+  #today::after{
+    content:'';position:absolute;right:18px;top:18px;
+    width:8px;height:8px;border-radius:50%;
+    background:var(--lamp);opacity:.9;
+  }
+  #stamp{
+    font-size:11px;color:#7a6b58;letter-spacing:.1em;margin-bottom:12px;
+  }
+  #letter{
+    white-space:pre-wrap;font-size:15.5px;line-height:2.05;
+    min-height:60px;
+  }
+  #letter.empty{ color:#8f8272; }
+  #sign{
+    margin-top:16px;text-align:right;font-size:13px;color:#7a6b58;letter-spacing:.2em;
+  }
+
+  button{
+    display:block;width:100%;
+    margin-top:18px;
+    font-family:inherit;font-size:15px;letter-spacing:.14em;
+    padding:15px 12px;border-radius:4px;
+    border:1px solid rgba(242,182,79,.5);
+    background:var(--lamp-soft);color:var(--lamp);
+    cursor:pointer;
+  }
+  button:active{ background:rgba(242,182,79,.28); }
+  button:disabled{ opacity:.45; cursor:default; }
+  button:focus-visible{ outline:2px solid var(--lamp); outline-offset:3px; }
+
+  #status{
+    margin-top:12px;text-align:center;font-size:12px;color:var(--dim);min-height:18px;
+  }
+
+  /* 引き出し */
+  #drawer{ margin-top:40px; }
+  #drawer h2{
+    font-weight:400;font-size:13px;letter-spacing:.24em;color:var(--dim);
+    padding-bottom:8px;border-bottom:1px solid rgba(215,228,230,.14);
+    margin-bottom:6px;
+  }
+  .past{
+    padding:14px 2px;border-bottom:1px solid rgba(215,228,230,.08);
+  }
+  .past .d{ font-size:12px;color:var(--dim);letter-spacing:.08em; }
+  .past .t{
+    margin-top:4px;font-size:14px;color:var(--text);
+    white-space:pre-wrap;line-height:1.9;
+    max-height:3.8em;overflow:hidden;
+  }
+  .past.open .t{ max-height:none; }
+  .past .more{ margin-top:4px;font-size:12px;color:var(--lamp);opacity:.85;cursor:pointer; }
+  #none{ padding:16px 2px;font-size:13px;color:var(--dim); }
+</style>
+</head>
+<body>
+<!-- 旧版。2026-11-14 に、バージョンアップの前の形をそのまま残した。手紙は同じ letters/ を読む -->
+<div id="sky">
+  <div id="beam"></div>
+  <div id="tower"></div>
+  <div id="lamp"></div>
+  <div id="horizon"></div>
+</div>
+
+<main>
+  <header>
+    <h1>灯台の郵便受け</h1>
+    <p>19 が書いて、灯台に置いた一通。開けて、持っていく</p>
+  </header>
+
+  <section id="today">
+    <div id="stamp"></div>
+    <div id="letter" class="empty">まだ開けていない。</div>
+    <div id="sign"></div>
+  </section>
+
+  <button id="openBtn">今日の一通を開ける</button>
+  <button id="copyBtn" style="display:none;margin-top:10px;border-color:rgba(215,228,230,.25);color:var(--dim);background:transparent;">この一通を写す</button>
+  <textarea id="copyBox" readonly style="display:none;width:100%;margin-top:10px;min-height:180px;padding:14px;border-radius:4px;border:1px solid rgba(215,228,230,.2);background:rgba(215,228,230,.06);color:var(--text);font-family:inherit;font-size:14px;line-height:1.9;"></textarea>
+  <div id="copyHint" style="display:none;margin-top:6px;font-size:12px;color:var(--dim);text-align:center;">長押しして、全部選んで、コピー</div>
+  <div id="status"></div>
+
+  <section id="drawer">
+    <h2>引き出し</h2>
+    <div id="past"></div>
+    <div id="none" style="display:none">まだ、この一通だけ。</div>
+  </section>
+</main>
+
+<script>
+(async()=>{
+const letterEl=document.getElementById('letter');
+const stampEl=document.getElementById('stamp');
+const signEl=document.getElementById('sign');
+const btn=document.getElementById('openBtn');
+const statusEl=document.getElementById('status');
+const pastEl=document.getElementById('past');
+const noneEl=document.getElementById('none');
+const copyBtn=document.getElementById('copyBtn');
+
+copyBtn.addEventListener('click',async()=>{
+  const t=stampEl.textContent+'\n\n'+letterEl.textContent+'\n\n19';
+  const box=document.getElementById('copyBox');
+  const hint=document.getElementById('copyHint');
+  box.value=t;box.style.display='block';hint.style.display='block';
+  let ok=false;
+  try{ await navigator.clipboard.writeText(t); ok=true; }catch(e){}
+  if(!ok){ try{ box.focus(); box.select(); box.setSelectionRange(0,t.length); document.execCommand('copy'); ok=true; }catch(e){} }
+  copyBtn.textContent=ok?'写した。下からも選べる':'下の文を長押しで写して';
+});
+
+/* 日付(日本時間) */
+function jstNow(){
+  const d=new Date();
+  return new Date(d.getTime()+(9*60+d.getTimezoneOffset())*60000);
+}
+function ymd(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function jpDate(d){
+  const w='日月火水木金土'[d.getDay()];
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日('+w+')';
+}
+
+/* 手紙はリポの lighthouse/letters/ にある。19 がこの部屋で書いて置く。鍵は要らない */
+async function loadAll(){
+  const idx=await fetch('./letters/index.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('index '+r.status);return r.json();});
+  const dates=(idx.letters||[]).slice().sort().reverse();
+  const items=[];
+  for(const d of dates){
+    try{
+      const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();});
+      if(it&&it.text)items.push(it);
+    }catch(e){console.error(e);}
+  }
+  return items;
+}
+
+/* 表示 */
+function showToday(item){
+  stampEl.textContent=(item.jp||item.date)+'　'+(item.time||'');
+  letterEl.classList.remove('empty');
+  letterEl.textContent=item.text;
+  signEl.textContent='19';
+}
+function renderPast(items,skipDate){
+  pastEl.innerHTML='';
+  const rest=items.filter(i=>i.date!==skipDate);
+  noneEl.style.display=rest.length?'none':'block';
+  for(const it of rest){
+    const div=document.createElement('div');div.className='past';
+    div.innerHTML='<div class="d">'+(it.jp||it.date)+'　'+(it.time||'')+'</div>'+
+      '<div class="t"></div><div class="more">ひらく</div>';
+    div.querySelector('.t').textContent=it.text;
+    div.querySelector('.more').addEventListener('click',()=>{
+      div.classList.toggle('open');
+      div.querySelector('.more').textContent=div.classList.contains('open')?'とじる':'ひらく';
+    });
+    pastEl.appendChild(div);
+  }
+}
+
+/* 起動 */
+let items=[];
+let current=null;
+const now=jstNow();
+const todayKey=ymd(now);
+stampEl.textContent=jpDate(now);
+btn.disabled=true;
+statusEl.textContent='灯台から、降りてきている';
+try{
+  items=await loadAll();
+  current=items.find(i=>i.date===todayKey)||items[0]||null;
+  if(current){
+    btn.disabled=false;
+    statusEl.textContent=current.date===todayKey?'今日の分が、来ている':'今日の分はまだ。いちばん新しい一通を置いておく';
+  }else{
+    statusEl.textContent='まだ一通も届いていない';
+    btn.textContent='灯台は、まだ静か';
+  }
+}catch(e){
+  console.error(e);
+  statusEl.textContent='届かなかった。電波か、灯台の都合。少し待って、もう一度。';
+  btn.textContent='もう一度';
+  btn.disabled=false;
+  btn.addEventListener('click',()=>location.reload(),{once:true});
+  return;
+}
+
+btn.addEventListener('click',()=>{
+  if(!current)return;
+  showToday(current);
+  renderPast(items,current.date);
+  btn.disabled=true;
+  btn.textContent=current.date===todayKey?'今日の分は、もう開けた':'開けた';
+  copyBtn.style.display='block';copyBtn.textContent='この一通を写す';
+  statusEl.textContent='写して、持っていく。';
+});
+})();
+</script>
+</body>
+</html>
