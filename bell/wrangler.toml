@@ -9,9 +9,8 @@ crons = ["*/10 6-10 * * *"]
 
 [[kv_namespaces]]
 binding = "BELL_KV"
-id = "REPLACE_WITH_KV_ID"
+id = "REPLACE_WITH_KV_ID"   # GitHub Actions（.github/workflows/bell.yml）が置く時に入れる
 
 [vars]
-VAPID_PUBLIC = "REPLACE_WITH_VAPID_PUBLIC"
 VAPID_SUBJECT = "mailto:lighthouse@example.com"
-# secret（Cloudflare にだけ置く）: VAPID_PRIVATE_JWK
+# secret（Cloudflare にだけ置く。Actions が最初の一回だけ作る）: VAPID_PUBLIC, VAPID_PRIVATE_JWK

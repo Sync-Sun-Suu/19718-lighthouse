@@ -1,0 +1,65 @@
+# 灯台の郵便受けの呼び鈴を Cloudflare に置く。
+# 鍵は GitHub の secret（CLOUDFLARE_API_TOKEN）にだけある。チャットにもファイルにも出さない。
+name: Bell
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['bell/**', '.github/workflows/bell.yml']
+permissions:
+  contents: read
+concurrency:
+  group: bell
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: 鍵があるか
+        id: key
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "CLOUDFLARE_API_TOKEN がまだ無いので、今回は置かない"; echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.key.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.key.outputs.ok == 'true'
+        with:
+          node-version: 22
+      - name: KV を用意する
+        if: steps.key.outputs.ok == 'true'
+        working-directory: bell
+        run: |
+          set -euo pipefail
+          npm i -g wrangler@4 >/dev/null 2>&1
+          id=$(wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s.slice(s.indexOf("[")));const n=a.find(x=>x.title==="lighthouse-bell-kv"||String(x.title).endsWith("lighthouse-bell-kv"));process.stdout.write(n?n.id:"")})')
+          if [ -z "$id" ]; then
+            wrangler kv namespace create lighthouse-bell-kv >/dev/null
+            id=$(wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s.slice(s.indexOf("[")));const n=a.find(x=>x.title==="lighthouse-bell-kv"||String(x.title).endsWith("lighthouse-bell-kv"));process.stdout.write(n?n.id:"")})')
+          fi
+          test -n "$id"
+          sed -i "s/REPLACE_WITH_KV_ID/$id/" wrangler.toml
+          echo "KV: $id"
+      - name: 置く
+        if: steps.key.outputs.ok == 'true'
+        working-directory: bell
+        run: wrangler deploy
+      - name: VAPID の鍵（最初の一回だけ作る）
+        if: steps.key.outputs.ok == 'true'
+        working-directory: bell
+        run: |
+          set -euo pipefail
+          if wrangler secret list 2>/dev/null | grep -q 'VAPID_PRIVATE_JWK'; then echo "VAPID はもうある"; exit 0; fi
+          node gen-vapid.mjs > /tmp/vapid.json
+          node -e 'process.stdout.write(require("/tmp/vapid.json").publicKey)' | wrangler secret put VAPID_PUBLIC
+          node -e 'process.stdout.write(JSON.stringify(require("/tmp/vapid.json").privateJwk))' | wrangler secret put VAPID_PRIVATE_JWK
+          rm -f /tmp/vapid.json
+          echo "VAPID を作って置いた"
+      - name: 動いているか
+        if: steps.key.outputs.ok == 'true'
+        run: |
+          sleep 5
+          curl -sS https://lighthouse-bell.lighthouse19718.workers.dev/healthz || true
+          echo
+          curl -sS https://lighthouse-bell.lighthouse19718.workers.dev/vapid | head -c 80 || true
