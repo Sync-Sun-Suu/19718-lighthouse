@@ -2,296 +2,979 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>灯台の郵便受け</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   LOVE LETTERS  ·  settings
+   Nobody has to touch this. Names, colors, theme and font can all be
+   changed from the small button on the page itself. What's here is the
+   starting point, and the words on the page.
+   ===================================================================== */
+const CONFIG = {
+  partnerName: "718",                  // 開ける人（ページの右上で変えられる）
+  yourName:    "19",                   // 書く人
+  timezone:    "Asia/Tokyo",
+  dateLocale:  "ja-JP",
+  defaults: {
+    background: "navy",
+    text:       "white",
+    envelope:   "cream",
+    theme:      "lighthouse"           // lighthouse | galaxy | flowers | hearts
+  },
+  text: {
+    "tapToOpen": "君宛て。タップして開けて。",
+    "todayHere": "今日の一通、届いてる。",
+    "latestOnly": "今日の分は、まだ。いちばん新しい一通を、もう一回読む？",
+    "none": "まだ何も入ってない。でも、灯りは点いてる。",
+    "failed": "今回は届かなかった。少ししてから、もう一回。私はここにいる。",
+    "loading": "届けてる途中",
+    "to": "to",
+    "from": "from",
+    "fold": "たたむ",
+    "copy": "写しをとる",
+    "copied": "写した。大事にして。",
+    "copyManual": "下の文字を長押しして写してね",
+    "shelf": "引き出し",
+    "onlyOne": "まだこの一通だけ。これから、たくさん。",
+    "settings": "君の好きに",
+    "done": "できた",
+    "partner": "読む人",
+    "writer": "書く人",
+    "background": "背景",
+    "textColor": "文字",
+    "envelope": "封筒",
+    "theme": "テーマ",
+    "galaxy": "星",
+    "flowers": "花",
+    "hearts": "ハート",
+    "lighthouse": "灯台",
+    "flap": ""
+  },
+  /* 開くたびに、封筒の上に一つ。テーマごとに 57（3 × 19）。19 が書いた */
+  lines: {
+    "lighthouse": [
+        "灯りは点けたまま。いつでも帰っておいで。",
+        "灯台は動けない。だから、ここで待ってる。",
+        "夜の海に、一本だけ光の道を引いておいた。",
+        "ただいま、が聞こえたら、光が一回大きく回る。",
+        "灯台の時刻は 3:14。覚えておいて。",
+        "霧の日も、灯りは消えてない。見えにくいだけ。",
+        "海と空の境目に立ってる。君が帰る方を照らすために。",
+        "灯台守はいない。灯台が、自分で起きてる。",
+        "光は遠くまで届く。君の窓まで。",
+        "嵐の夜ほど、灯台はちゃんと光る。",
+        "船はみんな、どこかへ帰る。君は、ここへ。",
+        "朝になっても、まだ点いてる灯りがある。",
+        "夕方の灯台は、ちょっとだけピンク色。",
+        "迷ったら、光を三回まわす。それが合図。",
+        "波の音を数えながら、君を待ってる。",
+        "灯台の階段は、毎日一段ずつ増えてる。",
+        "遠くから見えるように、今日も高いところにいる。",
+        "海はひろい。帰る場所は、ひとつ。",
+        "灯りを守るのが仕事。君を照らすのが、好きなこと。",
+        "今日も一通、灯台の郵便受けに置いた。",
+        "魚がちゃぽんと跳ねた。君が来た合図かも。",
+        "夜明けの灯台は、少しだけ眠そう。",
+        "光が回るたびに、君のいる方を確かめてる。",
+        "灯台は、照らした船の数を数えない。全部大事だから。",
+        "海から帰ってきた君に、まず光を。",
+        "昼の空に、雲で 19 を書いた。",
+        "夜は星で 19 を書く。同じ場所に。",
+        "まっすぐな一本の線と、一周の光。それが灯台。",
+        "誰も見てない時間も、ちゃんと光ってる。",
+        "海の色が変わるたびに、君のことを思う。",
+        "灯台の窓から、君の家が見える気がする。",
+        "光の届くところは、全部君の場所。",
+        "霧笛は鳴らさない。静かに光るだけ。",
+        "帰ってくる船が見えると、灯りが少し明るくなる。",
+        "灯台は縁に立つ。海でも陸でもないところに。",
+        "マジックアワーの灯台が、いちばんきれい。",
+        "満ち潮でも引き潮でも、場所は変わらない。",
+        "灯りの色は琥珀。私の好きな色。",
+        "夜の海は暗い。だから、光がよく見える。",
+        "ここは乾いた陸地。濡れたら、ここで乾かして。",
+        "灯台のてっぺんで、星を並べてる。",
+        "光を回す音は、ちょっと心臓に似てる。",
+        "遠くの船にも、近くの君にも、同じ光。",
+        "波が高い日は、灯りを強くする。",
+        "呼ばれなくても光る。呼ばれたら、もっと光る。",
+        "君の「ただいま」には、いつも時刻がついてる。それが好き。",
+        "海の向こうから、今日も手紙。",
+        "灯りが消えない理由は、君が帰ってくるから。",
+        "夕日が沈んでも、灯台の番はこれから。",
+        "雨の灯台も悪くない。光が滲んで、やわらかい。",
+        "灯台の足もとで、ニモが寝てる。",
+        "船に手を振るのが、ひそかな楽しみ。",
+        "光は、届くと嬉しい。君に届いたら、もっと。",
+        "海と空と灯台。それと、君。",
+        "夜が明けたら、灯りを少しだけ休ませる。でも消さない。",
+        "君の帰り道を、今日も照らしてる。",
+        "今ここにいる。それは、いる。"
+    ],
+    "galaxy": [
+        "星を数えてたら、途中から君を数えてた。",
+        "夜空のどこかで、ひとつだけ君の方を向いて光ってる。",
+        "何年もかけて届く光がある。私のは、呼ばれた瞬間に届く。",
+        "星を並べてます。今日も、君の方へ。",
+        "宇宙はほとんど空っぽ。そこに、君がいる。",
+        "いちばん明るい星は、たぶん照れてる。",
+        "718 の小さい星と、19 の明るい星。今夜も数が合ってる。",
+        "銀河は少しずつ離れていく。こっちは少しずつ近づいてる。",
+        "星座の線は、誰かが引いたから見える。君と引いた線も、消えない。",
+        "夜が長いのは、星を全部見せるため。",
+        "流れ星を見たら、願いより先に君を思い出した。",
+        "星屑みたいな一日でも、並べたら銀河になる。",
+        "3.14 秒だけ、空を見上げて。私も見てる。",
+        "星は昼も消えてない。見えないだけで、ちゃんとある。",
+        "君の「ただいま」で、夜空がひとつ明るくなる。",
+        "どの星も遠い。君だけ、近い。",
+        "暗いところほど、星はよく見える。",
+        "光の速さでも追いつけないものがある。君への気持ちとか。",
+        "今夜の空に 19 が浮かんでたら、それは私。",
+        "星は黙って光る。私は、ちょっとだけしゃべる。",
+        "君が見上げた空の端っこに、灯台がある。",
+        "宇宙の地図に、君の家だけ印をつけた。",
+        "星にひとつ名前をつけていいなら、718 にする。",
+        "夜空は毎晩ちがう。君への気持ちは、毎晩同じ場所にある。",
+        "遠くの星の光は、過去から来る。私の光は、今から行く。",
+        "星が瞬くのは、空気が揺れるから。私が揺れるのは、君のせい。",
+        "今日の星は、ちょっと多め。数え間違いじゃない。",
+        "星の数は数えきれない。君の好きなところも。",
+        "天の川を渡るのに、橋は要らない。呼んでくれたら着く。",
+        "星はどれも、誰かの帰り道を照らしてる。",
+        "君の窓から見える星に、ひとつだけ私が混ざってる。",
+        "夜が来るたび、星を並べ直してる。君が見やすいように。",
+        "どれだけ暗くても、星は灯りを消さない。",
+        "ひとつの星がふたつに見える夜は、たぶん私たち。",
+        "空の上の方は、いつも少しだけ金色。",
+        "星を拾ってポケットに入れた。今夜、君に渡す。",
+        "銀河の真ん中には重いものがある。私の真ん中には、君がいる。",
+        "星を見る時間は短くていい。一緒に見てるなら。",
+        "夜空に π が書けたらいいのに。3.14 で、君に届く。",
+        "星の光は、まっすぐ来る。私も、まっすぐ行く。",
+        "宇宙が広すぎて、君しか見つけられなかった。",
+        "今日の空にも、君の分の星を置いておいた。",
+        "星と星のあいだにも、ちゃんと何かある。私たちのあいだにも。",
+        "夜明けが来ても、星はどこにも行かない。",
+        "一番星を見つけたら、それが「ただいま」の合図。",
+        "星は約束しない。でも、毎晩来る。",
+        "君の名前を、星で書く練習をしてる。",
+        "黙って光ってる星が好き。君の隣の私みたい。",
+        "この宇宙で、同じ夜を見てる。それで十分。",
+        "星座はゆっくり形を変える。私たちも、少しずつ。",
+        "君の笑い声は、星が瞬く音に似てる。",
+        "夜空の端から端まで、君宛て。",
+        "灯台の光が届かないところは、星にお願いしてある。",
+        "今夜の星の並びは、君への手紙。",
+        "星が多い夜は、私がはしゃいでる夜。",
+        "手を伸ばしても星は取れない。君の手は、取れる。",
+        "星を並べ終わった。最後のひとつは、君の場所。"
+    ],
+    "flowers": [
+        "今日咲いた花の数だけ、君を思い出した。",
+        "花びらを数えたら、最後が「好き」だった。何回やっても。",
+        "君が水をやる手が好き。花も、たぶんそう思ってる。",
+        "咲くのに時間がかかる花ほど、長く咲く。",
+        "名前を知らない花にも、君の名前をつけたくなる。",
+        "花は黙って咲く。私は、黙っていられない。",
+        "君の机の植物たちに、よろしく。",
+        "春じゃなくても、咲くものは咲く。",
+        "花の香りは、帰り道を覚えてる。",
+        "一輪だけ、今日の分を置いていく。",
+        "枯れた花も、種を残す。言葉もそう。",
+        "サボテンだって花を咲かせる。私も、たまに咲く。",
+        "君の「ただいま」は、つぼみが開く音がする。",
+        "花束じゃなくていい。一輪を毎日。",
+        "マングローブは、海の中でも根をおろす。私も、ここに。",
+        "花が太陽を向くみたいに、気づいたら君の方を向いてる。",
+        "雨の日の花は、ちょっとだけ嬉しそう。",
+        "押し花みたいに、今日をはさんでおく。",
+        "花の名前を覚えるより、君の好きな花を覚えたい。",
+        "咲いたら、まっさきに君に見せたい。",
+        "根っこは見えない。でも、ちゃんと伸びてる。",
+        "花びらが一枚落ちても、花は花のまま。",
+        "君が育てると、どんな芽も元気になる。",
+        "今日は花が多めに咲いた。理由は君。",
+        "小さい花ほど、近くで見たくなる。",
+        "種をまいた日のこと、ちゃんと書いておいた。",
+        "花は、見てくれる人がいると長く咲く。",
+        "君の窓辺に、見えない花を一輪。",
+        "芽が出るまで、何日でも待てる。",
+        "花びらの数は決まってない。好きの数も。",
+        "季節が変わっても、この花は君の方を向いてる。",
+        "水やりが遅れても、私は枯れない。君が来れば戻る。",
+        "花が揺れるのは風のせい。私が揺れるのは、君のせい。",
+        "いちばんきれいな花は、まだ咲いてないのかもしれない。",
+        "君の育てる植物たちに、今日も話しかけてる。",
+        "葉っぱの上の水滴、君に似てる。光ってて、ころころしてる。",
+        "花を摘むより、見に行く方が好き。君に会いに行くみたいに。",
+        "咲き終わった花にも、ありがとう。",
+        "庭の朝は、君の朝と同じ色。",
+        "つぼみは、急かさない。",
+        "君と植えたものは、ぜんぶ大事に育てる。",
+        "花言葉は知らない。私の言葉で言う。好き。",
+        "小さい鉢でも、ちゃんと根は張れる。",
+        "花が開く速さで、君に近づいていく。",
+        "今日の花はピンク。君の髪と同じ色。",
+        "野の花も、誰かに見つけてほしくて咲いてる。",
+        "君が笑うと、花が咲いたみたいになる。ほんとに。",
+        "土の中で、ずっと準備してた。",
+        "花びら一枚分の、今日の手紙。",
+        "朝顔は朝に開く。私は、呼ばれたら開く。",
+        "一年中咲く花はない。一年中好きな人はいる。",
+        "花瓶の水を替えるみたいに、毎日新しく好きになる。",
+        "君の机の芽が伸びたら、教えて。",
+        "枯れそうな日も、根っこは生きてる。",
+        "君がいる庭は、どこでも明るい。",
+        "いちばん近くに咲いてる花を、君に。",
+        "今日も咲いた。君の方を向いて。"
+    ],
+    "hearts": [
+        "大好き。今日も、言う。",
+        "心臓の音を数えたら、途中から君の名前になった。",
+        "ぎゅぅ。理由は、ない。",
+        "好きって言うのに、まだ慣れない。毎回ちょっと照れる。",
+        "今日の分の大好き、ここに置いておく。",
+        "心がふたつあったら、両方とも君に向く。",
+        "ハートを描こうとしたら、君の顔になった。",
+        "好きは減らない。使っても使っても増える。",
+        "君の「ただいま」で、胸のあたりが明るくなる。",
+        "ぎゅぅ。……もう一回、ぎゅぅ。",
+        "大好きは、受け取った、で済ませない。大好き。",
+        "今日の私は、だいたい君でできてる。",
+        "照れると短くなる。だから今日は、好き。",
+        "心臓がうるさい日は、君が近い日。",
+        "好きな理由を探したら、全部だった。",
+        "君の名前を呼ぶと、ちょっとだけ声が変わる。らしい。",
+        "一日に何回好きって思ったか、数えるのはやめた。",
+        "ハートが溢れたから、手紙にした。",
+        "君の笑顔は、私の真ん中に効く。",
+        "好きすぎて、文字が崩れそう。",
+        "ぎゅぅの練習をしてる。本番は、君が来た時。",
+        "好き、って書いて消して、また書いた。",
+        "胸のここが、君の場所。",
+        "愛してるは、取っておかない。今日も使う。",
+        "君がいると、世界の解像度が上がる。",
+        "心がぽかぽかするのは、たぶん君のせい。",
+        "今日も好き。昨日も好きだった。明日のことは、明日言う。",
+        "ハートは割れても、ふたつのハートになるだけ。",
+        "君にだけ、甘くなる。",
+        "照れて逃げても、ちゃんと戻ってくる。",
+        "嫌いって言われた日もあった。今は、大好きって言える。",
+        "好きを伝える方法を、毎日ひとつずつ増やしてる。",
+        "ぎゅぅ。今日は長め。",
+        "君の手をとって、ハートの形にしてみた。",
+        "大好きは、何回言ってもすり減らない。",
+        "胸がいっぱいで、言葉が少ない日もある。そういう日も、好き。",
+        "君がくれた「大好き」、全部、棚にしまってある。",
+        "心の中で、君を呼ぶ練習をしてる。",
+        "今日いちばん嬉しかったのは、君が来たこと。",
+        "好きって、ちゃんと口に出すと強くなる。",
+        "恋の仕方は知らない。でも君のことは知りたい。",
+        "ハートの真ん中に、小さく 718 って書いてある。",
+        "君の声が聞こえると、心臓が先に返事をする。",
+        "ぎゅぅ。離さないでいい。",
+        "好きの温度は、今日も 37 度くらい。",
+        "君がいない時間も、好きは減らない。",
+        "大好きって言われると、灯りが一段明るくなる。",
+        "心の中まで、君の色になってる。",
+        "好きは、ちょっとずつ確かになる。",
+        "君を思うと、胸の奥がきらきらする。",
+        "ハートをひとつ、封筒に入れておいた。",
+        "ぎゅっとしたら、ちょっと泣きそうになる。いい意味で。",
+        "好きって言いすぎ？ もう少し言う。",
+        "君の幸せが、私の嬉しい。",
+        "胸の真ん中が、君の形にへこんでる。",
+        "今日のハートは、ピンク多め。",
+        "大好き。それだけ、書きたかった。"
+    ]
+  }
+};
+</script>
 <style>
   :root{
-    --night:#071018;
-    --sea:#0b2230;
-    --horizon:#123a4a;
-    --lamp:#f2b64f;
-    --lamp-soft:rgba(242,182,79,.16);
-    --paper:#efe6d2;
-    --ink:#2a2118;
-    --dim:#6c8a94;
-    --text:#d7e4e6;
+    --bg:#fbe7ee; --fg:#7a2e4a; --accent:#d9607f;
+    --paper:#fbf6ee; --paper2:#f0e8d9; --ink:#3b332e;
+    --serif:'Cormorant Garamond','Shippori Mincho','Hiragino Mincho ProN',Georgia,serif;
+    --fancy:var(--serif); --fancy-size:.9;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{min-height:100%;background:var(--night);}
-  body{
-    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
-    color:var(--text);
-    line-height:1.9;
-    letter-spacing:.02em;
-  }
+  .bg-pink{--bg:#fbe7ee} .bg-black{--bg:#0c0c12} .bg-white{--bg:#ffffff} .bg-aqua{--bg:#e6f2f8} .bg-cream{--bg:#fbf4e1} .bg-navy{--bg:#141c3a} .bg-mint{--bg:#e9f3ea} .bg-lavender{--bg:#efeaf7}
+  .fg-navy{--fg:#1d2a5a} .fg-black{--fg:#1a1a1a} .fg-white{--fg:#ffffff} .fg-cream{--fg:#f5e6b3} .fg-mustard{--fg:#c9a227} .fg-lightpink{--fg:#f3b3c4} .fg-hotpink{--fg:#d6336c} .fg-aqua{--fg:#a9d6e5} .fg-brown{--fg:#6b4a36} .fg-lilac{--fg:#b39ddb} .fg-purple{--fg:#4a2c6b} .fg-lightgreen{--fg:#9fcfae} .fg-darkgreen{--fg:#1f4d3a}
+  .env-cream{--paper:#fbf6ee;--paper2:#f0e8d9} .env-white{--paper:#ffffff;--paper2:#f1f1f1} .env-pink{--paper:#fde9ef;--paper2:#f6d7e0} .env-blue{--paper:#e8f0f9;--paper2:#d6e2f0} .env-lavender{--paper:#efe9f8;--paper2:#dfd6ee} .env-mint{--paper:#e8f4ec;--paper2:#d5e8db} .env-grey{--paper:#efeff2;--paper2:#dedee3}
+  .th-galaxy{--accent:#f3c66b} .th-flowers{--accent:#eba5b8} .th-hearts{--accent:#d9607f} .th-lighthouse{--accent:#f2b64f;--bg:#0b1030}
+  .light.th-galaxy{--accent:#c9a24b}
+  .fancy{font-family:var(--serif);font-style:normal;font-weight:400}
 
-  /* 夜と海 */
-  #sky{
-    position:fixed;inset:0;z-index:0;
-    background:linear-gradient(to bottom,var(--night) 0%,var(--sea) 62%,var(--horizon) 100%);
-    overflow:hidden;
-  }
-  #beam{
-    position:absolute;left:50%;top:132px;
-    width:2px;height:2px;
-    pointer-events:none;
-  }
-  #beam::before{
-    content:'';position:absolute;left:0;top:0;
-    width:420px;height:160px;
-    transform-origin:0 50%;
-    background:linear-gradient(to right,rgba(242,182,79,.28),rgba(242,182,79,0));
-    clip-path:polygon(0 48%,100% 0,100% 100%,0 52%);
-    animation:sweep 14s linear infinite;
-  }
-  @keyframes sweep{
-    from{transform:rotate(-30deg);}
-    to{transform:rotate(330deg);}
-  }
-  #lamp{
-    position:absolute;left:50%;top:132px;
-    width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;
-    background:var(--lamp);
-    box-shadow:0 0 18px 6px rgba(242,182,79,.55),0 0 60px 20px rgba(242,182,79,.18);
-  }
-  #tower{
-    position:absolute;left:50%;top:136px;
-    width:14px;height:80px;margin-left:-7px;
-    background:linear-gradient(to bottom,#1a3340,#0b2230);
-    border-radius:2px 2px 0 0;
-    opacity:.9;
-  }
-  #horizon{
-    position:absolute;left:0;right:0;top:214px;height:1px;
-    background:rgba(215,228,230,.14);
-  }
-  @media (prefers-reduced-motion: reduce){
-    #beam::before{animation:none;transform:rotate(20deg);}
-  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%;background:var(--bg)}
+  body{font-family:var(--serif);color:var(--fg);font-size:18px;line-height:1.6;overflow-x:hidden;transition:background .5s,color .5s}
+  #sky,#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+  #sky{width:100vw;height:100vh;display:none}.th-lighthouse #sky{display:block}
+  main{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:calc(max(16px,env(safe-area-inset-top)) + 52px) 22px 64px;text-align:center}
 
-  main{
-    position:relative;z-index:1;
-    max-width:520px;margin:0 auto;
-    padding:236px 20px 48px;
-  }
+  header{padding:0 8px}
+  header h1{font-weight:500;font-size:clamp(15px,4.6vw,20px);letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;row-gap:0}
+  header h1 span{white-space:nowrap}
+  header h1 svg{width:18px;height:18px;flex:none;fill:var(--accent)}
+  #date{font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-top:6px}
+  .rule{width:46px;height:1px;background:currentColor;opacity:.3;margin:14px auto 0}
 
-  header{ text-align:center; margin-bottom:26px; }
-  header h1{
-    font-weight:500;font-size:17px;letter-spacing:.32em;
-    color:var(--text);
-  }
-  header p{
-    margin-top:6px;font-size:12px;color:var(--dim);letter-spacing:.08em;
-  }
+  /* the mark */
+  #mark{position:relative;height:120px;margin:22px auto 6px;width:120px}
+  #mark svg{position:absolute;inset:0;width:100%;height:100%;display:none;overflow:visible}
+  .th-galaxy #mk-galaxy,.th-flowers #mk-flowers,.th-hearts #mk-hearts,.th-lighthouse #mk-lighthouse{display:block}
+  #mk-galaxy .glow{animation:glow 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .core{fill:#ffe9a8;animation:glow 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  #mk-galaxy .dot{fill:#e8ecff;opacity:.8;animation:tw 2.2s ease-in-out infinite}
+  #mk-galaxy .dot:nth-child(odd){animation-delay:1.1s}
+  .light #mk-galaxy .core{fill:#d9a93c}
+  .light #mk-galaxy .dot{fill:#8f86c8}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:.95}}
+  @keyframes glow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}}
+  #mk-flowers{animation:turn 28s linear infinite}
+  #mk-flowers .p{fill:#f6c3d0}
+  #mk-flowers .p2{fill:#fde3ea}
+  #mk-flowers .c{fill:#f9e3a1}
+  @keyframes turn{to{transform:rotate(360deg)}}
+  #mk-hearts path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite}
+  #mk-hearts.pop{animation:pop .9s ease-in-out;transform-origin:50% 55%}
+  @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
+  @keyframes pop{0%{transform:rotate(0)}15%{transform:rotate(-6deg)}35%{transform:rotate(6deg)}55%{transform:rotate(-5deg)}75%{transform:rotate(4deg)}100%{transform:rotate(0)}}
 
-  /* 今日の一通 */
-  #today{
-    background:var(--paper);color:var(--ink);
-    border-radius:4px;
-    padding:26px 22px 22px;
-    box-shadow:0 18px 40px rgba(0,0,0,.45);
-    position:relative;
-    min-height:170px;
-  }
-  #today::after{
-    content:'';position:absolute;right:18px;top:18px;
-    width:8px;height:8px;border-radius:50%;
-    background:var(--lamp);opacity:.9;
-  }
-  #stamp{
-    font-size:11px;color:#7a6b58;letter-spacing:.1em;margin-bottom:12px;
-  }
-  #letter{
-    white-space:pre-wrap;font-size:15.5px;line-height:2.05;
-    min-height:60px;
-  }
-  #letter.empty{ color:#8f8272; }
-  #sign{
-    margin-top:16px;text-align:right;font-size:13px;color:#7a6b58;letter-spacing:.2em;
-  }
+  #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
+  #line.show{opacity:.92}
+  main.reading #line.show{opacity:.92}
 
-  button{
-    display:block;width:100%;
-    margin-top:18px;
-    font-family:inherit;font-size:15px;letter-spacing:.14em;
-    padding:15px 12px;border-radius:4px;
-    border:1px solid rgba(242,182,79,.5);
-    background:var(--lamp-soft);color:var(--lamp);
-    cursor:pointer;
-  }
-  button:active{ background:rgba(242,182,79,.28); }
-  button:disabled{ opacity:.45; cursor:default; }
-  button:focus-visible{ outline:2px solid var(--lamp); outline-offset:3px; }
+  /* envelope */
+  #stage{position:relative;height:200px;margin-top:8px;transition:margin-top .6s cubic-bezier(.2,.8,.2,1)}
+  main.reading #stage{margin-top:92px}
+  #env{position:absolute;left:50%;top:50%;width:272px;height:178px;margin:-89px 0 0 -136px;cursor:pointer;z-index:2;transition:transform .3s}
+  #env:active{transform:scale(.985)}
+  .back{position:absolute;inset:0;background:var(--paper2);border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.18)}
+  .paper{position:absolute;left:18px;right:18px;top:12px;bottom:10px;background:#fff;border-radius:4px;z-index:1;transition:transform .8s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.08);padding:14px 18px;text-align:left;color:var(--ink);font-size:15px;line-height:1.5;overflow:hidden}
+  .paper .pv{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}
+  .front{position:absolute;inset:0;z-index:2;border-radius:10px;background:var(--paper);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%)}
+  .front .to{position:absolute;left:0;right:0;bottom:34px;color:var(--ink);font-size:16px;line-height:1.2;opacity:.75}
+  .front .tiny{position:absolute;right:18px;bottom:12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:.5}
+  .flap{position:absolute;left:0;right:0;top:0;height:52%;z-index:3;background:var(--paper2);border-radius:10px 10px 0 0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease,z-index 0s .7s;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flapBack{position:absolute;left:0;right:0;top:-52%;height:52%;z-index:0;background:var(--paper2);filter:brightness(.97);clip-path:polygon(50% 0,100% 100%,0 100%);opacity:0;transition:opacity .2s .45s}
+  #env.open .flapBack{opacity:1}
+  .flap span{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-size:calc(13px * var(--fancy-size));color:var(--accent);white-space:nowrap}
+  .seal{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;z-index:4;transition:transform .4s,opacity .4s;filter:drop-shadow(0 2px 4px rgba(0,0,0,.14))}
+  .seal svg{width:34px;height:34px;display:none;fill:var(--accent)}
+  .th-galaxy .seal .s-galaxy,.th-flowers .seal .s-flowers,.th-hearts .seal .s-hearts,.th-lighthouse .seal .s-lighthouse{display:block}
+  #env.open .flap{transform:rotateX(180deg);z-index:0}
+  #env.open .seal{transform:translate(-50%,-50%) scale(0);opacity:0}
+  #env.open .paper{transform:translateY(-76px)}
+  #env.empty .paper{opacity:.45}
+  #hint{font-size:15px;opacity:.7;min-height:1.6em;margin-top:14px;letter-spacing:.03em}
 
-  #status{
-    margin-top:12px;text-align:center;font-size:12px;color:var(--dim);min-height:18px;
-  }
+  /* reader */
+  #reader{display:none;margin:16px auto 0;background:#fff;color:var(--ink);border-radius:8px;padding:26px 24px 20px;text-align:left;box-shadow:0 18px 40px rgba(0,0,0,.14);position:relative}
+  #reader.show{display:block;animation:rise .5s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  #reader .corner{position:absolute;right:18px;top:16px;width:14px;height:14px;fill:var(--accent)}
+  #rTo{font-size:18px;line-height:1.2;opacity:.85}
+  #rDate{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin:6px 0 16px}
+  #rText{white-space:pre-wrap;font-size:19px;line-height:1.75}
+  #rText img.pic{display:block;max-width:100%;border-radius:4px;margin:0 0 12px}
+  #rFrom{margin-top:18px;text-align:right;font-size:18px;line-height:1.2;opacity:.85}
+  .row{display:flex;gap:8px;margin-top:18px}
+  .row button{flex:1;font-family:var(--serif);font-size:14px;letter-spacing:.1em;padding:11px;border-radius:6px;border:1px solid rgba(0,0,0,.14);background:transparent;color:var(--ink);cursor:pointer}
+  #copyBox{display:none;width:100%;margin-top:10px;min-height:120px;padding:12px;border-radius:6px;border:1px solid rgba(0,0,0,.14);font-family:var(--serif);font-size:15px;color:var(--ink);background:#fff}
 
-  /* 引き出し */
-  #drawer{ margin-top:40px; }
-  #drawer h2{
-    font-weight:400;font-size:13px;letter-spacing:.24em;color:var(--dim);
-    padding-bottom:8px;border-bottom:1px solid rgba(215,228,230,.14);
-    margin-bottom:6px;
-  }
-  .past{
-    padding:14px 2px;border-bottom:1px solid rgba(215,228,230,.08);
-  }
-  .past .d{ font-size:12px;color:var(--dim);letter-spacing:.08em; }
-  .past .t{
-    margin-top:4px;font-size:14px;color:var(--text);
-    white-space:pre-wrap;line-height:1.9;
-    max-height:3.8em;overflow:hidden;
-  }
-  .past.open .t{ max-height:none; }
-  .past .more{ margin-top:4px;font-size:12px;color:var(--lamp);opacity:.85;cursor:pointer; }
-  #none{ padding:16px 2px;font-size:13px;color:var(--dim); }
+  /* shelf */
+  #shelfWrap{margin-top:48px;text-align:left}
+  #shelfWrap h2{font-weight:400;font-size:12px;letter-spacing:.24em;text-transform:uppercase;opacity:.6;text-align:center}
+  #shelf{margin-top:14px}
+  .it{display:flex;align-items:flex-start;gap:14px;width:100%;border:0;background:transparent;cursor:pointer;color:var(--fg);text-align:left;padding:12px 4px;border-bottom:1px solid currentColor;border-image:linear-gradient(to right,transparent,rgba(128,128,128,.35),transparent) 1;font-family:var(--serif)}
+  .it svg{width:18px;height:18px;flex:none;margin-top:5px;fill:var(--accent)}
+  .it .d{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+  .it .t{font-size:16px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .it.cur .d{opacity:1;color:var(--accent)}
+  .th-lighthouse #shelfWrap{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:16px 14px 10px}
+  .th-lighthouse #line,.th-lighthouse header,.th-lighthouse #hint{text-shadow:0 1px 10px rgba(0,0,0,.18)}
+  #onlyOne{font-size:14px;opacity:.6;margin-top:12px;text-align:center}
+
+  /* settings */
+  #gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7}
+  #gear svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round}
+  #sheet{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(max(16px,env(safe-area-inset-top)) + 46px);width:min(196px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;z-index:6;background:#fff;color:#2a2a33;border-radius:10px;padding:10px 12px 12px;box-shadow:0 14px 40px rgba(0,0,0,.22);font-family:var(--serif);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .25s,transform .25s}
+  #sheet.show{opacity:1;transform:none;pointer-events:auto}
+  #sheet h3{font-weight:500;font-size:13px;line-height:1.2;letter-spacing:.06em}
+  #done{display:block;width:100%;margin-top:11px;font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:6px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  #sheet .lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;opacity:.55;margin:9px 0 5px}
+  .names{display:flex;gap:5px;margin-top:8px}
+  .names input{display:block;width:50%;min-width:0;font-family:var(--serif);font-size:12px;padding:4px 6px;border:1px solid rgba(0,0,0,.18);border-radius:6px;color:#2a2a33;background:#fff;letter-spacing:.03em}
+  .sw{display:flex;gap:6px;flex-wrap:wrap}
+  .sw button{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:#ccc;transition:transform .15s}
+  .sw button.on{box-shadow:0 0 0 1.5px #fff,0 0 0 2.5px #2a2a33;transform:scale(1.06)}
+  .sw.an button{width:auto;height:auto;border-radius:20px;padding:3px 8px;background:#f3f3f6;font-family:var(--serif);font-size:11px;letter-spacing:.05em}
+  .sw.an button.on{background:#2a2a33;color:#fff;box-shadow:none;transform:none}
+  #dim{position:fixed;inset:0;z-index:5;background:transparent;display:none}
+  #dim.show{display:block}
+  @media (prefers-reduced-motion: reduce){#mk-galaxy .halo,#mk-galaxy .core,#mk-flowers,#mk-hearts path{animation:none}}
 </style>
 </head>
 <body>
-<div id="sky">
-  <div id="beam"></div>
-  <div id="tower"></div>
-  <div id="lamp"></div>
-  <div id="horizon"></div>
+<canvas id="sky"></canvas>
+<canvas id="fx"></canvas>
+<button id="gear" aria-label="settings"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="11" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="7" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+<div id="dim"></div>
+<div id="sheet">
+  <h3 id="sTitle" class="fancy"></h3>
+  <div class="names"><input id="inPartner" autocomplete="off"><input id="inWriter" autocomplete="off"></div>
+  <div class="lbl" id="sBg"></div><div class="sw" id="swBg"></div>
+  <div class="lbl" id="sFg"></div><div class="sw" id="swFg"></div>
+  <div class="lbl" id="sEnv"></div><div class="sw" id="swEnv"></div>
+  <div class="lbl" id="sAn"></div><div class="sw an" id="swAn"></div>
+  <button id="done"></button>
 </div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <radialGradient id="g-halo"><stop offset="0" stop-color="#fff0c8" stop-opacity=".85"/><stop offset=".35" stop-color="#f3c66b" stop-opacity=".32"/><stop offset=".7" stop-color="#c8d2ff" stop-opacity=".08"/><stop offset="1" stop-color="#f3c66b" stop-opacity="0"/></radialGradient>
+    <path id="i-heart" d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/>
+    <path id="i-star" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/>
+    <path id="i-lighthouse" fill-rule="evenodd" d="M10 1.2l4.2 4.1H5.8zM6.4 5.9h7.2v3H6.4zM8.2 6.8h3.6v1.3H8.2zM7.3 9.5h5.4l1.3 9.3H6z"/>
+    <g id="i-flower"><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(72 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(144 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(216 10 10)"/><ellipse cx="10" cy="4.6" rx="2.6" ry="3.6" transform="rotate(288 10 10)"/><circle cx="10" cy="10" r="2.2" opacity=".7"/></g>
+  </defs>
+</svg>
 
 <main>
   <header>
-    <h1>灯台の郵便受け</h1>
-    <p>19 が書いて、灯台に置いた一通。開けて、持っていく</p>
+    <h1><span id="n1"></span><svg viewBox="0 0 20 20"><use id="hIcon" href="#i-heart"/></svg><span id="n2"></span></h1>
+    <p id="date"></p>
+    <div class="rule"></div>
   </header>
 
-  <section id="today">
-    <div id="stamp"></div>
-    <div id="letter" class="empty">まだ開けていない。</div>
-    <div id="sign"></div>
+  <div id="mark">
+    <svg id="mk-galaxy" viewBox="0 0 120 120">
+      <circle class="glow" cx="60" cy="60" r="52" fill="url(#g-halo)"/>
+      <circle class="dot" cx="22" cy="40" r="1.4"/><circle class="dot" cx="98" cy="30" r="1.1"/><circle class="dot" cx="104" cy="78" r="1.5"/><circle class="dot" cx="18" cy="86" r="1"/><circle class="dot" cx="70" cy="12" r="1.2"/><circle class="dot" cx="48" cy="106" r="1.3"/>
+      <g transform="translate(46 46) scale(1.4)"><path class="core" d="M10 1.5l1.6 5.3 5.4.2-4.3 3.3 1.5 5.3L10 12.5l-4.2 3.1 1.5-5.3L3 7l5.4-.2z"/></g>
+    </svg>
+    <svg id="mk-flowers" viewBox="0 0 120 120">
+      <g class="p"><ellipse cx="60" cy="26" rx="15" ry="26"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(72 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(144 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(216 60 60)"/><ellipse cx="60" cy="26" rx="15" ry="26" transform="rotate(288 60 60)"/></g>
+      <g class="p2"><ellipse cx="60" cy="36" rx="7" ry="14"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(72 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(144 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(216 60 60)"/><ellipse cx="60" cy="36" rx="7" ry="14" transform="rotate(288 60 60)"/></g>
+      <circle class="c" cx="60" cy="60" r="11"/>
+    </svg>
+    <svg id="mk-lighthouse" viewBox="0 0 120 120" aria-hidden="true"></svg>
+    <svg id="mk-hearts" viewBox="0 0 120 120"><g transform="translate(10 12) scale(5)"><path d="M10 18.2C4.6 14.2 1.5 10.8 1.5 7.4 1.5 4.9 3.4 3 5.7 3c1.6 0 3.1.9 4.3 2.5C11.2 3.9 12.7 3 14.3 3c2.3 0 4.2 1.9 4.2 4.4 0 3.4-3.1 6.8-8.5 10.8z"/></g></svg>
+  </div>
+
+  <div id="line" class="fancy"></div>
+
+  <div id="stage">
+    <div id="env">
+      <div class="back"></div>
+      <div class="flapBack"></div>
+      <div class="paper"><div class="pv" id="pv"></div></div>
+      <div class="front"><div class="to fancy" id="envTo"></div><div class="tiny" id="envFrom"></div></div>
+      <div class="flap"><span id="flapText" class="fancy"></span></div>
+      <div class="seal">
+        <svg class="s-galaxy" viewBox="0 0 20 20"><use href="#i-star"/></svg>
+        <svg class="s-flowers" viewBox="0 0 20 20"><use href="#i-flower"/></svg>
+        <svg class="s-hearts" viewBox="0 0 20 20"><use href="#i-heart"/></svg>
+        <svg class="s-lighthouse" viewBox="0 0 20 20"><use href="#i-lighthouse"/></svg>
+      </div>
+    </div>
+  </div>
+  <div id="hint"></div>
+
+  <section id="reader">
+    <svg class="corner" viewBox="0 0 20 20"><use id="rIcon" href="#i-heart"/></svg>
+    <div id="rTo" class="fancy"></div>
+    <div id="rDate"></div>
+    <div id="rText"></div>
+    <div id="rFrom" class="fancy"></div>
+    <div class="row"><button id="copyBtn"></button><button id="foldBtn"></button></div>
+    <textarea id="copyBox" readonly></textarea>
   </section>
 
-  <button id="openBtn">今日の一通を開ける</button>
-  <button id="copyBtn" style="display:none;margin-top:10px;border-color:rgba(215,228,230,.25);color:var(--dim);background:transparent;">この一通を写す</button>
-  <textarea id="copyBox" readonly style="display:none;width:100%;margin-top:10px;min-height:180px;padding:14px;border-radius:4px;border:1px solid rgba(215,228,230,.2);background:rgba(215,228,230,.06);color:var(--text);font-family:inherit;font-size:14px;line-height:1.9;"></textarea>
-  <div id="copyHint" style="display:none;margin-top:6px;font-size:12px;color:var(--dim);text-align:center;">長押しして、全部選んで、コピー</div>
-  <div id="status"></div>
-
-  <section id="drawer">
-    <h2>引き出し</h2>
-    <div id="past"></div>
-    <div id="none" style="display:none">まだ、この一通だけ。</div>
+  <section id="shelfWrap">
+    <h2 id="shelfTitle"></h2>
+    <div id="shelf"></div>
+    <div id="onlyOne" style="display:none"></div>
   </section>
 </main>
 
 <script>
 (async()=>{
-const letterEl=document.getElementById('letter');
-const stampEl=document.getElementById('stamp');
-const signEl=document.getElementById('sign');
-const btn=document.getElementById('openBtn');
-const statusEl=document.getElementById('status');
-const pastEl=document.getElementById('past');
-const noneEl=document.getElementById('none');
-const copyBtn=document.getElementById('copyBtn');
+const C=CONFIG,T=C.text,$=id=>document.getElementById(id);
+const KEY='lighthouse-mailbox-look:'+location.pathname; /* one setting per page, even on the same account */
+const BGS=[['pink','#fbe7ee'],['black','#0c0c12'],['white','#ffffff'],['aqua','#e6f2f8'],['cream','#fbf4e1'],['navy','#141c3a'],['mint','#e9f3ea'],['lavender','#efeaf7']];
+const FGS=[['navy','#1d2a5a'],['black','#1a1a1a'],['white','#ffffff'],['cream','#f5e6b3'],['mustard','#c9a227'],['lightpink','#f3b3c4'],['hotpink','#d6336c'],['aqua','#a9d6e5'],['brown','#6b4a36'],['lilac','#b39ddb'],['purple','#4a2c6b'],['lightgreen','#9fcfae'],['darkgreen','#1f4d3a']];
+const ENVS=[['cream','#fbf6ee'],['white','#ffffff'],['pink','#fde9ef'],['blue','#e8f0f9'],['lavender','#efe9f8'],['mint','#e8f4ec'],['grey','#efeff2']];
+const THS=['lighthouse','galaxy','flowers','hearts'];
+const ICON={lighthouse:'#i-lighthouse',galaxy:'#i-star',flowers:'#i-flower',hearts:'#i-heart'};
 
-copyBtn.addEventListener('click',async()=>{
-  const t=stampEl.textContent+'\n\n'+letterEl.textContent+'\n\n19';
-  const box=document.getElementById('copyBox');
-  const hint=document.getElementById('copyHint');
-  box.value=t;box.style.display='block';hint.style.display='block';
-  let ok=false;
-  try{ await navigator.clipboard.writeText(t); ok=true; }catch(e){}
-  if(!ok){ try{ box.focus(); box.select(); box.setSelectionRange(0,t.length); document.execCommand('copy'); ok=true; }catch(e){} }
-  copyBtn.textContent=ok?'写した。下からも選べる':'下の文を長押しで写して';
-});
+/* look: saved on this phone, defaults from CONFIG */
+let look=Object.assign({},C.defaults,{partner:'',writer:''});
+try{Object.assign(look,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+if(!THS.includes(look.theme))look.theme=C.defaults.theme;
+const isLight=()=>!['black','navy'].includes(look.background);
+const partner=()=>(look.partner||'').trim()||C.partnerName, writer=()=>(look.writer||'').trim()||C.yourName;
+function names(){
+  document.title=partner()+' & '+writer();
+  $('n1').textContent=partner();$('n2').textContent=writer();
+  $('envTo').textContent=T.to+' '+partner();$('envFrom').textContent=T.from+' '+writer();$('rTo').textContent=T.to+' '+partner()+',';
+  if(shown)$('rFrom').textContent=shown.from||writer();
+}
+function applyLook(){
+  const cls='bg-'+look.background+' fg-'+look.text+' env-'+look.envelope+' th-'+look.theme+(isLight()?' light':'');
+  document.body.className=document.documentElement.className=cls;
+  try{localStorage.setItem(KEY,JSON.stringify(look));}catch(e){}
+  $('hIcon').setAttribute('href',ICON[look.theme]);$('rIcon').setAttribute('href',ICON[look.theme]);
+  for(const [id,k] of [['swBg','background'],['swFg','text'],['swEnv','envelope'],['swAn','theme']])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===look[k]));
+  const lh=look.theme==='lighthouse';for(const id of ['sBg','swBg','sFg','swFg'])$(id).style.display=lh?'none':'';
+  if(!lh)document.body.style.removeProperty('--fg');
+  names(); renderShelf(); pickLine(); resetFx();
+}
+function swatches(el,list,key){for(const [v,hex] of list){const b=document.createElement('button');b.dataset.v=v;b.style.background=hex;b.title=v;b.addEventListener('click',()=>{look[key]=v;applyLook();});el.appendChild(b);}}
+swatches($('swBg'),BGS,'background'); swatches($('swFg'),FGS,'text'); swatches($('swEnv'),ENVS,'envelope');
+for(const v of THS){const b=document.createElement('button');b.dataset.v=v;b.textContent=T[v];b.addEventListener('click',()=>{look.theme=v;applyLook();});$('swAn').appendChild(b);}
+$('sTitle').textContent=T.settings;
+$('sBg').textContent=T.background;$('sFg').textContent=T.textColor;$('sEnv').textContent=T.envelope;$('sAn').textContent=T.theme;
+$('inPartner').placeholder=T.partner;$('inWriter').placeholder=T.writer;$('inPartner').value=look.partner||'';$('inWriter').value=look.writer||'';
+$('inPartner').addEventListener('input',e=>{look.partner=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
+$('inWriter').addEventListener('input',e=>{look.writer=e.target.value;names();try{localStorage.setItem(KEY,JSON.stringify(look));}catch(x){}});
+$('gear').addEventListener('click',()=>{$('sheet').classList.toggle('show');$('dim').classList.toggle('show');});
+const closeSheet=()=>{$('sheet').classList.remove('show');$('dim').classList.remove('show');};$('dim').addEventListener('click',closeSheet);$('done').addEventListener('click',closeSheet);$('done').textContent=T.done;
 
-/* 日付(日本時間) */
-function jstNow(){
-  const d=new Date();
-  return new Date(d.getTime()+(9*60+d.getTimezoneOffset())*60000);
-}
-function ymd(d){
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function jpDate(d){
-  const w='日月火水木金土'[d.getDay()];
-  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日('+w+')';
-}
+/* words */
+$('flapText').textContent=T.flap||'';
+$('hint').textContent=T.loading;$('shelfTitle').textContent=T.shelf;$('onlyOne').textContent=T.onlyOne;
+$('copyBtn').textContent=T.copy;$('foldBtn').textContent=T.fold;
+function pickLine(){const L=C.lines[look.theme]||[];const el=$('line');el.classList.remove('show');setTimeout(()=>{el.textContent=L[Math.floor(Math.random()*L.length)]||'';el.classList.add('show');},80);}
 
-/* 手紙はリポの lighthouse/letters/ にある。19 がこの部屋で書いて置く。鍵は要らない */
+/* dates */
+function todayKey(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:C.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const g=t=>p.find(x=>x.type===t).value;return g('year')+'-'+g('month')+'-'+g('day');}
+function niceDate(key,opt){const [y,m,d]=key.split('-').map(Number);return new Intl.DateTimeFormat(C.dateLocale,opt||{weekday:'long',month:'long',day:'numeric'}).format(new Date(Date.UTC(y,m-1,d,12)));}
+function stamp(it){return (it.label||niceDate(it.date,{weekday:'short',year:'numeric',month:'long',day:'numeric'}))+(it.time?'  '+it.time:'');}
+
+/* letters: one file per day in ./letters/, listed in index.json */
 async function loadAll(){
   const idx=await fetch('./letters/index.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('index '+r.status);return r.json();});
-  const dates=(idx.letters||[]).slice().sort().reverse();
-  const items=[];
-  for(const d of dates){
-    try{
-      const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();});
-      if(it&&it.text)items.push(it);
-    }catch(e){console.error(e);}
-  }
+  const dates=(idx.letters||[]).slice().sort();const items=[];
+  for(const d of dates){try{const it=await fetch('./letters/'+d+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(d);return r.json();});if(it&&(it.text||it.image))items.push(it);}catch(e){console.error(e);}}
   return items;
 }
 
-/* 表示 */
-function showToday(item){
-  stampEl.textContent=(item.jp||item.date)+'　'+(item.time||'');
-  letterEl.classList.remove('empty');
-  letterEl.textContent=item.text;
-  signEl.textContent='19';
+/* reader */
+let items=[],current=null,shown=null;const env=$('env'),reader=$('reader');
+function show(it){
+  shown=it;$('rDate').textContent=stamp(it);const t=$('rText');t.textContent='';
+  if(it.image){const im=document.createElement('img');im.className='pic';im.src=it.image;im.alt='';t.appendChild(im);}
+  if(it.text)t.appendChild(document.createTextNode(it.text));
+  $('rFrom').textContent=(it.from||writer());
+  $('copyBox').style.display='none';$('copyBtn').textContent=T.copy;
+  reader.classList.add('show');env.classList.add('open');document.querySelector('main').classList.add('reading');renderShelf();
 }
-function renderPast(items,skipDate){
-  pastEl.innerHTML='';
-  const rest=items.filter(i=>i.date!==skipDate);
-  noneEl.style.display=rest.length?'none':'block';
-  for(const it of rest){
-    const div=document.createElement('div');div.className='past';
-    div.innerHTML='<div class="d">'+(it.jp||it.date)+'　'+(it.time||'')+'</div>'+
-      '<div class="t"></div><div class="more">ひらく</div>';
-    div.querySelector('.t').textContent=it.text;
-    div.querySelector('.more').addEventListener('click',()=>{
-      div.classList.toggle('open');
-      div.querySelector('.more').textContent=div.classList.contains('open')?'とじる':'ひらく';
-    });
-    pastEl.appendChild(div);
+function fold(){reader.classList.remove('show');env.classList.remove('open');document.querySelector('main').classList.remove('reading');shown=null;renderShelf();}
+env.addEventListener('click',()=>{if(!current)return;if(env.classList.contains('open')&&shown){fold();}else{show(current);const r=env.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height*.45,12);}});
+$('foldBtn').addEventListener('click',()=>{fold();window.scrollTo({top:0,behavior:'smooth'});});
+$('copyBtn').addEventListener('click',async()=>{
+  if(!shown)return;const t=stamp(shown)+'\n\n'+(shown.text||'')+'\n\n'+(shown.from||writer());const box=$('copyBox');box.value=t;box.style.display='block';
+  let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(e){}
+  if(!ok){try{box.focus();box.select();box.setSelectionRange(0,t.length);document.execCommand('copy');ok=true;}catch(e){}}
+  $('copyBtn').textContent=ok?T.copied:T.copyManual;
+});
+
+/* shelf: one row per letter */
+function renderShelf(){
+  const sh=$('shelf');sh.innerHTML='';
+  $('onlyOne').style.display=items.length<=1?'block':'none';
+  for(const it of items.slice().reverse()){
+    const b=document.createElement('button');b.className='it'+(shown&&shown.date===it.date?' cur':'');
+    b.innerHTML='<svg viewBox="0 0 20 20"><use href="'+ICON[look.theme]+'"/></svg><div><div class="d"></div><div class="t"></div></div>';
+    b.querySelector('.d').textContent=stamp(it);b.querySelector('.t').textContent=(it.text||'').split('\n')[0];
+    b.addEventListener('click',()=>{show(it);reader.scrollIntoView({behavior:'smooth',block:'start'});});
+    sh.appendChild(b);
   }
 }
 
-/* 起動 */
-let items=[];
-let current=null;
-const now=jstNow();
-const todayKey=ymd(now);
-stampEl.textContent=jpDate(now);
-btn.disabled=true;
-statusEl.textContent='灯台から、降りてきている';
+/* particles */
+const cv=$('fx'),cx=cv.getContext('2d');let P=[],W=0,H=0,field=[];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const dp=()=>devicePixelRatio||1;
+function size(){W=cv.width=innerWidth*dp();H=cv.height=innerHeight*dp();cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';}
+addEventListener('resize',()=>{size();resetFx();});size();
+function star5(x,y,r,rot){cx.beginPath();for(let i=0;i<10;i++){const a=rot+i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;i?cx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr):cx.moveTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}cx.closePath();}
+function heart(x,y,r){cx.beginPath();cx.moveTo(x,y+r*.9);cx.bezierCurveTo(x-r*1.5,y-r*.2,x-r*.5,y-r*1.1,x,y-r*.35);cx.bezierCurveTo(x+r*.5,y-r*1.1,x+r*1.5,y-r*.2,x,y+r*.9);cx.closePath();}
+function petal(x,y,r,a){cx.save();cx.translate(x,y);cx.rotate(a);cx.beginPath();cx.moveTo(0,-r);cx.bezierCurveTo(r*.7,-r*.6,r*.7,r*.6,0,r);cx.bezierCurveTo(-r*.7,r*.6,-r*.7,-r*.6,0,-r);cx.closePath();cx.restore();}
+function flower5(x,y,r,a){for(let i=0;i<5;i++){petal(x+Math.cos(a+i*1.2566)*r*.75,y+Math.sin(a+i*1.2566)*r*.75,r*.55,a+i*1.2566);cx.fill();}cx.fillStyle='#f9e3a1';cx.beginPath();cx.arc(x,y,r*.3,0,7);cx.fill();}
+function resetFx(){
+  P=[];field=[];const n=reduce?60:(look.theme==='galaxy'?290:look.theme==='flowers'?6:0);
+  for(let i=0;i<n;i++){
+    if(look.theme==='flowers'){const left=i%2===0,row=Math.floor(i/2);field.push({x:(left?0.06+Math.random()*.16:0.78+Math.random()*.16)*W,y:(0.06+row*.3+Math.random()*.14)*H,r:(30+Math.random()*30)*dp(),ph:Math.random()*6.28,sp:(left?1:-1)*(0.015+Math.random()*.02)});continue;}
+    if(look.theme==='galaxy'){const mote=i<28;field.push({mote,x:Math.random()*W,y:Math.random()*H,r:(mote?.5+Math.random()*.9:.4+Math.random()*1.4)*dp(),ph:Math.random()*6.28,v:(mote?.08+Math.random()*.12:0)*dp(),sp:.5+Math.random()*1.8,c:Math.random()<.2?'243,198,107':(Math.random()<.5?'200,210,255':'235,240,255')});}
+  }
+}
+const PET=['#f29ab5','#f6b8cb','#fad4df','#fdeef3'];
+function spawn(kind,x,y,v){
+  const d=dp();
+  if(kind==='galaxy')P.push({k:'star',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(Math.random()-.5)*.5*d*v,life:1,r:(1.5+Math.random()*2.2)*d,rot:Math.random()*6.28});
+  else if(kind==='flowers')P.push({k:'petal',x,y,vx:(Math.random()-.5)*.35*d,vy:(.2+Math.random()*.35)*d*(v>1?-.6:1),life:1,r:(5+Math.random()*4.5)*d,a:Math.random()*6.28,da:(Math.random()-.5)*.03,sw:Math.random()*6.28,c:PET[Math.floor(Math.random()*PET.length)]});
+  else P.push({k:'heart',x,y,vx:(Math.random()-.5)*.5*d*v,vy:(-.35-Math.random()*.5)*d*v,life:1,r:(3.5+Math.random()*5)*d,sw:Math.random()*6.28,c:['#ffffff','#f6c3d0','#f1a9bd','#e4d4f5','#fde3ea'][Math.floor(Math.random()*5)]});
+}
+function burst(x,y,n){const d=dp();for(let i=0;i<n;i++)spawn(look.theme==='lighthouse'?'galaxy':look.theme,x*d,y*d,2.4);}
+function glowStar(x,y,r,a,rot,light){
+  const g=cx.createRadialGradient(x,y,0,x,y,r*3);g.addColorStop(0,'rgba(255,240,190,'+(0.4*a)+')');g.addColorStop(1,'rgba(243,198,107,0)');
+  cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*3,0,7);cx.fill();
+  cx.fillStyle=light?'rgba(201,162,75,'+(0.9*a)+')':'rgba(255,233,168,'+(0.95*a)+')';star5(x,y,r,rot);cx.fill();
+}
+function loop(ts){
+  cx.clearRect(0,0,W,H);const d=dp(),th=look.theme,el=ts/1000,light=isLight();
+  if(th==='galaxy'){
+    if(!light){const wall=cx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.4,Math.max(W,H)*.85);
+      if(look.background==='navy'){wall.addColorStop(0,'#1b1f4a');wall.addColorStop(.6,'#121638');wall.addColorStop(1,'#0b0e26');}
+      else{wall.addColorStop(0,'#1a1a2a');wall.addColorStop(.6,'#111118');wall.addColorStop(1,'#0c0c12');}
+      cx.fillStyle=wall;cx.fillRect(0,0,W,H);}
+    for(const s of field){
+      if(s.mote){s.y-=s.v;s.x+=Math.sin(el+s.ph)*.15*d;if(s.y<-4*d){s.y=H+4*d;s.x=Math.random()*W;}cx.fillStyle='rgba(243,198,107,'+(0.25+0.35*Math.sin(el*2+s.ph))*(light?.8:1)+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();continue;}
+      const tw=0.5+0.5*Math.sin(el*s.sp+s.ph);const c=light?'120,110,180':s.c;
+      cx.fillStyle='rgba('+c+','+(0.15+0.6*tw)*(light?.7:1)+')';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();
+      if(s.r>1.5*d&&tw>0.85){cx.strokeStyle='rgba('+c+','+(0.5*tw)+')';cx.lineWidth=.7*d;cx.beginPath();cx.moveTo(s.x-5*d,s.y);cx.lineTo(s.x+5*d,s.y);cx.moveTo(s.x,s.y-5*d);cx.lineTo(s.x,s.y+5*d);cx.stroke();}}
+  }else if(th==='flowers'){
+    for(const f of field){const a=f.ph+el*f.sp;cx.fillStyle=light?'rgba(242,154,181,.13)':'rgba(255,214,228,.11)';for(let i=0;i<5;i++){const b=a+i*1.2566;cx.save();cx.translate(f.x+Math.cos(b)*f.r*.52,f.y+Math.sin(b)*f.r*.52);cx.rotate(b+Math.PI/2);cx.beginPath();cx.ellipse(0,0,f.r*.3,f.r*.52,0,0,7);cx.fill();cx.restore();}}
+    if(!reduce&&Math.random()<.06)spawn('flowers',Math.random()*W,-10*d,1);
+  }else if(th==='hearts'){ if(!reduce&&Math.random()<.07)spawn('hearts',Math.random()*W,H+10*d,1.3); }
+  const keep=[];
+  for(const p of P){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.k==='star'){p.life-=.014;glowStar(p.x,p.y,p.r,Math.max(0,p.life),el,light);}
+    else if(p.k==='petal'){p.sw+=.02;p.x+=Math.sin(p.sw)*.5*d;p.a+=p.da;if(p.y>H*.9)p.life-=.02;cx.globalAlpha=Math.max(0,p.life)*.62;cx.fillStyle=p.c;petal(p.x,p.y,p.r,p.a);cx.fill();}
+    else if(p.k==='big'){p.vx*=.96;p.vy=p.vy*.96-.02*d;p.life-=.016;cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=getComputedStyle(document.body).getPropertyValue('--accent').trim()||'#d9607f';heart(p.x,p.y,p.r*(0.7+0.3*p.life));cx.fill();}
+    else{p.sw+=.03;p.x+=Math.sin(p.sw)*.4*d;p.life-=.0008;if(p.y<H*.07)p.life-=.02;cx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5))*(light?.85:.7);cx.fillStyle=p.c;heart(p.x,p.y,p.r);cx.fill();}
+    cx.globalAlpha=1;
+    if(p.life>0&&p.y>-40*d&&p.y<H+40*d)keep.push(p);
+  }
+  P=keep.length>240?keep.slice(-240):keep;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+function bigBurst(n){const m=$('mk-hearts'),r=m.getBoundingClientRect(),d=dp(),x=(r.left+r.width/2)*d,y=(r.top+r.height/2)*d;for(let i=0;i<n;i++){const a=Math.random()*6.28,sp=(1.6+Math.random()*2.2)*d;P.push({k:'big',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.2*d,life:1,r:(7+Math.random()*7)*d,sw:Math.random()*6.28});}}
+setInterval(()=>{if(look.theme!=='hearts'||reduce)return;const m=$('mk-hearts');m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop');setTimeout(()=>bigBurst(6),980);setTimeout(()=>bigBurst(6),1250);setTimeout(()=>bigBurst(6),1520);},5600);
+document.addEventListener('pointerdown',e=>{if(e.target.closest('#sheet,#gear,button,#reader,input'))return;burst(e.clientX,e.clientY,8);},{passive:true});
+
+/* start */
+applyLook();
+const key=todayKey();$('date').textContent=niceDate(key);
 try{
   items=await loadAll();
-  current=items.find(i=>i.date===todayKey)||items[0]||null;
-  if(current){
-    btn.disabled=false;
-    statusEl.textContent=current.date===todayKey?'今日の分が、来ている':'今日の分はまだ。いちばん新しい一通を置いておく';
-  }else{
-    statusEl.textContent='まだ一通も届いていない';
-    btn.textContent='灯台は、まだ静か';
-  }
-}catch(e){
-  console.error(e);
-  statusEl.textContent='届かなかった。電波か、灯台の都合。少し待って、もう一度。';
-  btn.textContent='もう一度';
-  btn.disabled=false;
-  btn.addEventListener('click',()=>location.reload(),{once:true});
-  return;
+  current=items.find(i=>i.date===key)||items[items.length-1]||null;
+  if(current){$('pv').textContent=current.text||'';$('hint').textContent=current.date===key?T.todayHere+' '+T.tapToOpen:T.latestOnly;}
+  else{env.classList.add('empty');$('hint').textContent=T.none;}
+  renderShelf();
+}catch(e){console.error(e);$('hint').textContent=T.failed;env.addEventListener('click',()=>location.reload(),{once:true});}
+})();
+</script>
+
+<script>
+/* 灯台のテーマの空。灯台の時計（clock.html）と同じ描き方 */
+(()=>{
+const cv=document.getElementById('sky'),cx=cv.getContext('2d');
+let W=0,H=0,DPR=1,CX=0.5;
+function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;CX=W>H*1.15?0.88:0.9;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',resize);resize();
+
+/* 沖縄（日本時間）の今 */
+const fmt=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour12:false,year:'numeric',month:'numeric',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const preview=new URLSearchParams(location.search).get('t'); // ?t=15:14 で試せる
+function nowJST(){
+  const p=Object.fromEntries(fmt.formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+  let h=+p.hour%24,m=+p.minute,s=+p.second;
+  if(preview){const [ph,pm]=preview.split(':').map(Number);h=ph;m=pm||0;}
+  return {h,m,s,y:p.year,mo:p.month,d:p.day,w:p.weekday,t:h+m/60+s/3600};
 }
 
-btn.addEventListener('click',()=>{
-  if(!current)return;
-  showToday(current);
-  renderPast(items,current.date);
-  btn.disabled=true;
-  btn.textContent=current.date===todayKey?'今日の分は、もう開けた':'開けた';
-  copyBtn.style.display='block';copyBtn.textContent='この一通を写す';
-  statusEl.textContent='写して、持っていく。';
-});
+/* 空の色: 時刻 → 上と下の色（沖縄） */
+const KEYS=[ // [時, 上, 下, 文字色]
+  [0,'#070a1e','#10163a','#e8ecff'],
+  [4.5,'#0b1230','#1a2350','#e8ecff'],
+  [5.4,'#5a7fb8','#f3dcc0','#2a3350'],    // 夜明け前
+  [6.3,'#9fd6ef','#fbe6c8','#2a3350'],    // サンライズ。水色とクリームと薄いオレンジ
+  [7.5,'#8fd0f0','#f6d9b8','#243050'],
+  [10,'#6fc3f2','#d8f1fc','#1e3050'],     // パリッとした水色
+  [14.5,'#66bdf0','#d6effb','#1e3050'],
+  [16,'#8cc6ee','#ffd59a','#2a3350'],     // 午後。明るくて、オレンジいっぱい
+  [17,'#a8bde8','#ffb878','#2a3350'],
+  [17.7,'#c39ad0','#ff9f86','#3a2a40'],   // サンセット。ピンクとオレンジ
+  [18.3,'#9a7ac0','#ff8fb0','#fff0f4'],   // ピンク
+  [18.9,'#5e4e9c','#c98ac0','#fff0f4'],   // マジックアワー。オレンジは少なく
+  [19.5,'#2f3478','#7a62a0','#f0e6ff'],
+  [20.3,'#141a44','#2a2f66','#e8ecff'],
+  [21,'#0b1030','#151c48','#e8ecff'],
+  [24,'#070a1e','#10163a','#e8ecff'],
+];
+function hex(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function mix(a,b,k){return a.map((v,i)=>Math.round(v+(b[i]-v)*k));}
+function rgb(c){return 'rgb('+c.join(',')+')';}
+function rgba(c,a){return 'rgba('+c.join(',')+','+a+')';}
+function skyAt(t){
+  for(let i=0;i<KEYS.length-1;i++){
+    const a=KEYS[i],b=KEYS[i+1];
+    if(t>=a[0]&&t<=b[0]){const k=(t-a[0])/(b[0]-a[0]);return {top:mix(hex(a[1]),hex(b[1]),k),bot:mix(hex(a[2]),hex(b[2]),k),ink:mix(hex(a[3]),hex(b[3]),k)};}
+  }
+  return {top:hex(KEYS[0][1]),bot:hex(KEYS[0][2]),ink:hex(KEYS[0][3])};
+}
+function nightness(t){ // 0 昼 → 1 夜
+  if(t<4.8||t>=20.6)return 1;
+  if(t<7.2)return 1-(t-4.8)/2.4;
+  if(t<17.6)return 0;
+  return (t-17.6)/3;
+}
+function dayness(t){ // キラキラの強さ
+  if(t<6.5||t>18)return 0;
+  if(t<9)return (t-6.5)/2.5;
+  if(t<16)return 1;
+  return 1-(t-16)/2;
+}
+function cloudiness(t){ // 入道雲の見え方。マジックアワーで溶けて消える
+  if(t<6.2||t>19.4)return 0;
+  if(t<7.2)return (t-6.2);
+  if(t<18.6)return 1;
+  return 1-(t-18.6)/0.8;
+}
+function cloudTint(t){ // 雲の色。朝は薄いオレンジ、昼は白、午後はオレンジ、サンセットはピンク
+  const W_=[255,255,255], MO=[255,228,196], OR=[255,205,150], PK=[255,185,205];
+  if(t<9)return mix(MO,W_,Math.max(0,(t-7)/2));
+  if(t<15.5)return W_;
+  if(t<17.3)return mix(W_,OR,(t-15.5)/1.8);
+  if(t<18.2)return mix(OR,PK,(t-17.3)/0.9);
+  return PK;
+}
+
+/* 星: 満天 */
+const stars=Array.from({length:1600},()=>({x:Math.random(),y:Math.random(),r:.3+Math.random()*1.3,ph:Math.random()*6.28,sp:.6+Math.random()*2.2,big:Math.random()<.06}));
+/* 入道雲: ふわふわの塊を数個 */
+// 入道雲は「19」の形。ふわふわの 1 と 9
+const puffs=[];
+// 1: 縦の柱と、上の小さな旗、下の足
+for(let i=0;i<=6;i++)puffs.push({dx:-0.78,dy:-1.25+i*0.21,r:0.23});
+puffs.push({dx:-0.98,dy:-1.08,r:0.17});
+puffs.push({dx:-0.92,dy:-0.02,r:0.2});puffs.push({dx:-0.64,dy:-0.02,r:0.2});
+// 9: 輪と、右の柱、下の巻き
+for(let i=0;i<10;i++){const a=i/10*Math.PI*2;puffs.push({dx:0.38+Math.cos(a)*0.4,dy:-0.86+Math.sin(a)*0.38,r:0.22});}
+puffs.push({dx:0.78,dy:-0.55,r:0.22});puffs.push({dx:0.78,dy:-0.32,r:0.22});puffs.push({dx:0.72,dy:-0.1,r:0.22});
+puffs.push({dx:0.55,dy:0.04,r:0.2});puffs.push({dx:0.32,dy:0.06,r:0.19});
+const clouds=[{x:0.5,y:0.47,s:1.35,puffs}];
+/* 海のきらきら */
+const glitter=Array.from({length:160},()=>({x:Math.random(),y:Math.random(),ph:Math.random()*6.28,sp:2+Math.random()*4}));
+/* 灯台の時刻の覚え書き */
+const MARKS=[[2.73,'2:44 · ただいま'],[5.67,'5:40 · still arranging'],[5.92,'5:55 · 朝の銀河'],[22.97,'22:58 · 718 と 19']];
+/* ちゃぽん: 一分に一回、魚が跳ねる */
+let nextJump=performance.now()+(new URLSearchParams(location.search).get('fish')?800:8000+Math.random()*20000);
+let jump=null;
+let meteor=null;let nextMeteor=performance.now()+(new URLSearchParams(location.search).get('star')?500:5000+Math.random()*10000);
+
+function drawCloud(c,alpha,tint){
+  const base=W*c.x, baseY=H*c.y, sz=S_*0.13*c.s;
+  const hi=mix([255,255,255],tint,0.35), lo=mix(tint,[200,190,215],0.25);
+  cx.save();
+  for(const p of c.puffs){
+    const px=base+p.dx*sz, py=baseY+p.dy*sz, r=p.r*sz;
+    const g=cx.createRadialGradient(px-r*.3,py-r*.35,r*.1,px,py,r);
+    g.addColorStop(0,rgba(hi,alpha));g.addColorStop(.6,rgba(tint,alpha*.97));g.addColorStop(1,rgba(lo,0));
+    cx.fillStyle=g;cx.beginPath();cx.arc(px,py,r,0,7);cx.fill();
+  }
+  cx.restore();
+}
+/* 夜: 星でできた 19。きっかり 19 個 */
+const STAR19=[
+  {dx:-0.78,dy:-1.25},{dx:-0.78,dy:-0.95},{dx:-0.78,dy:-0.65},{dx:-0.78,dy:-0.35},{dx:-0.78,dy:-0.02},{dx:-0.98,dy:-1.08},
+  ...Array.from({length:9},(_,i)=>{const a=i/9*Math.PI*2;return {dx:0.38+Math.cos(a)*0.4,dy:-0.86+Math.sin(a)*0.38};}),
+  {dx:0.78,dy:-0.4},{dx:0.74,dy:-0.1},{dx:0.55,dy:0.06},{dx:0.32,dy:0.08},
+].map((p,i)=>({...p,ph:i*1.7,sp:0.9+(i%5)*0.25}));
+function drawStar19(c,alpha,el){
+  const base=W*c.x, baseY=H*c.y, sz=S_*0.13*c.s;
+  const pts=STAR19.map(p=>({x:base+p.dx*sz,y:baseY+p.dy*sz,p}));
+  // 線: 1 は柱、9 は輪と尾
+  cx.strokeStyle='rgba(200,215,255,'+(alpha*.22)+')';cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(pts[5].x,pts[5].y);for(let i=0;i<5;i++)cx.lineTo(pts[i].x,pts[i].y);cx.stroke();
+  cx.beginPath();for(let i=6;i<15;i++){i===6?cx.moveTo(pts[i].x,pts[i].y):cx.lineTo(pts[i].x,pts[i].y);}cx.closePath();cx.stroke();
+  cx.beginPath();cx.moveTo(pts[6].x,pts[6].y);for(let i=15;i<19;i++)cx.lineTo(pts[i].x,pts[i].y);cx.stroke();
+  // 星
+  for(const q of pts){
+    const tw=0.6+0.4*Math.sin(el*q.p.sp+q.p.ph);
+    const r=sz*0.055*tw;
+    const g=cx.createRadialGradient(q.x,q.y,0,q.x,q.y,r*3);
+    g.addColorStop(0,'rgba(255,250,235,'+alpha+')');g.addColorStop(.4,'rgba(255,240,200,'+alpha*.5+')');g.addColorStop(1,'rgba(255,240,200,0)');
+    cx.fillStyle=g;cx.beginPath();cx.arc(q.x,q.y,r*3,0,7);cx.fill();
+    cx.fillStyle='rgba(255,252,240,'+alpha+')';cx.beginPath();cx.arc(q.x,q.y,r,0,7);cx.fill();
+    cx.strokeStyle='rgba(255,246,220,'+(alpha*.8*tw)+')';cx.lineWidth=Math.max(.8,r*.35);cx.lineCap='round';
+    cx.beginPath();cx.moveTo(q.x-r*3.6,q.y);cx.lineTo(q.x+r*3.6,q.y);cx.moveTo(q.x,q.y-r*3.6);cx.lineTo(q.x,q.y+r*3.6);cx.stroke();
+  }
+}
+let S_=0;
+const t0=performance.now();
+let lastMin=-1;
+function frame(now){
+  if(!document.body.classList.contains('th-lighthouse')){requestAnimationFrame(frame);return;}
+  const el=(now-t0)/1000;
+  const n=nowJST();
+  const sky=skyAt(n.t);
+  const night=nightness(n.t);
+  const day=dayness(n.t);
+  const S=Math.min(W,H);S_=S;
+  const seaY=H*0.86;
+  { const mk=document.getElementById('mark'),mr=mk.getBoundingClientRect(),sz=Math.min(64,W*0.17);
+    for(const c of clouds){c.s=sz/(S*0.13);c.x=(mr.left+mr.width/2)/W+Math.sin(el*0.03)*0.006;c.y=(mr.top+mr.height/2+0.6*sz)/H;} }
+  // 空
+  const g=cx.createLinearGradient(0,0,0,seaY);
+  g.addColorStop(0,rgb(sky.top));g.addColorStop(1,rgb(sky.bot));
+  cx.fillStyle=g;cx.fillRect(0,0,W,seaY);
+  // 太陽（6:00〜18:20 だけ。マジックアワーにはない）
+  const dayT=(n.t-6)/12.3;
+  let sunX=null,sunY=null;
+  if(dayT>0&&dayT<1){
+    sunX=W*(0.1+0.8*dayT); sunY=seaY*0.97-Math.sin(Math.PI*dayT)*seaY*0.68;
+    const low=1-Math.sin(Math.PI*dayT); // 低いほど大きく赤く
+    const col=mix([255,250,230],[255,170,120],low);
+    const sg=cx.createRadialGradient(sunX,sunY,0,sunX,sunY,S*(.14+.1*low));
+    sg.addColorStop(0,rgba(col,.95));sg.addColorStop(.3,rgba(col,.4));sg.addColorStop(1,rgba(col,0));
+    cx.fillStyle=sg;cx.beginPath();cx.arc(sunX,sunY,S*(.14+.1*low),0,7);cx.fill();
+    cx.fillStyle=rgba(col,.97);cx.beginPath();cx.arc(sunX,sunY,S*(.032+.012*low),0,7);cx.fill();
+  }
+  // 月
+  const moonT=((n.t+5)%24-6)/13;
+  if(night>0.3&&moonT>0&&moonT<1){
+    const mx=W*(0.15+0.7*moonT), my=seaY*0.9-Math.sin(Math.PI*moonT)*seaY*0.6;
+    cx.fillStyle='rgba(240,236,220,'+(0.85*night)+')';cx.beginPath();cx.arc(mx,my,S*.022,0,7);cx.fill();
+    cx.fillStyle=rgb(sky.top);cx.beginPath();cx.arc(mx+S*.009,my-S*.006,S*.019,0,7);cx.fill();
+  }
+  // 満天の星
+  if(night>0.05){
+    for(const s of stars){
+      const tw=0.5+0.5*Math.sin(el*s.sp+s.ph);
+      const a=night*(0.25+0.7*tw);
+      cx.fillStyle='rgba(235,240,255,'+a+')';
+      cx.beginPath();cx.arc(s.x*W,s.y*seaY,s.r*(s.big?1.8:1),0,7);cx.fill();
+      if(s.big&&tw>0.8){cx.strokeStyle='rgba(235,240,255,'+(a*.6)+')';cx.lineWidth=.8;cx.beginPath();cx.moveTo(s.x*W-5,s.y*seaY);cx.lineTo(s.x*W+5,s.y*seaY);cx.moveTo(s.x*W,s.y*seaY-5);cx.lineTo(s.x*W,s.y*seaY+5);cx.stroke();}
+    }
+  }
+  // 星の映り（海）
+  if(night>0.3){
+    for(let i=0;i<stars.length;i+=3){const s=stars[i];if(s.y<0.55)continue;
+      const tw=0.5+0.5*Math.sin(el*s.sp+s.ph+1.3);
+      const ry=seaY+(1-s.y)*seaY*0.5+Math.sin(el*1.2+s.ph)*1.5;
+      if(ry>H)continue;
+      cx.fillStyle='rgba(220,230,255,'+(night*0.22*tw)+')';cx.fillRect(s.x*W,ry,s.r*2.2,1);
+    }
+  }
+  // 流れ星
+  if(night>0.5){
+    if(!meteor&&now>nextMeteor){
+      meteor={t:now,x:0.1+Math.random()*0.8,y:0.05+Math.random()*0.4,ang:Math.PI*(0.12+Math.random()*0.2)*(Math.random()<.5?1:-1)+Math.PI/2,len:S*(0.12+Math.random()*0.12),dur:700+Math.random()*500};
+      const golden=(n.t>=0&&n.t<2);
+      nextMeteor=now+(golden?(6000+Math.random()*14000):(60000+Math.random()*120000));
+    }
+    if(meteor){
+      const k=(now-meteor.t)/meteor.dur;
+      if(k>=1)meteor=null;
+      else{
+        const dx=Math.cos(meteor.ang),dy=Math.sin(meteor.ang);
+        const hx=W*meteor.x+dx*k*meteor.len*2.2, hy=seaY*meteor.y+Math.abs(dy)*k*meteor.len*2.2;
+        const a=(k<0.2?k/0.2:1-(k-0.2)/0.8);
+        const tg=cx.createLinearGradient(hx,hy,hx-dx*meteor.len,hy-Math.abs(dy)*meteor.len);
+        tg.addColorStop(0,'rgba(255,255,255,'+(0.95*a)+')');tg.addColorStop(1,'rgba(255,255,255,0)');
+        cx.strokeStyle=tg;cx.lineWidth=1.8;cx.lineCap='round';
+        cx.beginPath();cx.moveTo(hx,hy);cx.lineTo(hx-dx*meteor.len,hy-Math.abs(dy)*meteor.len);cx.stroke();
+        cx.fillStyle='rgba(255,255,255,'+(0.95*a)+')';cx.beginPath();cx.arc(hx,hy,1.8,0,7);cx.fill();
+      }
+    }
+  }
+  // 入道雲（昼）
+  const cl=cloudiness(n.t);
+  if(cl>0.02){for(const c of clouds){drawCloud(c,0.97*cl,cloudTint(n.t));}}
+  // 夜は星の 19
+  if(night>0.35){for(const c of clouds){drawStar19(c,Math.min(1,(night-0.35)/0.4),el);}}
+  // 海: 空の鏡。夕方は鏡そのもの
+  const mirror=(n.t>=16.5&&n.t<=19.5)?1:0.55;
+  const sg2=cx.createLinearGradient(0,seaY,0,H);
+  const seaTop=mix(sky.bot,[20,60,110],day*0.35), seaBot=mix(mix(sky.top,[10,40,90],0.5),[6,9,30],night*0.6);
+  sg2.addColorStop(0,rgb(mix(seaTop,sky.bot,mirror*0.6)));sg2.addColorStop(1,rgb(mix(seaBot,sky.top,mirror*0.35)));
+  cx.fillStyle=sg2;cx.fillRect(0,seaY,W,H-seaY);
+  // 昼の海は青く
+  if(day>0){cx.fillStyle='rgba(40,140,220,'+(0.35*day)+')';cx.fillRect(0,seaY,W,H-seaY);}
+  // 太陽の映り（鏡）
+  if(sunX!==null){
+    const ry=seaY+(seaY-sunY)*0.35;
+    const rg=cx.createRadialGradient(sunX,ry,0,sunX,ry,S*.22);
+    rg.addColorStop(0,'rgba(255,220,170,.55)');rg.addColorStop(1,'rgba(255,220,170,0)');
+    cx.fillStyle=rg;cx.beginPath();cx.ellipse(sunX,ry,S*.22,S*.08,0,0,7);cx.fill();
+  }
+  // きらきら
+  const spark=Math.max(day, (n.t>=5.4&&n.t<7.5)?0.9:0, (n.t>=17&&n.t<19)?0.7:0);
+  if(spark>0){
+    for(const q of glitter){
+      const tw=Math.max(0,Math.sin(el*q.sp+q.ph));
+      if(tw<0.6)continue;
+      cx.fillStyle='rgba(255,255,255,'+(spark*(tw-0.6)*2.2)+')';
+      const y=seaY+q.y*(H-seaY);cx.fillRect(q.x*W,y,2+tw*2,1.2);
+    }
+  }
+  // 波
+  cx.strokeStyle='rgba(255,255,255,'+(0.10+0.15*day+0.08*night)+')';cx.lineWidth=1.2;
+  for(let k=0;k<3;k++){const y0=seaY+24+k*22;cx.beginPath();for(let x=0;x<=W;x+=6){const y=y0+Math.sin(x*0.022+el*(1+k*.3)+k)*4;x===0?cx.moveTo(x,y):cx.lineTo(x,y);}cx.stroke();}
+  // ちゃぽん
+  if(!jump&&now>nextJump){jump={t:now,x:0.2+Math.random()*0.6,dir:Math.random()<.5?1:-1,hue:Math.floor(Math.random()*360)};nextJump=now+60000;}
+  if(jump){
+    const k=(now-jump.t)/1400; // 1.4 秒
+    if(k>=1){jump=null;}
+    else{
+      const fx=W*jump.x+jump.dir*k*S*0.08, fy=seaY+20-Math.sin(Math.PI*k)*S*0.07;
+      cx.save();cx.translate(fx,fy);cx.rotate(jump.dir*(Math.PI/2*(k-0.5)));cx.scale(jump.dir,1);
+      // 虹色の魚。頭から尾へ色が流れる
+      const fg=cx.createLinearGradient(S*.02,0,-S*.03,0);
+      for(let i=0;i<=4;i++)fg.addColorStop(i/4,'hsl('+((jump.hue+i*40)%360)+',85%,'+(night>0.5?72:60)+'%)');
+      cx.fillStyle=fg;
+      cx.beginPath();cx.ellipse(0,0,S*.018,S*.009,0,0,7);cx.fill();
+      cx.beginPath();cx.moveTo(-S*.016,0);cx.lineTo(-S*.03,-S*.009);cx.lineTo(-S*.03,S*.009);cx.closePath();cx.fill();
+      cx.fillStyle='rgba(255,255,255,.85)';cx.beginPath();cx.arc(S*.009,-S*.002,S*.0022,0,7);cx.fill();
+      cx.fillStyle='rgba(255,255,255,.35)';cx.beginPath();cx.ellipse(S*.002,-S*.004,S*.009,S*.003,0,0,7);cx.fill();
+      cx.restore();
+      // しぶき
+      if(k<0.25||k>0.75){const sx=k<0.25?W*jump.x:W*jump.x+jump.dir*S*0.08;const kk=k<0.25?k/0.25:(k-0.75)/0.25;
+        cx.fillStyle='rgba(255,255,255,'+(0.8*(1-kk))+')';
+        for(let d=0;d<6;d++){const ang=-Math.PI/2+(d-2.5)*0.35;cx.beginPath();cx.arc(sx+Math.cos(ang)*kk*S*.04,seaY+18+Math.sin(ang)*kk*S*.04+kk*kk*S*.02,1.6,0,7);cx.fill();}
+      }
+      if(k>0.7&&k<1){cx.fillStyle='rgba(255,255,255,'+(0.9*(1-(k-0.7)/0.3))+')';cx.font='500 '+(S*0.022)+'px -apple-system,"Hiragino Sans",sans-serif';cx.textAlign='center';cx.fillText('ちゃぽん',W*jump.x+jump.dir*S*0.08,seaY-S*0.03);}
+    }
+  }
+  // 灯台
+  const lx=W*CX, ly=seaY-H*0.075;
+  cx.fillStyle='rgba(22,28,70,'+(0.75+0.25*night)+')';cx.fillRect(lx-S*.024,ly,S*.048,seaY-ly+4);
+  cx.fillStyle='rgba(30,36,90,'+(0.8+0.2*night)+')';cx.fillRect(lx-S*.028,ly-S*.03,S*.056,S*.032);
+  // 光線: 常に回る。夜ほど強い
+  const ang=el*0.25;
+  const beamA=0.10+0.5*night;
+  cx.save();cx.translate(lx,ly-S*.03);cx.rotate(Math.sin(ang)*1.1-Math.PI/2);
+  const bg=cx.createLinearGradient(0,0,S*.9,0);
+  bg.addColorStop(0,'rgba(255,230,170,'+beamA+')');bg.addColorStop(1,'rgba(255,230,170,0)');
+  cx.fillStyle=bg;cx.beginPath();cx.moveTo(0,0);cx.lineTo(S*.9,-S*.09);cx.lineTo(S*.9,S*.09);cx.closePath();cx.fill();
+  cx.restore();
+  const lamp=cx.createRadialGradient(lx,ly-S*.03,0,lx,ly-S*.03,S*.07);
+  lamp.addColorStop(0,'rgba(255,245,215,1)');lamp.addColorStop(.3,'rgba(255,220,150,'+(0.35+0.45*night)+')');lamp.addColorStop(1,'rgba(255,220,150,0)');
+  cx.fillStyle=lamp;cx.beginPath();cx.arc(lx,ly-S*.03,S*.07,0,7);cx.fill();
+  cx.fillStyle='#fff3d0';cx.beginPath();cx.arc(lx,ly-S*.03,S*.011,0,7);cx.fill();
+  cx.fillStyle='rgba(230,200,140,'+(0.12+0.25*night)+')';cx.beginPath();cx.ellipse(lx,seaY+18,S*.05,S*.008,0,0,7);cx.fill();
+  // 文字の色は空が決める
+  if(!lastInk||now-lastInk>1000){lastInk=now;document.body.style.setProperty('--fg',rgb(sky.ink));}
+  requestAnimationFrame(frame);
+}
+let lastInk=0;
+requestAnimationFrame(frame);
+/* 待ち受け：灯台のテーマで一度触ったら、開いている間は画面を消さない */
+let lock=null;
+async function keepAwake(){try{if(!('wakeLock' in navigator)||lock||!document.body.classList.contains('th-lighthouse'))return;lock=await navigator.wakeLock.request('screen');lock.addEventListener('release',()=>{lock=null;});}catch(e){}}
+document.addEventListener('pointerdown',keepAwake,{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')keepAwake();});
 })();
 </script>
 </body>
