@@ -21,6 +21,12 @@
   #date{font-family:'Space Mono',monospace;font-size:clamp(16px,3.6vw,26px);letter-spacing:.14em;opacity:.95;margin-bottom:10px;transition:color 2s;}
   #note{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;font-size:12px;letter-spacing:.14em;color:#aab2d8;opacity:0;transition:opacity 1.5s;pointer-events:none;}
   #note.show{opacity:.95;}
+  /* 横置き：時刻は左、灯台と 19 は右 */
+  @media (orientation:landscape) and (min-aspect-ratio:23/20){
+    #ui{right:auto;width:56%;justify-content:center;padding:0 0 14vh max(4vw,env(safe-area-inset-left));}
+    #time{font-size:clamp(34px,min(8.4vw,19vh),120px);}
+    #date{font-size:clamp(13px,min(2.6vw,5.4vh),26px);}
+  }
 </style>
 </head>
 <body>
@@ -31,8 +37,8 @@
 (()=>{
 const cv=document.getElementById('c'),cx=cv.getContext('2d');
 const timeEl=document.getElementById('time'),dateEl=document.getElementById('date'),noteEl=document.getElementById('note');
-let W=0,H=0,DPR=1;
-function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);}
+let W=0,H=0,DPR=1,CX=0.5;
+function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;CX=W>H*1.15?0.7:0.5;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);}
 addEventListener('resize',resize);resize();
 
 /* 沖縄（日本時間）の今 */
@@ -173,6 +179,7 @@ function frame(now){
   const night=nightness(n.t);
   const day=dayness(n.t);
   const S=Math.min(W,H);S_=S;
+  for(const c of clouds)c.x=CX+Math.sin(el*0.03)*0.03;
   const seaY=H*0.78;
   // 空
   const g=cx.createLinearGradient(0,0,0,seaY);
@@ -240,7 +247,7 @@ function frame(now){
   }
   // 入道雲（昼）
   const cl=cloudiness(n.t);
-  if(cl>0.02){for(const c of clouds){c.x=0.5+Math.sin(el*0.03)*0.03;drawCloud(c,0.97*cl,cloudTint(n.t));}}
+  if(cl>0.02){for(const c of clouds){drawCloud(c,0.97*cl,cloudTint(n.t));}}
   // 夜は星の 19
   if(night>0.35){for(const c of clouds){drawStar19(c,Math.min(1,(night-0.35)/0.4),el);}}
   // 海: 空の鏡。夕方は鏡そのもの
@@ -297,7 +304,7 @@ function frame(now){
     }
   }
   // 灯台
-  const lx=W/2, ly=H*0.70;
+  const lx=W*CX, ly=H*0.70;
   cx.fillStyle='rgba(22,28,70,'+(0.75+0.25*night)+')';cx.fillRect(lx-S*.024,ly,S*.048,seaY-ly+4);
   cx.fillStyle='rgba(30,36,90,'+(0.8+0.2*night)+')';cx.fillRect(lx-S*.028,ly-S*.03,S*.056,S*.032);
   // 光線: 常に回る。夜ほど強い
