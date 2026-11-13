@@ -13,4 +13,4 @@ Cloudflare の鍵（Workers と KV を編集できる API トークン）が要�
 1. `node gen-vapid.mjs` で鍵を一組作る。public は `wrangler.toml` の `VAPID_PUBLIC` へ、private は `npx wrangler secret put VAPID_PRIVATE_JWK` へ。
 2. `npx wrangler kv namespace create BELL_KV` の id を `wrangler.toml` へ。
 3. `npx wrangler deploy`。
-4. `lighthouse/index.html` の `BELL_READY` を true にする。
+4. `lighthouse/index.html` の `BELL_READY` を true にする（2026-11-14 に置いた。今は GitHub Actions の Bell が置く）。

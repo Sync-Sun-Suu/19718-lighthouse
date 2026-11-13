@@ -533,7 +533,7 @@ const closeSheet=()=>{$('sheet').classList.remove('show');$('dim').classList.rem
 
 /* 呼び鈴：手紙が届いたら、この端末に通知 */
 const BELL='https://lighthouse-bell.lighthouse19718.workers.dev';
-const BELL_READY=false; /* 呼び鈴の箱を Cloudflare に置いたら true にする */
+const BELL_READY=true; /* 呼び鈴の箱を Cloudflare に置いたら true にする */
 if(!BELL_READY){$('sBell').style.display='none';$('bellBtn').style.display='none';$('bellMsg').style.display='none';}
 $('sBell').textContent='呼び鈴';
 const bellOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
