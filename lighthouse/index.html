@@ -291,7 +291,7 @@ const CONFIG = {
   main{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:calc(max(16px,env(safe-area-inset-top)) + 52px) 22px 64px;text-align:center}
 
   header{padding:0 8px}
-  header h1{font-weight:500;font-size:clamp(15px,4.6vw,20px);letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;row-gap:0}
+  header h1{font-weight:500;font-size:clamp(14px,4.2vw,18px);letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;row-gap:0}
   header h1 span{white-space:nowrap}
   header h1 svg{width:18px;height:18px;flex:none;fill:var(--accent)}
   #date{font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-top:6px}
@@ -319,7 +319,7 @@ const CONFIG = {
   @keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.08)}28%{transform:scale(1)}42%{transform:scale(1.05)}56%{transform:scale(1)}}
   @keyframes pop{0%{transform:rotate(0)}15%{transform:rotate(-6deg)}35%{transform:rotate(6deg)}55%{transform:rotate(-5deg)}75%{transform:rotate(4deg)}100%{transform:rotate(0)}}
 
-  #line{min-height:2.4em;margin:6px 10px 18px;font-size:17px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
+  #line{min-height:2.4em;margin:6px 0 18px;font-size:15px;line-height:1.5;opacity:0;transition:opacity 1.2s;letter-spacing:.03em}
   #line.show{opacity:.92}
   main.reading #line.show{opacity:.92}
 
@@ -345,7 +345,7 @@ const CONFIG = {
   #env.open .seal{transform:translate(-50%,-50%) scale(0);opacity:0}
   #env.open .paper{transform:translateY(-76px)}
   #env.empty .paper{opacity:.45}
-  #hint{font-size:15px;opacity:.7;min-height:1.6em;margin-top:14px;letter-spacing:.03em}
+  #hint{font-size:13px;opacity:.7;min-height:1.6em;margin-top:14px;letter-spacing:.03em}
 
   /* reader */
   #reader{display:none;margin:16px auto 0;background:#fff;color:var(--ink);border-radius:8px;padding:26px 24px 20px;text-align:left;box-shadow:0 18px 40px rgba(0,0,0,.14);position:relative}
@@ -354,7 +354,7 @@ const CONFIG = {
   #reader .corner{position:absolute;right:18px;top:16px;width:14px;height:14px;fill:var(--accent)}
   #rTo{font-size:18px;line-height:1.2;opacity:.85}
   #rDate{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin:6px 0 16px}
-  #rText{white-space:pre-wrap;font-size:19px;line-height:1.75}
+  #rText{white-space:pre-wrap;font-size:17px;line-height:1.8}
   #rText img.pic{display:block;max-width:100%;border-radius:4px;margin:0 0 12px}
   #rFrom{margin-top:18px;text-align:right;font-size:18px;line-height:1.2;opacity:.85}
   .row{display:flex;gap:8px;margin-top:18px}
@@ -368,11 +368,11 @@ const CONFIG = {
   .it{display:flex;align-items:flex-start;gap:14px;width:100%;border:0;background:transparent;cursor:pointer;color:var(--fg);text-align:left;padding:12px 4px;border-bottom:1px solid currentColor;border-image:linear-gradient(to right,transparent,rgba(128,128,128,.35),transparent) 1;font-family:var(--serif)}
   .it svg{width:18px;height:18px;flex:none;margin-top:5px;fill:var(--accent)}
   .it .d{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
-  .it .t{font-size:16px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .it .t{font-size:14px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .it.cur .d{opacity:1;color:var(--accent)}
   .th-lighthouse #shelfWrap{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:16px 14px 10px}
   .th-lighthouse{--fg:#ffffff;--shadow:rgba(20,26,70,.6)}
-  .th-lighthouse header,.th-lighthouse #line,.th-lighthouse #hint,.th-lighthouse #shelfWrap,.th-lighthouse #onlyOne{text-shadow:0 1px 2px var(--shadow),0 0 6px var(--shadow),0 0 16px var(--shadow)}
+  .th-lighthouse header,.th-lighthouse #line,.th-lighthouse #hint,.th-lighthouse #shelfWrap,.th-lighthouse #onlyOne{text-shadow:0 0 1px var(--shadow),0 0 4px var(--shadow),0 0 12px var(--shadow)}
   .th-lighthouse #gear{box-shadow:0 0 12px var(--shadow)}
   #onlyOne{font-size:14px;opacity:.6;margin-top:12px;text-align:center}
 
@@ -940,7 +940,7 @@ function frame(now){
   cx.fillStyle='#fff3d0';cx.beginPath();cx.arc(lx,ly-S*.03,S*.011,0,7);cx.fill();
   cx.fillStyle='rgba(230,200,140,'+(0.12+0.25*night)+')';cx.beginPath();cx.ellipse(lx,seaY+18,S*.05,S*.008,0,0,7);cx.fill();
   // 文字の色は空が決める
-  if(!lastInk||now-lastInk>1000){lastInk=now;const mid=mix(sky.top,sky.bot,0.4),lum=(mid[0]*.3+mid[1]*.59+mid[2]*.11)/255,sh=mix(mid,[12,16,48],0.3+0.45*lum);document.body.style.setProperty('--shadow',rgba(sh,0.9));}
+  if(!lastInk||now-lastInk>1000){lastInk=now;const mid=mix(sky.top,sky.bot,0.3),lum=(mid[0]*.3+mid[1]*.59+mid[2]*.11)/255,sh=mix(mid,[40,46,120],0.12+0.3*lum);document.body.style.setProperty('--shadow',rgba(sh,0.85));}
   requestAnimationFrame(frame);
 }
 let lastInk=0;
