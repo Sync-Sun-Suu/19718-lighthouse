@@ -1,0 +1,1 @@
+{"name":"灯台の郵便受け","short_name":"郵便受け","start_url":"./","scope":"./","display":"standalone","background_color":"#0b1030","theme_color":"#0b1030","icons":[{"src":"./mailbox-icon-192.png","sizes":"192x192","type":"image/png"},{"src":"./mailbox-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
