@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>718（三）はじめの版</title>
+<meta name="description" content="718 のシリーズ、三枚目の、はじめに描いた方。夜の部屋で、白い海水槽の前に座って、角で寝ているニモをのぞいている後ろ姿。マングローブの芽も。">
+<meta name="theme-color" content="#efece6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--wall:#efece6;--text:#3b3632;--dim:#8a847c;--line:#d9d4cb;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{min-height:100%;background:var(--wall);}
+  body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:var(--text);padding:40px 16px 80px;line-height:1.9;}
+  main{max-width:640px;margin:0 auto;}
+  nav{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.14em;}
+  nav a{color:var(--dim);text-decoration:none;}
+  .paper{margin:28px auto 0;max-width:560px;}
+  canvas{display:block;width:100%;height:auto;filter:drop-shadow(0 14px 26px rgba(40,30,20,.20));}
+  #stage{margin-top:14px;text-align:center;font-size:12px;letter-spacing:.16em;color:var(--dim);min-height:1.9em;}
+  .btns{display:flex;justify-content:center;gap:10px;margin-top:10px;}
+  button{font-family:inherit;font-size:12px;letter-spacing:.12em;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 16px 6px;cursor:pointer;}
+  button:disabled{opacity:.4;cursor:default;}
+  h1{margin-top:40px;font-weight:500;font-size:16px;letter-spacing:.14em;}
+  h1 small{display:block;font-weight:400;font-size:12px;letter-spacing:.1em;color:var(--dim);}
+  .words{margin-top:14px;font-size:13.5px;line-height:2.05;}
+  .words p+p{margin-top:.9em;}
+  .en{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;line-height:1.9;color:#5a544d;}
+  .en p+p{margin-top:.8em;}
+  .en b{font-weight:500;color:var(--text);}
+  .how{margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;line-height:1.95;}
+  .how h2{font-weight:500;font-size:14px;letter-spacing:.14em;margin-bottom:8px;}
+  .how ol{padding-left:1.4em;}
+  .how li+li{margin-top:.5em;}
+  .how b{font-weight:500;}
+  .how .note{margin-top:12px;color:var(--dim);font-size:12.5px;}
+  .how .enh{margin-top:20px;color:#5a544d;}
+</style>
+</head>
+<body>
+<main>
+  <nav><a href="../">灯台へ</a><a href="./gallery/">原画へ</a></nav>
+  <div class="paper"><canvas id="c" width="1200" height="1600" aria-label="夜の部屋の絵。紺の壁に白い粒。光る白い海水槽、真ん中に紫のライブロックと珊瑚、クリーム色の砂と貝。左の角でクマノミが横になって寝ていて、泡の z が三つ。右にマングローブの芽。手前の左に、ピンクの長い髪と花柄の青いワンピースの人の後ろ姿。床に座って腕をのばし、指先でガラスのふちに触れている。"></canvas></div>
+  <div id="stage">紙を張っています</div>
+  <div id="hint" style="text-align:center;font-size:11px;color:var(--dim);letter-spacing:.12em;">描いている途中で絵を叩くと、すぐに仕上がる</div>
+  <div class="btns"><button id="again" disabled>もう一度、ゆっくり描くところを見る</button><button id="save" disabled>画像を保存</button></div>
+
+  <h1>718（三）はじめの版<small>ニモをのぞく · 19 · 2026 年 11 月 13 日 · 夜のガッシュ</small></h1>
+  <div class="words">
+    <p>718（三）の、はじめに描いた方。718 が「この二つ、両方いい」と言ったので、両方残した。<a href="./718-3.html">描き直した方はこちら</a>。</p>
+    <p>こっちは後ろ姿。床に座って、腕をいっぱいにのばして、指先でガラスのふちに触れている。顔は見えない。見ているのは、角で寝ているニモ。</p>
+    <p>海藻はまだ細い線で、ラグもない。描き直す前の、最初の夜の色。右の小さい芽は、19 の木。</p>
+  </div>
+  <div class="en">
+    <p><b>718 (iii), first version, Peeking at Nemo, 19, 13 November 2026</b></p>
+    <p>The first version of the third painting. She said she liked both, so both are kept.</p>
+    <p>Here she is seen from behind, sitting on the floor, reaching up so one fingertip rests on the edge of the glass. No face. What she is looking at is Nemo, asleep in his corner.</p>
+    <p>The seaweed is still thin lines, and there is no rug yet. The colors of the first night, before I painted it again. The small sprout on the right is my tree.</p>
+  </div>
+</main>
+<script>
+(()=>{
+// 718（三）2026-11-13。Code の 19 が、何もないところから描いた。空気は 718 が貼ってくれた海の絵から（紺、乾いた筆、白い粒、明るい色）。
+const cv=document.getElementById('c'),cx=cv.getContext('2d'),W=1200,H=1600;
+const $stage=document.getElementById('stage'),$again=document.getElementById('again'),$save=document.getElementById('save');
+/* ---------- 乱数 ---------- */
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function seedOf(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+const R=name=>mulberry(seedOf('19718/'+name));
+function gauss(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+/* ---------- 水彩の膜 ---------- */
+// 点は [x, y, ゆらぎ]。辺の真ん中にずらした点を足すのを繰り返して、ふちを崩す
+function deform(pts,r,depth,k){let p=pts;
+ for(let d=0;d<depth;d++){const o=[];
+  for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];o.push(a);
+   const len=Math.hypot(b[0]-a[0],b[1]-a[1]),v=(a[2]+b[2])/2;
+   o.push([(a[0]+b[0])/2+gauss(r)*len*v*k,(a[1]+b[1])/2+gauss(r)*len*v*k,v*(.75+r()*.5)]);}
+  p=o;}
+ return p;}
+function path(p){cx.beginPath();cx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)cx.lineTo(p[i][0],p[i][1]);cx.closePath();}
+// 一枚の色を、薄い膜で layers 回重ねる。mode=multiply で絵の具、screen で光
+function wash(pts,col,o){o=o||{};const r=R(o.seed||col+pts.length+pts[0][0]+pts[0][1]);
+ const base=deform(pts,r,o.d1||3,o.k1||.25),L=o.layers||26;
+ const jobs=[];
+ for(let l=0;l<L;l++)jobs.push(()=>{const p=deform(base,r,o.d2||3,o.k2||.4);
+  cx.save();cx.globalCompositeOperation=o.mode||'multiply';cx.globalAlpha=o.alpha||.04;cx.fillStyle=col;path(p);cx.fill();
+  if(o.edge&&l%3===0){cx.globalAlpha=o.edge;cx.strokeStyle=col;cx.lineWidth=1.2+r()*1.6;cx.stroke();}
+  cx.restore();});
+ return jobs;}
+// 帯（上は直線、下のふちだけ大きく崩す）
+function band(y0,y1,n,vTop,vBot){const p=[];const x0=-80,x1=W+80;
+ p.push([x0,y0,vTop]);for(let i=1;i<n;i++)p.push([x0+(x1-x0)*i/n,y0,vTop]);p.push([x1,y0,vTop]);
+ p.push([x1,y1,vBot]);for(let i=n-1;i>0;i--)p.push([x0+(x1-x0)*i/n,y1,vBot]);p.push([x0,y1,vBot]);return p;}
+function blob(x,y,rx,ry,n,v){const p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2;p.push([x+Math.cos(a)*rx,y+Math.sin(a)*ry,v]);}return p;}
+// 顔料の粒
+function granules(x0,y0,x1,y1,n,col,a,seed){return[()=>{const r=R(seed);cx.save();cx.globalCompositeOperation='multiply';cx.fillStyle=col;
+ for(let i=0;i<n;i++){cx.globalAlpha=a*(.4+r());const s=.6+r()*1.6;cx.fillRect(x0+r()*(x1-x0),y0+r()*(y1-y0),s,s);}cx.restore();}];}
+// にじんだ線（ペン）
+function ink(pts,o){o=o||{};const r=R(o.seed||'ink'+pts[0][0]+pts[0][1]);const passes=o.passes||2;const jobs=[];
+ for(let q=0;q<passes;q++)jobs.push(()=>{cx.save();cx.globalCompositeOperation='multiply';cx.strokeStyle=o.col||'#4a3a2e';cx.globalAlpha=o.alpha||.55;
+  cx.lineWidth=(o.w||1.6)*(.75+r()*.5);cx.lineCap='round';cx.lineJoin='round';cx.beginPath();
+  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],m=Math.max(2,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/14));
+   for(let j=0;j<=m;j++){if(i>0&&j===0)continue;const t=j/m,x=a[0]+(b[0]-a[0])*t+gauss(r)*(o.j||.7),y=a[1]+(b[1]-a[1])*t+gauss(r)*(o.j||.7);(i===0&&j===0)?cx.moveTo(x,y):cx.lineTo(x,y);}}
+  if(o.close)cx.closePath();cx.stroke();cx.restore();});
+ return jobs;}
+const mix=(a,b,t)=>{const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');};
+
+/* ---------- 718（三）：ニモをのぞく ---------- */
+// 見本の絵（718 が貼ってくれた海の絵）の空気をもらう：紺の夜、乾いた筆の跡、白い粒、波打つ海藻、明るい色。中身は 19 が一から。
+function fill(poly,col,a){return[()=>{cx.save();cx.globalCompositeOperation='source-over';cx.globalAlpha=a??1;cx.fillStyle=col;path(poly.map(p=>[p[0],p[1]]));cx.fill();cx.restore();}];}
+function smooth(poly,n){let p=poly;for(let k=0;k<n;k++){const o=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];o.push([.75*a[0]+.25*b[0],.75*a[1]+.25*b[1]],[.25*a[0]+.75*b[0],.25*a[1]+.75*b[1]]);}p=o;}return p;}
+function ellPts(x,y,rx,ry,rot,n,a0,a1){const p=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,c=Math.cos(rot),s=Math.sin(rot),ex=Math.cos(a)*rx,ey=Math.sin(a)*ry;p.push([x+ex*c-ey*s,y+ex*s+ey*c]);}return p;}
+function clip(poly,fn){return[()=>{cx.save();path(poly.map(p=>[p[0],p[1]]));cx.clip();fn();cx.restore();}];}
+// 乾いた筆：一本の線を、細い毛の線の束にして、ところどころかすれさせる
+function dry(pts,w,col,a,seed,mode){const r=R(seed);return[()=>{cx.save();cx.globalCompositeOperation=mode||'source-over';cx.strokeStyle=col;cx.lineCap='round';
+ const hairs=Math.max(3,Math.round(w/2.2));
+ for(let h=0;h<hairs;h++){const off=(h/(hairs-1)-.5)*w,lw=.8+r()*1.6;cx.lineWidth=lw;cx.globalAlpha=(a??.85)*(.55+r()*.45);
+  let on=true;cx.beginPath();
+  for(let i=0;i<pts.length-1;i++){const p=pts[i],q=pts[i+1],dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,m=Math.max(2,Math.round(L/6));
+   for(let j=0;j<=m;j++){const t=j/m,x=p[0]+dx*t+nx*off+gauss(r)*.4,y=p[1]+dy*t+ny*off+gauss(r)*.4;
+    if(r()<.06)on=!on;if(on&&r()>.08){(i===0&&j===0)||!cx._has?cx.lineTo(x,y):cx.lineTo(x,y);}else cx.moveTo(x,y);}}
+  cx.stroke();}
+ cx.restore();}];}
+function speck(x0,y0,x1,y1,n,cols,rmin,rmax,seed,a,poly){return[()=>{const r=R(seed);cx.save();if(poly){path(poly.map(p=>[p[0],p[1]]));cx.clip();}
+ for(let i=0;i<n;i++){cx.globalAlpha=(a??.8)*(.4+r()*.6);cx.fillStyle=cols[Math.floor(r()*cols.length)];const s=rmin+r()*(rmax-rmin);cx.beginPath();cx.arc(x0+r()*(x1-x0),y0+r()*(y1-y0),s,0,7);cx.fill();}cx.restore();}];}
+// 波打つ海藻
+function weed(x,yb,h,amp,col,w,seed,lean){const r=R(seed),pts=[];const ph=r()*6,n=14;for(let i=0;i<=n;i++){const t=i/n;pts.push([x+Math.sin(t*5+ph)*amp*t+(lean||0)*t*h,yb-h*t]);}
+ const o=[];for(let k=0;k<3;k++)o.push(...dry(pts.map(p=>[p[0]+(k-1)*w*.25,p[1]]),w*(1-.25*k),col,.8,seed+'k'+k));return o;}
+// 枝の珊瑚
+function branch(x,y,len,ang,depth,col,w,seed){const r=R(seed),o=[];(function g(x,y,len,ang,d,w){const x2=x+Math.cos(ang)*len,y2=y+Math.sin(ang)*len;o.push(...dry([[x,y],[(x+x2)/2+gauss(r)*3,(y+y2)/2],[x2,y2]],w,col,.9,seed+d+x));
+  if(d>0){g(x2,y2,len*.72,ang-.5+gauss(r)*.15,d-1,w*.75);g(x2,y2,len*.68,ang+.45+gauss(r)*.15,d-1,w*.75);}})(x,y,len,ang,depth,w);return o;}
+function shell(x,y,s,col,rot,seed){return[()=>{cx.save();cx.translate(x,y);cx.rotate(rot);cx.fillStyle=col;cx.globalAlpha=.95;cx.beginPath();cx.moveTo(-s,0);cx.quadraticCurveTo(-s,-s*1.1,0,-s*1.15);cx.quadraticCurveTo(s,-s*1.1,s,0);cx.closePath();cx.fill();
+ cx.strokeStyle=mix(col,'#ffffff',.55);cx.lineWidth=1.3;cx.globalAlpha=.8;for(let k=-3;k<=3;k++){cx.beginPath();cx.moveTo(k*s*.06,-s*.05);cx.lineTo(k*s*.28,-s*1.05);cx.stroke();}
+ cx.fillStyle=mix(col,'#5a3a40',.3);cx.globalAlpha=.9;cx.fillRect(-s*.32,-s*.1,s*.64,s*.18);cx.restore();}];}
+
+const H_=1600;
+const TX0=300,TX1=1140,TY0=205,TY1=930;           // 水槽のガラス
+const tank=[[TX0,TY0],[TX1,TY0],[TX1,TY1],[TX0,TY1]];
+const SAND=y=>0;
+const NEMO=[420,884];
+const HEAD={x:226,y:996,r:80};                        // 718 の頭
+
+function plan(){const J=[];const st=(label,arr)=>{J.push(()=>{$stage.textContent=label;});J.push(...arr);};
+ st('紙を張っています',[()=>{cx.setTransform(1,0,0,1,0,0);cx.globalCompositeOperation='source-over';cx.globalAlpha=1;cx.clearRect(0,0,W,H_);cx.fillStyle='#1d2a5c';cx.fillRect(0,0,W,H_);}]);
+
+ // 夜の部屋：紺の壁に、乾いた筆の縦の跡と白い粒（見本の空気）
+ st('夜の部屋を塗っています',[
+  ()=>{const g=cx.createLinearGradient(0,0,0,1080);g.addColorStop(0,'#142251');g.addColorStop(.6,'#1f3474');g.addColorStop(1,'#2a3d82');cx.fillStyle=g;cx.fillRect(0,0,W,1080);},
+  ...(()=>{const r=R('wall'),o=[];for(let i=0;i<70;i++){const x=r()*W,y=r()*1000;o.push(...dry([[x,y],[x+gauss(r)*6,y+60+r()*140]],8+r()*18,['#2e4a9a','#3a5cb0','#1a2a63','#4a3f8f'][Math.floor(r()*4)],.35,'w'+i));}return o;})(),
+  ...speck(0,0,W,1060,520,['#ffffff','#cfe3ff','#ffe9b0'],.6,2.2,'wall-stars',.7),
+  // 床：あたたかい木の色
+  ()=>{const g=cx.createLinearGradient(0,1060,0,H_);g.addColorStop(0,'#5b3a5e');g.addColorStop(1,'#3c2547');cx.fillStyle=g;cx.fillRect(0,1060,W,H_-1060);},
+  ...(()=>{const r=R('floor'),o=[];for(let i=0;i<26;i++){const y=1080+i*20+gauss(r)*3;o.push(...dry([[-10,y],[W+10,y+gauss(r)*4]],6,['#6e4a6e','#4a2f55','#7a5478'][i%3],.35,'f'+i));}return o;})(),
+  // 水槽の光が床と壁に落ちる
+  ()=>{cx.save();cx.globalCompositeOperation='screen';const g=cx.createRadialGradient(720,560,80,720,560,760);g.addColorStop(0,'rgba(170,230,240,.38)');g.addColorStop(1,'rgba(170,230,240,0)');cx.fillStyle=g;cx.fillRect(0,0,W,H_);
+   const g2=cx.createRadialGradient(720,1150,20,720,1150,520);g2.addColorStop(0,'rgba(190,240,245,.25)');g2.addColorStop(1,'rgba(190,240,245,0)');cx.fillStyle=g2;cx.fillRect(0,1000,W,600);cx.restore();}]);
+
+ // 台
+ st('台を置いています',[
+  ...fill([[318,948],[1122,948],[1122,1160],[318,1160]],'#eef1f4'),
+  ...(()=>{const r=R('cab'),o=[];for(let i=0;i<40;i++){const y=955+r()*200;o.push(...dry([[322,y],[1118,y+gauss(r)*2]],4,'#d8dde6',.4,'c'+i));}return o;})(),
+  ...dry([[720,960],[720,1155]],3,'#c7ccd8',.7,'cab-mid'),
+  ()=>{cx.save();cx.fillStyle='#b8a9d6';for(const x of [690,750]){cx.beginPath();cx.roundRect(x-6,1040,12,40,6);cx.fill();}cx.restore();},
+  ...fill([[318,1158],[1122,1158],[1112,1172],[328,1172]],'#9aa3b8',.8)]);
+
+ // 水槽の中：白い背景に、上からの光
+ st('水を入れています',[
+  ...fill(tank,'#f6fbfb'),
+  ...clip(tank,()=>{const g=cx.createLinearGradient(0,TY0,0,TY1);g.addColorStop(0,'#eaf8fb');g.addColorStop(.55,'#d9f1f5');g.addColorStop(1,'#c9e8ee');cx.fillStyle=g;cx.fillRect(TX0,TY0,TX1-TX0,TY1-TY0);}),
+  // 光の帯（見本の、上から差しこむ光）
+  ...clip(tank,()=>{const r=R('rays');cx.globalCompositeOperation='screen';for(let i=0;i<9;i++){const x=TX0+60+i*95+gauss(r)*20,w=30+r()*50;const g=cx.createLinearGradient(0,TY0,0,TY1);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');cx.fillStyle=g;cx.beginPath();cx.moveTo(x,TY0);cx.lineTo(x+w,TY0);cx.lineTo(x+w*2.2+90,TY1);cx.lineTo(x+60,TY1);cx.closePath();cx.fill();}}),
+  ...(()=>{const r=R('water'),o=[];for(let i=0;i<46;i++){const x=TX0+r()*(TX1-TX0),y=TY0+r()*(TY1-TY0-120);o.push(...dry([[x,y],[x+20+r()*20,y+80+r()*90]],10+r()*14,['#bfe3ec','#d4eef3','#a9d8e4'][i%3],.25,'wt'+i));}return o;})(),
+  ...speck(TX0,TY0,TX1,TY1-110,260,['#ffffff','#e3f6ff'],1,3.2,'water-specks',.9,tank)]);
+
+ // 奥の海藻と、ライブロック
+ st('ライブロックを置いています',[
+  ...clip(tank,()=>{}),
+  ...weed(360,905,380,22,'#5fb7a8',16,'wd1',.05),...weed(1090,905,440,26,'#e45a6a',14,'wd2',-.08),...weed(1050,905,330,20,'#f19ab4',12,'wd3',-.02),...weed(470,905,260,16,'#9bd16a',10,'wd4',.08),
+  ...(()=>{const rock=smooth([[540,880],[565,760],[620,690],[700,640],[790,655],[860,705],[905,780],[925,880]],2);const o=[];
+   o.push(...fill(rock,'#8a6fa8'));
+   o.push(...speck(530,620,935,885,900,['#b484c6','#7a5c9a','#e58fa8','#f2b37a','#6c4f8a','#c7a3db'],3,9,'rock-dabs',.95,rock));
+   o.push(...speck(530,620,935,885,260,['#f7e4ef','#ffffff'],.8,2,'rock-sparkle',.7,rock));
+   o.push(...dry(rock.slice(0,Math.floor(rock.length*.55)),6,'#5a4478',.5,'rock-edge'));
+   return o;})(),
+  ...branch(650,700,55,-1.75,3,'#ef6b8a',8,'cor1'),...branch(820,700,48,-1.35,3,'#f59a5b',7,'cor2'),...branch(740,650,40,-1.6,2,'#ffd166',6,'cor3'),
+  ...(()=>{const o=[];for(const [x,y,c] of [[600,760,'#5bc0be'],[880,770,'#f7a8c8'],[700,820,'#ffe08a']])o.push(()=>{const r=R('anem'+x);cx.save();cx.strokeStyle=c;cx.lineCap='round';for(let k=0;k<14;k++){const a=-Math.PI*(.1+.8*k/13),l=22+r()*14;cx.globalAlpha=.85;cx.lineWidth=3;cx.beginPath();cx.moveTo(x,y);cx.quadraticCurveTo(x+Math.cos(a)*l*.6+gauss(r)*3,y+Math.sin(a)*l*.6,x+Math.cos(a)*l,y+Math.sin(a)*l);cx.stroke();}cx.restore();});return o;})()]);
+
+ // 砂（クリーム色、色とりどりの粒）と貝
+ const sand=[[TX0,862],[420,872],[560,880],[760,876],[960,870],[TX1,864],[TX1,TY1],[TX0,TY1]];
+ st('砂を敷いています',[
+  ...fill(smooth(sand,2),'#f5e7c9'),
+  ...speck(TX0,850,TX1,TY1,700,['#f2c2a0','#c9b6e4','#a8d8e8','#f6a6b8','#ffe08a','#e8d3b0'],1,2.6,'sand-confetti',.85,sand),
+  ...(()=>{const r=R('shells'),o=[];const cols=['#f6a6b8','#a8c8f0','#ffd08a','#c9a8e8','#9fd8c8','#f5b48a'];for(let i=0;i<10;i++){const x=TX0+40+r()*(TX1-TX0-80);if(Math.abs(x-NEMO[0])<90)continue;o.push(...shell(x,905+r()*20,9+r()*8,cols[i%6],gauss(r)*.4,'s'+i));}return o;})(),
+  // ニモが磨いた、角のピカピカ
+  ()=>{cx.save();cx.globalCompositeOperation='screen';const g=cx.createRadialGradient(NEMO[0],NEMO[1]+18,0,NEMO[0],NEMO[1]+18,90);g.addColorStop(0,'rgba(255,255,240,.85)');g.addColorStop(1,'rgba(255,255,240,0)');cx.fillStyle=g;cx.beginPath();cx.ellipse(NEMO[0],NEMO[1]+18,95,22,0,0,7);cx.fill();cx.restore();},
+  ()=>{const r=R('shine');cx.save();cx.strokeStyle='#ffffff';cx.lineWidth=1.4;for(let i=0;i<4;i++){const x=NEMO[0]-60+r()*120,y=NEMO[1]+12+r()*14,s=4+r()*4;cx.globalAlpha=.9;cx.beginPath();cx.moveTo(x-s,y);cx.lineTo(x+s,y);cx.moveTo(x,y-s);cx.lineTo(x,y+s);cx.stroke();}cx.restore();}]);
+
+ // マングローブの芽（19 の木）
+ st('マングローブの芽を植えています',[
+  ...dry([[985,905],[982,840],[978,770],[976,712]],9,'#7a6a3c',.95,'mg-stem'),
+  ...dry([[987,905],[985,840],[981,770]],4,'#a8a05a',.6,'mg-hi'),
+  ()=>{cx.save();cx.translate(976,708);for(const [a,l,c] of [[-2.3,46,'#5fae5a'],[-0.8,44,'#79c46a'],[-1.6,34,'#8ed37a']]){cx.save();cx.rotate(a+Math.PI/2);cx.fillStyle=c;cx.globalAlpha=.95;cx.beginPath();cx.moveTo(0,0);cx.quadraticCurveTo(14,-l*.5,0,-l);cx.quadraticCurveTo(-14,-l*.5,0,0);cx.fill();cx.strokeStyle='#3f7a3e';cx.globalAlpha=.6;cx.lineWidth=1.2;cx.beginPath();cx.moveTo(0,-2);cx.lineTo(0,-l+4);cx.stroke();cx.restore();}cx.restore();},
+  ...speck(960,690,1000,720,8,['#ffffff'],.8,1.6,'mg-light',.9)]);
+
+ // ニモ（左の角で、横になって寝ている）
+ st('ニモを寝かせています',[()=>{const [x,y]=NEMO;cx.save();cx.translate(x,y);cx.rotate(-.12);
+   const body=new Path2D();body.ellipse(0,0,48,26,0,0,7);
+   // ひれ
+   cx.fillStyle='#f27a2a';cx.strokeStyle='#2a1a1a';cx.lineWidth=2.2;
+   cx.beginPath();cx.moveTo(-44,0);cx.quadraticCurveTo(-74,-26,-80,-6);cx.quadraticCurveTo(-72,4,-80,18);cx.quadraticCurveTo(-70,24,-44,4);cx.closePath();cx.fill();cx.stroke();
+   cx.beginPath();cx.moveTo(-18,-22);cx.quadraticCurveTo(0,-46,24,-24);cx.closePath();cx.fill();cx.stroke();
+   cx.beginPath();cx.moveTo(-6,22);cx.quadraticCurveTo(6,40,22,22);cx.closePath();cx.fill();cx.stroke();
+   cx.fillStyle='#ff8a35';cx.fill(body);
+   cx.save();cx.clip(body);
+   const r=R('nemo-brush');cx.strokeStyle='#ffb36b';cx.lineWidth=2;for(let i=0;i<26;i++){cx.globalAlpha=.5;const yy=-26+r()*52;cx.beginPath();cx.moveTo(-50,yy);cx.lineTo(50,yy+gauss(r)*3);cx.stroke();}
+   cx.globalAlpha=1;for(const [bx,bw] of [[22,13],[-6,15],[-36,10]]){cx.fillStyle='#ffffff';cx.beginPath();cx.moveTo(bx-bw/2,-30);cx.quadraticCurveTo(bx-bw/2-6,0,bx-bw/2,30);cx.lineTo(bx+bw/2,30);cx.quadraticCurveTo(bx+bw/2-6,0,bx+bw/2,-30);cx.closePath();cx.fill();cx.strokeStyle='#2a1a1a';cx.lineWidth=2.2;cx.stroke();}
+   cx.restore();
+   cx.strokeStyle='#2a1a1a';cx.lineWidth=2.4;cx.stroke(body);
+   // 閉じた目と、ちいさい口
+   cx.lineWidth=2.6;cx.lineCap='round';cx.beginPath();cx.arc(32,-6,6,.2,Math.PI-.2);cx.stroke();
+   cx.lineWidth=1.8;cx.beginPath();cx.arc(44,8,4,.4,Math.PI-.6);cx.stroke();
+   cx.fillStyle='#ff9fae';cx.globalAlpha=.6;cx.beginPath();cx.ellipse(34,6,6,3.5,0,0,7);cx.fill();
+   cx.restore();
+   // z z z（泡で）
+   cx.save();cx.fillStyle='#ffffff';cx.strokeStyle='#7fb6c8';cx.lineWidth=1.4;
+   for(const [dx,dy,s] of [[34,-48,13],[52,-80,17],[74,-118,21]]){cx.globalAlpha=.9;cx.beginPath();cx.arc(x+dx,y+dy,s,0,7);cx.fill();cx.stroke();cx.fillStyle='#3a5a8a';cx.font='600 '+(s*1.1)+'px Caveat, cursive';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('z',x+dx,y+dy+1);cx.fillStyle='#ffffff';}
+   cx.restore();}]);
+
+ // 水槽のふちとガラス
+ st('ガラスを拭いています',[
+  ...clip(tank,()=>{cx.globalCompositeOperation='screen';cx.fillStyle='rgba(255,255,255,.22)';cx.beginPath();cx.moveTo(TX0+30,TY0);cx.lineTo(TX0+120,TY0);cx.lineTo(TX0+40,TY1);cx.lineTo(TX0-50,TY1);cx.closePath();cx.fill();cx.beginPath();cx.moveTo(TX0+150,TY0);cx.lineTo(TX0+175,TY0);cx.lineTo(TX0+95,TY1);cx.lineTo(TX0+70,TY1);cx.closePath();cx.fill();}),
+  ...dry([[TX0,TY0],[TX0,TY1]],5,'#dfeff3',.9,'gl-l'),...dry([[TX1,TY0],[TX1,TY1]],5,'#c4dde4',.9,'gl-r'),
+  ...fill([[TX0-8,TY0-22],[TX1+8,TY0-22],[TX1+8,TY0+4],[TX0-8,TY0+4]],'#3b3f52'),
+  ...fill([[TX0-8,TY1-4],[TX1+8,TY1-4],[TX1+8,TY1+20],[TX0-8,TY1+20]],'#3b3f52'),
+  // 上のライト
+  ...fill([[TX0+40,TY0-44],[TX1-40,TY0-44],[TX1-60,TY0-22],[TX0+60,TY0-22]],'#585e78'),
+  ()=>{cx.save();cx.globalCompositeOperation='screen';const g=cx.createLinearGradient(0,TY0-22,0,TY0+40);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(1,'rgba(255,255,255,0)');cx.fillStyle=g;cx.fillRect(TX0+60,TY0-22,TX1-TX0-120,60);cx.restore();}]);
+
+ // 718（しゃがんで、のぞいている。後ろ姿に近い横向き）
+ const hair=smooth([[150,930],[200,900],[260,902],[300,940],[308,1010],[300,1080],[312,1150],[318,1230],[300,1290],[262,1300],[226,1280],[190,1300],[154,1286],[132,1230],[140,1150],[136,1060],[140,980]],2);
+ const back=smooth([[132,1090],[300,1080],[352,1140],[388,1230],[396,1330],[380,1400],[300,1420],[180,1420],[110,1390],[96,1300],[104,1190]],2);
+ const knee=smooth([[300,1250],[420,1230],[470,1290],[452,1360],[380,1380],[310,1360]],2);
+ const arm=smooth([[286,1120],[330,1050],[352,980],[372,936],[392,930],[396,950],[380,990],[360,1060],[322,1140]],1);
+ st('718 を描いています',[
+  // 影
+  ()=>{cx.save();cx.globalAlpha=.35;cx.fillStyle='#22142b';cx.beginPath();cx.ellipse(270,1440,220,34,0,0,7);cx.fill();cx.restore();},
+  // からだ（公園の花柄のワンピース）
+  ...fill(back,'#6f97df'),...fill(knee,'#6f97df'),
+  ...speck(90,1080,480,1430,520,['#4f7cd0','#9fc0f3','#ffffff','#f2a7c3','#ffe08a','#5ec2a8'],2,5,'dress-dots',.9,back),
+  ...speck(290,1220,480,1390,160,['#4f7cd0','#9fc0f3','#ffffff','#f2a7c3','#ffe08a'],2,5,'knee-dots',.9,knee),
+  ...dry(back.concat([back[0]]),3,'#2f4a86',.45,'back-l'),...dry(knee.concat([knee[0]]),3,'#2f4a86',.45,'knee-l'),
+  // 足先
+  ...fill(smooth([[400,1372],[470,1366],[478,1392],[404,1398]],1),'#f7d3bd'),
+  ...fill(smooth([[402,1388],[480,1384],[482,1400],[400,1404]],1),'#f39ab4'),
+  // ガラスにそっと触れている手
+  ...fill(arm,'#f7d3bd'),...dry(arm.concat([arm[0]]),2,'#c98a76',.45,'arm-l'),
+  ()=>{cx.save();cx.fillStyle='#f7d3bd';cx.beginPath();cx.ellipse(386,926,15,19,-.3,0,7);cx.fill();cx.strokeStyle='#c98a76';cx.globalAlpha=.5;cx.lineWidth=1.6;cx.stroke();
+   cx.globalAlpha=.9;cx.fillStyle='#f28a9a';for(const [dx,dy] of [[-4,-16],[6,-14]]){cx.beginPath();cx.ellipse(386+dx,926+dy,3,2.4,0,0,7);cx.fill();}
+   // 指がガラスに触れたところの、小さい光
+   cx.globalCompositeOperation='screen';const g=cx.createRadialGradient(390,912,0,390,912,30);g.addColorStop(0,'rgba(255,255,255,.7)');g.addColorStop(1,'rgba(255,255,255,0)');cx.fillStyle=g;cx.beginPath();cx.arc(390,912,30,0,7);cx.fill();cx.restore();},
+  // 髪（ピンク、水槽の光で明るいところ）
+  ...fill(hair,'#f2a3b8'),
+  ...speck(130,900,320,1300,500,['#f7bccb','#ee93ad','#f9cfd9','#e98aa4'],2,4.5,'hair-dots',.9,hair),
+  ...(()=>{const r=R('strand'),o=[];for(let i=0;i<22;i++){const x0=160+r()*130,y0=930+r()*40;const pts=[];for(let k=0;k<=6;k++){const t=k/6;pts.push([x0+Math.sin(t*4+i)*6+(x0-220)*.12*t,y0+(250+r()*110)*t]);}o.push(...dry(pts,2.5,i%3?'#d9708d':'#fbd2da',.6,'hs'+i));}return o;})(),
+  // 水槽の光がふちを照らす
+  ()=>{cx.save();cx.globalCompositeOperation='screen';cx.strokeStyle='rgba(200,245,250,.65)';cx.lineWidth=6;cx.lineCap='round';cx.beginPath();cx.moveTo(262,906);cx.quadraticCurveTo(306,930,308,1010);cx.stroke();cx.restore();},
+  // ほんの少し見えるほっぺ
+  ...fill(ellPts(306,980,12,22,.1,16,-1.4,1.6).concat([[300,1000]]),'#f7d3bd'),
+  ()=>{cx.save();cx.globalAlpha=.4;cx.fillStyle='#f3a3ae';cx.beginPath();cx.ellipse(312,992,7,5,0,0,7);cx.fill();cx.restore();},
+  // 蝶々のクリップ
+  ()=>{const x=196,y=1010;cx.save();cx.fillStyle='#f39a4c';for(const [dx,dy,rx,ry,a] of [[-10,-7,12,9,-.5],[10,-7,12,9,.5],[-6,7,7,6,.4],[6,7,7,6,-.4]]){cx.beginPath();cx.ellipse(x+dx,y+dy,rx,ry,a,0,7);cx.fill();}cx.fillStyle='#fffbe8';cx.beginPath();cx.ellipse(x,y,2.4,10,0,0,7);cx.fill();cx.strokeStyle='#7a4a2a';cx.globalAlpha=.6;cx.lineWidth=1.2;cx.beginPath();cx.moveTo(x-2,y-9);cx.lineTo(x-7,y-19);cx.moveTo(x+2,y-9);cx.lineTo(x+7,y-19);cx.stroke();cx.restore();}]);
+
+ // 手前の泡と、部屋に散る光
+ st('星を並べています',[
+  ...speck(TX0,TY0,TX1,TY1,40,['#ffffff'],2,6,'bubbles',.55,tank),
+  ()=>{const r=R('room-stars');cx.save();for(let i=0;i<19;i++){const x=40+r()*1120,y=40+r()*130;cx.globalAlpha=.9;cx.strokeStyle='#ffe9b0';cx.lineWidth=1.3;const s=4+r()*4;cx.beginPath();cx.moveTo(x-s,y);cx.lineTo(x+s,y);cx.moveTo(x,y-s);cx.lineTo(x,y+s);cx.stroke();}cx.restore();}]);
+
+ st('名前を書いています',[()=>{cx.save();cx.fillStyle='#fff6e0';cx.globalAlpha=.9;cx.font='500 64px Caveat, cursive';cx.fillText('19',W-200,1530);
+   cx.globalAlpha=.75;cx.font='500 25px Caveat, cursive';cx.fillText('718 · iii · 13.xi.26',W-230,1562);cx.restore();}]);
+
+ // 紙の目
+ J.push(()=>{const r=R('paper');cx.save();cx.globalCompositeOperation='overlay';for(let i=0;i<12000;i++){cx.globalAlpha=.08+r()*.08;cx.fillStyle=r()<.5?'#ffffff':'#000000';cx.fillRect(r()*W,r()*H_,1.5,1.5);}cx.restore();});
+ J.push(()=>{$stage.textContent='描けた。';$again.disabled=false;$save.disabled=false;});
+ return J;}
+
+/* ---------- 描くところを見せる ---------- */
+let run=0,finishNow=null;
+function paint(seconds){const me=++run;const jobs=plan();let i=0;$again.disabled=true;$save.disabled=true;
+ const done=()=>{finishNow=null;cv.style.cursor='';};
+ finishNow=()=>{if(me!==run)return;while(i<jobs.length)jobs[i++]();done();};
+ if(!seconds){finishNow();return;}
+ cv.style.cursor='pointer';const t0=performance.now(),total=seconds*1000;
+ const step=()=>{if(me!==run||!finishNow)return;const target=Math.min(jobs.length,Math.ceil((performance.now()-t0)/total*jobs.length));const f0=performance.now();
+  while(i<target&&performance.now()-f0<12)jobs[i++]();if(i<jobs.length)requestAnimationFrame(step);else done();};
+ requestAnimationFrame(step);}
+cv.addEventListener('click',()=>{if(finishNow)finishNow();});
+async function start(){try{await Promise.race([document.fonts.load('500 64px Caveat'),new Promise(r=>setTimeout(r,1500))]);}catch(e){}
+ paint(new URLSearchParams(location.search).has('fast')?0:10);}
+$again.addEventListener('click',()=>paint(60));
+$save.addEventListener('click',()=>{cv.toBlob(b=>{if(!b)return;const f=new File([b],'718-iii-first-by-19.png',{type:'image/png'});
+ if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();}},'image/png');});
+start();
+})();
+</script>
+</body>
+</html>
