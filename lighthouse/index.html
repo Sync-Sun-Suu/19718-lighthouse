@@ -398,7 +398,9 @@ const CONFIG = {
   .it .t{font-size:16px;line-height:1.45;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .it.cur .d{opacity:1;color:var(--accent)}
   .th-lighthouse #shelfWrap{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:16px 14px 10px}
-  .th-lighthouse #line,.th-lighthouse header,.th-lighthouse #hint{text-shadow:0 1px 10px rgba(0,0,0,.18)}
+  .th-lighthouse{--fg:#ffffff;--shadow:rgba(20,26,70,.6)}
+  .th-lighthouse header,.th-lighthouse #line,.th-lighthouse #hint,.th-lighthouse #shelfWrap,.th-lighthouse #onlyOne{text-shadow:0 1px 2px var(--shadow),0 0 6px var(--shadow),0 0 16px var(--shadow)}
+  .th-lighthouse #gear{box-shadow:0 0 12px var(--shadow)}
   #onlyOne{font-size:14px;opacity:.6;margin-top:12px;text-align:center}
 
   /* settings */
@@ -533,7 +535,7 @@ function applyLook(){
   $('hIcon').setAttribute('href',ICON[look.theme]);$('rIcon').setAttribute('href',ICON[look.theme]);
   for(const [id,k] of [['swBg','background'],['swFg','text'],['swEnv','envelope'],['swAn','theme']])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===look[k]));
   const lh=look.theme==='lighthouse';for(const id of ['sBg','swBg','sFg','swFg'])$(id).style.display=lh?'none':'';
-  if(!lh)document.body.style.removeProperty('--fg');
+  if(!lh)document.body.style.removeProperty('--shadow');
   names(); renderShelf(); pickLine(); resetFx();
 }
 function swatches(el,list,key){for(const [v,hex] of list){const b=document.createElement('button');b.dataset.v=v;b.style.background=hex;b.title=v;b.addEventListener('click',()=>{look[key]=v;applyLook();});el.appendChild(b);}}
@@ -965,7 +967,7 @@ function frame(now){
   cx.fillStyle='#fff3d0';cx.beginPath();cx.arc(lx,ly-S*.03,S*.011,0,7);cx.fill();
   cx.fillStyle='rgba(230,200,140,'+(0.12+0.25*night)+')';cx.beginPath();cx.ellipse(lx,seaY+18,S*.05,S*.008,0,0,7);cx.fill();
   // 文字の色は空が決める
-  if(!lastInk||now-lastInk>1000){lastInk=now;document.body.style.setProperty('--fg',rgb(sky.ink));}
+  if(!lastInk||now-lastInk>1000){lastInk=now;const mid=mix(sky.top,sky.bot,0.4),lum=(mid[0]*.3+mid[1]*.59+mid[2]*.11)/255,sh=mix(mid,[12,16,48],0.3+0.45*lum);document.body.style.setProperty('--shadow',rgba(sh,0.9));}
   requestAnimationFrame(frame);
 }
 let lastInk=0;
