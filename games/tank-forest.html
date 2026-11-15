@@ -80,38 +80,43 @@ const pathF=(x,z)=>{const d=Math.abs(x-pathX(z)),pw=pathW(z)*(1+(vn(x*9,0,z*9)-.
 const onPath=(x,z)=>Math.abs(x-pathX(z))<pathW(z)*(1+(vn(x*9,0,z*9)-.5)*.5);
 /* ---------- 太さの変わる枝 ---------- */
 function limb(pts,r0,r1,mat,seg,rs,opt){opt=opt||{};const curve=new THREE.CatmullRomCurve3(pts),len=curve.getLength(),big=r0>=.08,mid=r0>=.025&&!big,fine=big||mid,
- N=big?Math.round(len*90):mid?Math.max(seg||0,Math.round(len*120),20):(seg||Math.max(8,pts.length*6)),RS=big?72:mid?28:(rs||8),
+ N=big?Math.round(len*90):mid?Math.max(seg||0,Math.round(len*130),24):(seg||Math.max(8,pts.length*6)),RS=big?72:mid?32:(rs||8),
  fr=curve.computeFrenetFrames(N,false),pos=[],col=[],uv=[],idx=[],sd=Math.abs(pts[0].x*13.7+pts[0].z*7.1+pts[pts.length-1].y*5.3+r0*91)%50,depth=big?.46:mid?.36:.14,tw=big?1.5:2.4,
- q=mul(Math.round(sd*977)+7),style=fine?(opt.tip!=null?opt.tip:[0,0,0,1,1,2,2,3][Math.floor(q()*8)]):3,ts0=q(),ts=style===0?.8+ts0*.1:style===3?.62+ts0*.2:.76+ts0*.14,crownL=r0*(1.4+q()*2.6),flat=.22+q()*.25,flatA=q()*3.14,pw=.5+q()*.7,hook=(q()-.5)*r0*1.3;
- // 太さ：根もとは親の木にもぐって、えりのように広がる。先は一本ずつ違う（0 折れ口、1 平たい刃、2 ふたまた、3 とがり）
+ q=mul(Math.round(sd*977)+7),style=fine?(opt.tip!=null?opt.tip:Math.floor(q()*4)):-1,a0=q()*6.283,tilt=.6+q()*.9,stepL=1.2+q()*1.6,
+ rEnd=r1*(1+(q()-.5)*.1),Lz=Math.min(.3,rEnd*2.4/len),Ls=Math.min(.6,rEnd*(5+q()*5)/len);
+ // 太さ：根もとは親の木にもぐって、えりのように広がる。先は細らせない（バキッと折れた口にする）
  const radAt=t=>{const sl=t*len;let r=r0+(r1-r0)*Math.pow(t,.8);if(big)r*=1+.55*Math.pow(1-t,7);
-  if(mid&&opt.collar!==false)r*=(.3+.7*sst(0,r0*1.1,sl))*(1+.5*Math.exp(-sl/(r0*1.8)));
-  if(fine){const e=sst(ts,1,t);r*=style===0?1-.18*e:Math.pow(Math.max(.02,1-e),style===1?.4:pw);}return r;};
- for(let i=0;i<=N;i++){const t=i/N,p=curve.getPointAt(t),sl=t*len,rad=radAt(t)*(1+(vn(p.x*9,p.y*9,p.z*9)-.5)*.35),e=fine?sst(ts,1,t):0,T=fr.tangents[i];
-  const warp=(fbm(p.x*3+sd,p.y*3,p.z*3)-.5)*2.6,w2=(vn(sl*2.2,1,sd)-.5)*3,w3=(vn(sl*5,2,sd)-.5)*2,fl=style===1?1-(1-flat)*sst(ts-.3,1,t):1;
+  if(mid&&opt.collar!==false)r*=(.3+.7*sst(0,r0*1.1,sl))*(1+.5*Math.exp(-sl/(r0*1.8)));return r;};
+ const angd=(a,b)=>{let d=Math.abs(a-b)%6.283;return d>3.1416?6.283-d:d;};
+ const last=[];
+ for(let i=0;i<=N;i++){const t=i/N,p=curve.getPointAt(t),sl=t*len,rad=radAt(t)*(1+(vn(p.x*9,p.y*9,p.z*9)-.5)*.35),e=fine?sst(1-Lz,1,t):0,e2=fine?sst(1-Ls,1,t):0,T=fr.tangents[i];
+  const warp=(fbm(p.x*3+sd,p.y*3,p.z*3)-.5)*2.6,w2=(vn(sl*2.2,1,sd)-.5)*3,w3=(vn(sl*5,2,sd)-.5)*2;
   for(let j=0;j<=RS;j++){const jj=j%RS,a=jj/RS*6.283,ca=Math.cos(a),sa=Math.sin(a),A=a+tw*sl+warp;
    let h,hol=0;
    if(big){h=.5*Math.pow(Math.abs(Math.sin(A*2+sd+w2)),.55)+.3*Math.pow(Math.abs(Math.sin(A*4.5+sd*2+w3)),.7)+.2*Math.abs(Math.sin(A*8.5+sd*3+w2*2));}
    else if(mid){h=.62*Math.pow(Math.abs(Math.sin(A*1.5+sd+w2)),.6)+.38*Math.pow(Math.abs(Math.sin(A*3.5+sd*2+w3)),.8);}
    else h=Math.abs(Math.sin(A*1.5+sd));
-   if(fine)hol=sst(.64,.8,vn(ca*1.6+sd,sl*1.6,sa*1.6+sd))*(.6+.4*sst(.0,.3,t));
-   const burl=(vn(p.x*11+ca*.9+sd,p.y*11,p.z*11+sa*.9)-.5)*(big?.22:.16);let k=1+depth*(h-.62)*(1+e*.8)+burl-hol*.26,ax=0,dark=0;
-   if(style===1)k*=1-(1-fl)*Math.abs(Math.sin(a-flatA));
-   if(fine&&style===0){const jg=sst(.28,.78,vn(ca*2.3+sd*3,sa*2.3+sd,7.7+sd)*.75+.25*Math.abs(Math.sin(A*2+sd+w2)));ax=crownL*e*e*(jg*1.3-.25);k*=1-e*(.8*(1-jg)+.25*jg);dark=e*(1-jg)*.35;}
-   if(fine&&style!==0)ax=0;
-   const nx=ca*fr.normals[i].x+sa*fr.binormals[i].x,ny=ca*fr.normals[i].y+sa*fr.binormals[i].y,nz=ca*fr.normals[i].z+sa*fr.binormals[i].z,hk=fine?hook*e*e:0;
-   pos.push(p.x+nx*rad*k+T.x*ax+fr.normals[i].x*hk,p.y+ny*rad*k+T.y*ax+fr.normals[i].y*hk,p.z+nz*rad*k+T.z*ax+fr.normals[i].z*hk);uv.push(j/RS*2,sl*2.2);
+   if(fine)hol=sst(.64,.8,vn(ca*1.6+sd,sl*1.6,sa*1.6+sd))*(.6+.4*sst(.0,.3,t))*(1-e);
+   const burl=(vn(p.x*11+ca*.9+sd,p.y*11,p.z*11+sa*.9)-.5)*(big?.22:.16);let k=1+depth*(h-.62)+burl-hol*.26,ax=0,dark=0;
+   if(fine){ // 折れ口：ふちは裂けてギザギザ。1 斜めに折れた、2 段になって折れた、3 先から裂け目が入った
+    const jag=(vn(ca*3+sd*3,sa*3+sd,7.7+sd)-.5)*1.1+(vn(ca*8+sd,sa*8,3.3+sd)-.5)*.55;let F=jag*.9;
+    if(style===1)F=Math.cos(a-a0)*tilt+jag*.55;else if(style===2)F=(sst(-.25,.25,Math.cos(a-a0))-.5)*stepL+jag*.5;
+    else if(style===3){F=jag*.7;const sp=Math.exp(-Math.pow(angd(a,a0)/.33,2))+.6*Math.exp(-Math.pow(angd(a,a0+3.3)/.28,2));k*=1-.6*e2*e2*sp;ax-=rEnd*1.6*e*sp;dark+=e2*sp*.3;}
+    ax+=Math.pow(e,1.4)*rEnd*F;k*=1-.1*e-e*.18*Math.max(0,-jag);}
+   const nx=ca*fr.normals[i].x+sa*fr.binormals[i].x,ny=ca*fr.normals[i].y+sa*fr.binormals[i].y,nz=ca*fr.normals[i].z+sa*fr.binormals[i].z,
+    X=p.x+nx*rad*k+T.x*ax,Y=p.y+ny*rad*k+T.y*ax,Z=p.z+nz*rad*k+T.z*ax;
+   pos.push(X,Y,Z);uv.push(j/RS*2,sl*2.2);if(i===N)last.push([X,Y,Z,ca,sa]);
    const ao=Math.max(.3,Math.min(1.3,.62+.7*h-hol*.42+burl*.7-dark));col.push(ao*1.03,ao,ao*.95);}}
  for(let i=0;i<N;i++)for(let j=0;j<RS;j++){const a=i*(RS+1)+j,b=a+RS+1;idx.push(a,b,a+1,b,b+1,a+1);}
- if(fine){const p=curve.getPointAt(1),T=fr.tangents[N],bk=style===0?crownL*.45:0,ci=pos.length/3,hk=hook;pos.push(p.x-T.x*bk+fr.normals[N].x*hk,p.y-T.y*bk+fr.normals[N].y*hk,p.z-T.z*bk+fr.normals[N].z*hk);col.push(.2,.17,.14);uv.push(1,len*2.2);const o=N*(RS+1);for(let j=0;j<RS;j++)idx.push(o+j,ci,o+j+1);}
+ if(fine){ // 折れた面：まんなかへ向かって、ささくれた段々
+  const T=fr.tangents[N],c=[0,0,0];for(let j=0;j<RS;j++){c[0]+=last[j][0]/RS;c[1]+=last[j][1]/RS;c[2]+=last[j][2]/RS;}
+  const M=5;let prev=N*(RS+1);for(let m=1;m<=M;m++){const f=1-m/M,st=pos.length/3;if(m===M){const dz=-rEnd*(.25+q()*.3);pos.push(c[0]+T.x*dz,c[1]+T.y*dz,c[2]+T.z*dz);col.push(.42,.36,.3);uv.push(1,len*2.2);for(let j=0;j<RS;j++)idx.push(prev+j,st,prev+j+1);break;}
+   for(let j=0;j<=RS;j++){const L=last[j%RS],dz=rEnd*((vn(L[3]*f*5+sd,L[4]*f*5,sd+m)-.5)*.55-(1-f)*.3),v=.5+.4*vn(L[3]*f*9+sd,L[4]*f*9,m)-(1-f)*.15;
+    pos.push(c[0]+(L[0]-c[0])*f+T.x*dz,c[1]+(L[1]-c[1])*f+T.y*dz,c[2]+(L[2]-c[2])*f+T.z*dz);col.push(v*1.04,v*.95,v*.84);uv.push(j/RS*2,len*2.2+(1-f)*.2);}
+   for(let j=0;j<RS;j++){const a=prev+j,b=st+j;idx.push(a,b,a+1,b,b+1,a+1);}prev=st;}}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
  {const n=g.attributes.normal;for(let i=0;i<=N;i++){const a=i*(RS+1),b=a+RS,x=n.getX(a)+n.getX(b),y=n.getY(a)+n.getY(b),z=n.getZ(a)+n.getZ(b),l=Math.hypot(x,y,z)||1;n.setXYZ(a,x/l,y/l,z/l);n.setXYZ(b,x/l,y/l,z/l);}}
  const m=new THREE.Mesh(g,mat);m.castShadow=true;m.receiveShadow=true;box.add(m);curve.radAt=radAt;
- // ふたまた：先の手前から、細いのが一、二本わかれる
- if(fine&&!opt.noFork&&(style===2||(big&&q()<.8)||q()<.25)){const nf=style===2?1+Math.floor(q()*2):1;for(let f=0;f<nf;f++){const t=ts-.06-q()*.12,p=curve.getPointAt(t),T=curve.getTangentAt(t),i0=Math.min(N,Math.round(t*N)),an=q()*6.283,sp=.45+q()*.5,L=r0*(4+q()*6),
-   d=V(T.x+(Math.cos(an)*fr.normals[i0].x+Math.sin(an)*fr.binormals[i0].x)*sp,T.y+(Math.cos(an)*fr.normals[i0].y+Math.sin(an)*fr.binormals[i0].y)*sp+.15,T.z+(Math.cos(an)*fr.normals[i0].z+Math.sin(an)*fr.binormals[i0].z)*sp).normalize(),
-   e=V(p.x+d.x*L,Math.min(TOPY-.03,p.y+d.y*L),p.z+d.z*L),mm=V((p.x+e.x)/2+(q()-.5)*L*.2,(p.y+e.y)/2+(q()-.3)*L*.15,(p.z+e.z)/2+(q()-.5)*L*.2);
-   limb([p,mm,e],Math.max(.026,radAt(t)*.62),.004,mat,0,0,{noFork:true,tip:[1,3,0][Math.floor(q()*3)]});}}
  return curve;}
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 let blades=[];
@@ -153,10 +158,9 @@ function build(){
   // 根：地面に張る
   for(let k=0;k<8;k++){const a=k/8*6.283+r(),l=.25+r()*.4,ex=bx+Math.cos(a)*l,ez=bz+Math.sin(a)*l*.9,mx=bx+Math.cos(a)*l*.45,mz=bz+Math.sin(a)*l*.4;if(Math.abs(ex)>hw-.03)continue;limb([V(bx+Math.cos(a)*.04,g0+.22+r()*.12,bz+Math.sin(a)*.04),V(mx,ground(mx,mz)+.1+r()*.08,mz),V(ex,ground(ex,ez)+.005,ez),V(ex+Math.cos(a)*.08,ground(ex,ez)-.05,ez+Math.sin(a)*.08)],.04+r()*.02,.008,bark,14,6);}
   // 枝
-  for(let k=0;k<9;k++){const t=.26+k/9*.56,p=c.getPointAt(t),up=.12+r()*.3,out=(r()-.35)*.5,fz=(r()-.5)*.9,l=.3+r()*.45;
-   const e=V(p.x+s*out*l-s*.1,Math.min(top,p.y+up*l*1.6),p.z+fz*l),m=V((p.x+e.x)/2+(r()-.5)*.1,(p.y+e.y)/2+.06,(p.z+e.z)/2+(r()-.5)*.1);
-   const rb=Math.max(.026,Math.min(.03+(1-t)*.03,c.radAt(t)*.72)),bc=limb([p,m,e],rb,rb*(.4+r()*.25),bark,12,6);mossPts.push([e,.1+r()*.07]);if(r()<.7)mossPts.push([bc.getPointAt(.6),.07+r()*.05]);
-   for(let q=0;q<(r()<.5?1:0);q++){const tp=bc.getPointAt(.4+r()*.4),te=V(tp.x+(r()-.5)*.3,Math.min(top,tp.y+(r()-.2)*.25),tp.z+(r()-.5)*.3);limb([tp,V((tp.x+te.x)/2,(tp.y+te.y)/2+.03,(tp.z+te.z)/2),te],.01,.003,bark,8,5);if(r()<.6)mossPts.push([te,.05+r()*.05]);}}
+  for(let k=0;k<4;k++){const t=.3+k*.135+(r()-.5)*.06,p=c.getPointAt(t),up=.16+r()*.3,out=(r()-.35)*.5,fz=(r()-.5)*.9,l=.26+r()*.36;if(r()<.22)continue;
+   const e=V(p.x+s*out*l-s*.1,Math.min(top,p.y+up*l*1.6),p.z+fz*l),m=V((p.x+e.x)/2+(r()-.5)*.06,(p.y+e.y)/2+.015,(p.z+e.z)/2+(r()-.5)*.06);
+   const rb=Math.max(.03,Math.min(.036+(1-t)*.03,c.radAt(t)*.74)),bc=limb([p,m,e],rb,rb*(.62+r()*.2),bark,12,6);mossPts.push([e,.1+r()*.07]);if(r()<.7)mossPts.push([bc.getPointAt(.6),.07+r()*.05]);}
   for(let k=0;k<7;k++){const t=.45+r()*.55,p=c.getPointAt(t);mossPts.push([V(p.x,p.y+.03,p.z),.09+r()*.06]);}
   for(let k=0;k<6;k++){const t=r()*.3,p=c.getPointAt(t);mossPts.push([V(p.x+(r()-.5)*.1,p.y,p.z+.06),.06+r()*.04]);}
  }
