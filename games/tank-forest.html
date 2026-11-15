@@ -186,7 +186,7 @@ function build(){
   // 右の木の根もと
   rock(.5*hw,-.84*zz,.32,{seed:11,sx:1.1,sy:.95,sz:.9,ry:.5,tilt:-.1,hard:.85});rock(.82*hw,-1.02*zz,.3,{seed:13,sy:1.35,sx:.8,tilt:-.14,hard:.7});rock(.76*hw,-.36*zz,.22,{seed:15,sy:.7,sx:1.15});rock(.36*hw,-1.3*zz,.2,{seed:17,sy:.85});
   // 奥
-  rock(-.3*hw,-1.62*zz,.17,{seed:19,sy:1.0});rock(.22*hw,-1.72*zz,.15,{seed:21,sy:.8});rock(-.62*hw,-1.75*zz,.2,{seed:23,sy:1.2});
+  rock(.17*hw,-1.46*zz,.27,{seed:27,sx:.95,sy:1.3,sz:.85,hard:.8,tilt:-.08,ry:.2});rock(.05*hw,-1.66*zz,.13,{seed:29,sy:.9,hard:.5});rock(-.3*hw,-1.62*zz,.17,{seed:19,sy:1.0});rock(.22*hw,-1.72*zz,.15,{seed:21,sy:.8});rock(-.62*hw,-1.75*zz,.2,{seed:23,sy:1.2});
   // 小道のふち：中くらい。奥ほど小さく
   for(let i=0;i<11;i++){const z=-.14-R()*(DP-.6),s=i%2?-1:1,x=pathX(z)+s*(pathW(z)+.05+R()*.07),rr=(.07+R()*.07)*(1-.45*sst(0,-DP,z));if(Math.abs(x)<hw-.1&&!inRock(x,z,1.3))rock(x,z,rr,{sy:.65+R()*.3});}
   // 大きい石のすそに、こぼれた小さいの
