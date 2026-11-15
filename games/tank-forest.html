@@ -133,7 +133,7 @@ function build(){
  /* 地面 */
  const nx=Math.max(60,Math.round(90*hw)),nz=110,gg=new THREE.PlaneGeometry(WS,DP,nx,nz);gg.rotateX(-Math.PI/2);gg.translate(0,0,-DP/2);const gp=gg.attributes.position,gc=[];
  for(let i=0;i<gp.count;i++){const x=gp.getX(i),z=gp.getZ(i);gp.setY(i,ground(x,z));const n=fbm(x*6,1,z*6);
-  {const f=pathF(x,z),ks=.9+n*.22+(vn(x*30,2,z*30)-.5)*.1,kg=.5+n*.7,dk=.6+.4*sst(0,.5*hw,Math.abs(x-pathX(z)));gc.push(.22*kg*dk+(1.0*ks-.22*kg*dk)*f,.46*kg*dk+(.86*ks-.46*kg*dk)*f,.16*kg*dk+(.64*ks-.16*kg*dk)*f);}}
+  {const f=pathF(x,z),ks=.9+n*.22+(vn(x*30,2,z*30)-.5)*.1,kg=.5+n*.7,dk=.6+.4*sst(0,.5*hw,Math.abs(x-pathX(z)));gc.push(.1*kg*dk+(1.0*ks-.1*kg*dk)*f,.22*kg*dk+(.86*ks-.22*kg*dk)*f,.07*kg*dk+(.64*ks-.07*kg*dk)*f);}}
  gg.setAttribute('color',new THREE.Float32BufferAttribute(gc,3));gg.computeVertexNormals();
  const gm=new THREE.Mesh(gg,caustics(new THREE.MeshStandardMaterial({vertexColors:true,map:groundTex,roughness:1}),.5));gm.receiveShadow=true;box.add(gm);
  /* 前のガラスの下：底砂の断面 */
@@ -219,9 +219,9 @@ function build(){
  for(let i=0;i<4;i++){const z=-.14-R()*(DP*.6),x0=pathX(z)+(R()-.5)*pathW(z),a=R()*6.283,l=.22+R()*.3,pts=[];for(let k=0;k<5;k++){const t=k/4,px=x0+Math.cos(a)*l*(t-.5)+Math.sin(t*6+i*2)*.05,pz=z+Math.sin(a)*l*(t-.5)*.6+Math.cos(t*5+i)*.04;pts.push(V(px,ground(px,pz)+.008+Math.sin(t*3.14)*.012,pz));}limb(pts,.0055,.002,bark,16,5);}
  /* 苔：もこもこ */
  {const blobs=[]; // 石の上の苔のかたまり（rockMoss）は、苔を話し合ってから
-  for(const k of rocks){if(k[2]<.12)continue;for(let j=0;j<5;j++){const a=R()*6.283,d=k[2]*(.8+R()*.25),x=k[0]+Math.cos(a)*d,z=Math.min(-.07,k[1]+Math.sin(a)*d);if(Math.abs(x)>hw-.06||z<-DP+.06||onPath(x,z))continue;blobs.push([x,ground(x,z)+.015,z,.04+R()*.05,.7,1]);}}
+  for(const k of rocks){if(k[2]<.12)continue;for(let j=0;j<0;j++){const a=R()*6.283,d=k[2]*(.8+R()*.25),x=k[0]+Math.cos(a)*d,z=Math.min(-.07,k[1]+Math.sin(a)*d);if(Math.abs(x)>hw-.06||z<-DP+.06||onPath(x,z))continue;blobs.push([x,ground(x,z)+.015,z,.04+R()*.05,.7,1]);}}
   if(MOSS_ON_WOOD)for(const [p,rad] of mossPts){const n=16+Math.floor(R()*12);for(let i=0;i<n;i++){const a=R()*6.283,d=Math.sqrt(R())*rad*1.1,hh=(1-d/(rad*1.1));blobs.push([p.x+Math.cos(a)*d,p.y+(R()-.4)*rad*.3+hh*rad*.3,p.z+Math.sin(a)*d,rad*(.2+R()*.22)]);}}
-  for(let i=0;i<160;i++){const rr=.05+R()*.08,x=(R()-.5)*(WS-rr*2.4),z=-rr*1.5-.04-R()*(DP-.3);if(onPath(x,z)||Math.abs(x-pathX(z))<pathW(z)+.06||inRock(x,z,.9))continue;blobs.push([x,ground(x,z)+.01,z,rr]);}
+  for(let i=0;i<0;i++){const rr=.05+R()*.08,x=(R()-.5)*(WS-rr*2.4),z=-rr*1.5-.04-R()*(DP-.3);if(onPath(x,z)||Math.abs(x-pathX(z))<pathW(z)+.06||inRock(x,z,.9))continue;blobs.push([x,ground(x,z)+.01,z,rr]);}
   const g=new THREE.IcosahedronGeometry(1,2),im=new THREE.InstancedMesh(g,new THREE.MeshStandardMaterial({roughness:1}),blobs.length),d=new THREE.Object3D(),c=new THREE.Color();
   blobs.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.scale.set(b[3]*(1+R()*.3),b[3]*(b[4]||(.86+R()*.2)),b[3]*(1+R()*.3));d.rotation.set(R()*.4,R()*6,R()*.4);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[5])c.setHSL(.25+R()*.05,.6+R()*.15,.13+R()*.09);else c.setHSL(.275+R()*.035,.66+R()*.14,.2+R()*.09);im.setColorAt(i,c);});
   im.castShadow=true;im.receiveShadow=true;box.add(im);
@@ -229,9 +229,16 @@ function build(){
   const fz=[];for(const b of blobs){const n=Math.round(34+b[3]*340);for(let i=0;i<n;i++){const a=R()*6.283,e=Math.acos(1-R()*1.45),rr=b[3]*1.0;fz.push([b[0]+Math.cos(a)*Math.sin(e)*rr,b[1]+Math.cos(e)*rr*.8,b[2]+Math.sin(a)*Math.sin(e)*rr,a,e]);}}
   const bg=new THREE.PlaneGeometry(.009,1,1,1);bg.translate(0,.5,0);const fm=new THREE.InstancedMesh(bg,sway(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.9}),.004),fz.length);
   fz.forEach((f,i)=>{d.position.set(f[0],f[1],f[2]);d.rotation.set(Math.sin(f[4])*Math.sin(f[3])*.9,R()*6,-Math.sin(f[4])*Math.cos(f[3])*.9);const s=.014+R()*.024;d.scale.set(1,s,1);d.updateMatrix();fm.setMatrixAt(i,d.matrix);c.setHSL(.26+R()*.05,.7,.26+R()*.2);fm.setColorAt(i,c);});box.add(fm);}
+ /* じゅうたん：丸い小さい葉が二枚ずつ、這って、もこもこ重なる（キューバパールグラスやモンテカルロの仲間） */
+ {const P=[],I=[],seg=8;for(const sg of[-1,1]){const o=P.length/3;P.push(sg*1.0,.2,0);for(let k=0;k<seg;k++){const a=k/seg*6.283,x=sg*1.0+Math.cos(a),z=Math.sin(a)*.9;P.push(x,.2*Math.abs(x)/2+.2-.2*(Math.cos(a)*Math.cos(a)*.5+Math.sin(a)*Math.sin(a)),z);}for(let k=0;k<seg;k++)I.push(o,o+1+(k+1)%seg,o+1+k);}
+  const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));lg.setIndex(I);lg.computeVertexNormals();
+  const cl=[];for(let i=0;i<90000;i++){const x=(R()-.5)*WS*.995,z=-.012-R()*(DP-.03);if(pathF(x,z)>.3+R()*.35||inRock(x,z,.5))continue;if(z<-1.45&&R()<.45)continue;
+   const H=(.02+.1*sst(.2,.8,fbm(x*2.6+2,5,z*2.6))+.03*vn(x*11,1,z*11)+(inRock(x,z,1.5)?.04:0))*(1-.6*pathF(x,z)),t=R();cl.push([x,ground(x,z)+.004+H*Math.pow(t,.5),z,t]);}
+  const cm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.75}),cl.length),d=new THREE.Object3D(),c=new THREE.Color();
+  cl.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const tl=.3+(1-b[3])*.6;d.rotation.set((R()-.5)*2*tl,R()*6.283,(R()-.5)*2*tl);d.scale.setScalar(.0095+R()*.006);d.updateMatrix();cm.setMatrixAt(i,d.matrix);c.setHSL(.25+R()*.045,.68+R()*.18,.07+.2*b[3]*b[3]+R()*.05);cm.setColorAt(i,c);});cm.receiveShadow=true;box.add(cm);}
  /* 草：手前は短く、奥と端は高く */
- {const bg=new THREE.PlaneGeometry(.022,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
-  const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.02-R()*(DP-.05);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z);list.push([x,z,.05+R()*.09+edge*.25*R()+back*.3*R()]);}
+ {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
+  const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.02-R()*(DP-.05);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.5+edge*.5+back*.35)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
   const im=new THREE.InstancedMesh(bg,sway(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.8}),.05),list.length),d=new THREE.Object3D(),c=new THREE.Color();
   list.forEach((b,i)=>{d.position.set(b[0],ground(b[0],b[1])-.005,b[1]);d.rotation.set((R()-.5)*.5,R()*6.283,(R()-.5)*.5);d.scale.set(1+R(),b[2],1);d.updateMatrix();im.setMatrixAt(i,d.matrix);c.setHSL(.24+R()*.1,.62+R()*.2,.3+R()*.26);im.setColorAt(i,c);});im.receiveShadow=true;box.add(im);
   // 背の高い水草（奥と両端）
