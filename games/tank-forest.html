@@ -18,13 +18,15 @@
   body{display:flex;align-items:center;justify-content:center}
   canvas{display:block;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 60px rgba(0,0,0,.55)}
   #tip{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;font-size:12px;letter-spacing:.12em;opacity:.85;pointer-events:none;text-shadow:0 0 8px rgba(0,0,0,.8);transition:opacity 1.5s}
-  #mode{position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));font-family:inherit;font-size:11px;letter-spacing:.1em;color:#f2f6ee;background:rgba(10,30,24,.4);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;opacity:.75}
+  #fish{left:max(12px,env(safe-area-inset-left));right:auto!important}
+  #mode,#fish{position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));font-family:inherit;font-size:11px;letter-spacing:.1em;color:#f2f6ee;background:rgba(10,30,24,.4);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;opacity:.75}
   #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a1712;font-size:13px;letter-spacing:.2em;transition:opacity 1s}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <button id="mode">のぞき方：指</button>
+<button id="fish">お魚の目 🐟</button>
 <div id="tip">指でなぞると、のぞく角度が変わる</div>
 <div id="load">水を張っています</div>
 <script src="./vendor/three-0.158.min.js"></script>
@@ -184,7 +186,7 @@ function build(){
    if(r>.12&&b>.35&&q()<(r>.2?.006:.012))rockMoss.push([x+lx*ct-ly*stt,gy+lx*stt+ly*ct,z+lz,r*(.07+q()*.07)]);}
   g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.computeVertexNormals();
   {const n=g.attributes.normal;for(let iy=0;iy<=hs;iy++){const a=iy*(ws+1),b=a+ws;if(iy===0||iy===hs){let X=0,Y=0,Z=0;for(let j=0;j<=ws;j++){X+=n.getX(a+j);Y+=n.getY(a+j);Z+=n.getZ(a+j);}const l=Math.hypot(X,Y,Z)||1;for(let j=0;j<=ws;j++)n.setXYZ(a+j,X/l,Y/l,Z/l);}else{const X=n.getX(a)+n.getX(b),Y=n.getY(a)+n.getY(b),Z=n.getZ(a)+n.getZ(b),l=Math.hypot(X,Y,Z)||1;n.setXYZ(a,X/l,Y/l,Z/l);n.setXYZ(b,X/l,Y/l,Z/l);}}}
-  const m=new THREE.Mesh(g,rockM);m.position.set(x,gy,z);m.rotation.z=tilt;m.castShadow=true;m.receiveShadow=true;box.add(m);rocks.push([x,z,r*Math.max(sx,sz)]);}
+  const m=new THREE.Mesh(g,rockM);m.position.set(x,gy,z);m.rotation.z=tilt;m.castShadow=true;m.receiveShadow=true;box.add(m);rocks.push([x,z,r*Math.max(sx,sz),gy+r*sy*1.15]);ROCKS=rocks;}
  {const zz=DP/2; // 置き方：木の根もとに大きいの、小道のふちに中くらい、奥ほど小さく。小道のまんなかには置かない
   // 左の木の根もと（親石は左、立っている）
   rock(-.74*hw,-1.22*zz,.5,{seed:3,sx:.82,sy:1.65,sz:.74,tilt:.1,ry:.3,hard:.95,lift:.12});rock(-.52*hw,-.6*zz,.3,{seed:5,sx:1.15,sy:.8,sz:.9,ry:-.2,hard:.3});rock(-.76*hw,-.62*zz,.21,{seed:7,sy:.75});rock(-.4*hw,-.98*zz,.19,{seed:9,sy:.9});
@@ -262,7 +264,18 @@ function build(){
    const hm=new THREE.InstancedMesh(hg,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.9}),HL.length);
    HL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*30,b[4]+(R()-.3)*30,b[5]+(R()-.5)*30).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar((.0065+R()*.009)*(1+b[7]*1.1));d.updateMatrix();hm.setMatrixAt(i,d.matrix);c.setHSL(.29-.075*b[6]-R()*.025,.82,.11+.26*b[6]*b[6]+R()*.07);hm.setColorAt(i,c);});box.add(hm);
    const lm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),LL.length);
-   LL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*25,b[4]+25,b[5]+(R()-.5)*25).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar(.0028+R()*.0018);d.updateMatrix();lm.setMatrixAt(i,d.matrix);c.setHSL(.285-.05*b[6]+R()*.02,.8,.09+.2*b[6]*b[6]+R()*.05);lm.setColorAt(i,c);});box.add(lm);}}
+   LL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*25,b[4]+25,b[5]+(R()-.5)*25).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar(.0028+R()*.0018);d.updateMatrix();lm.setMatrixAt(i,d.matrix);c.setHSL(.285-.05*b[6]+R()*.02,.8,.09+.2*b[6]*b[6]+R()*.05);lm.setColorAt(i,c);});box.add(lm);}
+  // かたまりのすきまに、前のトゲトゲのじゅうたん（色はそのまま）。細いふさと、小さい丸い葉
+  {const P=[],I=[],d=new THREE.Object3D();for(let k=0;k<3;k++){const a=k*2.094+.3,w=.0022,o=P.length/3,px=Math.cos(a+1.571)*w,pz=Math.sin(a+1.571)*w,bx=Math.cos(a)*.0016,bz=Math.sin(a)*.0016;P.push(bx+px,0,bz+pz,bx-px,0,bz-pz,bx+Math.cos(a)*.007,1,bz+Math.sin(a)*.007);I.push(o,o+1,o+2);}
+   const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));tg.setIndex(I);tg.computeVertexNormals();
+   const L=[];for(let i=0;i<120000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.9)*(DP-.02),hh=mossH(x,z);if(hh<.004||inRock(x,z,.42))continue;L.push([x,ground(x,z)+hh-.002,z,tone(x,z)]);}
+   const fm=new THREE.InstancedMesh(tg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.9}),L.length);
+   L.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*.9,R()*6.283,(R()-.5)*.9);const sx=.7+R()*.8;d.scale.set(sx,.011+R()*.018+b[3]*.008,sx);d.updateMatrix();fm.setMatrixAt(i,d.matrix);c.setHSL(.3-.07*b[3]-R()*.02,.82,.07+.27*b[3]*b[3]+R()*.06);fm.setColorAt(i,c);});box.add(fm);
+   const Q=[],J=[],seg=7;for(const sg of[-1,1]){const o=Q.length/3;Q.push(sg*1.0,.15,0);for(let k=0;k<seg;k++){const a=k/seg*6.283;Q.push(sg*1.0+Math.cos(a),.15-.15*Math.cos(a)*sg,Math.sin(a)*.9);}for(let k=0;k<seg;k++)J.push(o,o+1+(k+1)%seg,o+1+k);}
+   const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(Q,3));lg.setIndex(J);lg.computeVertexNormals();
+   const M=[];for(let i=0;i<34000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.6)*DP*.42,hh=mossH(x,z);if(hh<.006||inRock(x,z,.45))continue;const t=tone(x,z);if(R()>.25+t)continue;M.push([x,ground(x,z)+hh+.002+R()*.004,z,t]);}
+   const lm2=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),M.length);
+   M.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*1.1,R()*6.283,(R()-.5)*1.1);d.scale.setScalar(.0042+R()*.003);d.updateMatrix();lm2.setMatrixAt(i,d.matrix);c.setHSL(.265-.035*b[3]+R()*.03,.82,.12+.24*b[3]+R()*.06);lm2.setColorAt(i,c);});box.add(lm2);}}
  /* 草：手前は短く、奥と端は高く */
  {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
   const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.07-R()*(DP-.1);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.3+edge*.45+back*.3)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
@@ -289,7 +302,7 @@ function build(){
  for(let i=0;i<10;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.12+R()*.26,HS*1.02),new THREE.MeshBasicMaterial({map:rt,transparent:true,opacity:.1,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false,color:0xf6ffe8}));m.position.set((R()-.5)*WS*.8,.02,-.3-R()*(DP-.6));m.rotation.z=.14+R()*.1;m.userData={ph:R()*6,sp:.25+R()*.4};box.add(m);rays.push(m);}
  {const n=320,pos=new Float32Array(n*3),v=[];for(let i=0;i<n;i++){pos[i*3]=(R()-.5)*WS*.96;pos[i*3+1]=BOT+.3+R()*(HS-.5);pos[i*3+2]=-R()*DP*.95;v.push(R()*6);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));motes=new THREE.Points(g,new THREE.PointsMaterial({color:0xfbfff0,size:.011,transparent:true,opacity:.55,depthWrite:false}));motes.userData.v=v;box.add(motes);}
 }
-let surf=null,surfBase=null,rays=[],motes=null;const _b=build;build=function(){_b();renderer.shadowMap.needsUpdate=true;};
+let surf=null,surfBase=null,rays=[],motes=null,ROCKS=[];const _b=build;build=function(){_b();renderer.shadowMap.needsUpdate=true;};
 /* ---------- 目の位置 → 視野の四角をずらす（画面が前のガラス） ---------- */
 let ex=0,ey=0,tx=0,ty=0;const EZ=3.3;
 // 拡大：ガラスの上の四角を小さく切り取る。目の位置はそのまま
@@ -299,20 +312,41 @@ function project(){const n=.05,f=40;cam.position.set(ex,ey,EZ);cam.rotation.set(
  cam.projectionMatrix.makePerspective((cx-zw-ex)*n/EZ,(cx+zw-ex)*n/EZ,(cy+zh-ey)*n/EZ,(cy-zh-ey)*n/EZ,n,f);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();}
 // 水槽の大きさは本物の規格で固定（幅×奥行×高さ cm）。画面には、その形のまま収める。
 const SIZES={60:[60,30,36],90:[90,45,45],120:[120,45,45]};let tank=90;
-let rz=0;function resize(){const sz=SIZES[tank],ratio=sz[0]/sz[2],ch=Math.min(innerHeight,innerWidth/ratio),cw=ch*ratio;renderer.setSize(Math.round(cw),Math.round(ch),true);const w=HS*ratio,d=HS*sz[1]/sz[2];if(Math.abs(w-WS)>.001||Math.abs(d-DP)>.001||!box.children.length){WS=w;DP=d;scene.fog.near=EZ+.6;scene.fog.far=EZ+DP*ZS*3.1;build();}}
+let rz=0;function resize(){const sz=SIZES[tank],ratio=sz[0]/sz[2],ch=fish?innerHeight:Math.min(innerHeight,innerWidth/ratio),cw=fish?innerWidth:ch*ratio;renderer.setSize(Math.round(cw),Math.round(ch),true);const w=HS*ratio,d=HS*sz[1]/sz[2];if(Math.abs(w-WS)>.001||Math.abs(d-DP)>.001||!box.children.length){WS=w;DP=d;scene.fog.near=EZ+.6;scene.fog.far=EZ+DP*ZS*3.1;build();}}
 addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(resize,200);});
 /* 指と傾き */
 const cv=renderer.domElement,tip=document.getElementById('tip'),mb=document.getElementById('mode');let drag=null,lastTouch=0,tilt=false,g0=null,gs=null;
 const at=v=>{v=Math.max(-.98,Math.min(.98,v));return .5*Math.log((1+v)/(1-v));};
 const fingers=new Map();let pinch=null;
+// お魚の目：水槽の中に入って、小さい魚の高さで泳ぐ。なぞると向きが変わる。放っておくと、気ままに泳ぐ
+let fish=false,FP={x:0,y:0,z:-.3,yaw:0,pitch:0,ty:0,tp:0,sp:.16,hold:false,still:false};const fb=document.getElementById('fish');
+const FOG0={near:0,far:0,col:0x0b1a2b,bg:0x0a1712};
+function setFish(on){fish=on;if(on){FOG0.near=scene.fog.near;FOG0.far=scene.fog.far;box.scale.z=1;scene.fog.color.setHex(0x0c2734);scene.fog.near=.12;scene.fog.far=3.4;scene.background.setHex(0x0c2734);
+   FP.z=-.22;FP.x=pathX(FP.z);FP.y=mossY(FP.x,FP.z)+.16;FP.yaw=FP.ty=0;FP.pitch=FP.tp=.05;zt=1;ftx=fty=0;
+   fb.textContent='外から見る';mb.style.display='none';tip.textContent='なぞると向きが変わる。指を置いている間は止まる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,5000);}
+  else{box.scale.z=ZS;scene.fog.color.setHex(FOG0.col);scene.fog.near=FOG0.near;scene.fog.far=FOG0.far;scene.background.setHex(FOG0.bg);fb.textContent='お魚の目 🐟';mb.style.display='';}
+  renderer.shadowMap.needsUpdate=true;resize();}
+fb.addEventListener('click',()=>setFish(!fish));
+function fishStep(dt,t){const P=FP,idle=performance.now()-lastTouch>3500;
+  if(!P.still){if(idle&&!P.hold){P.ty+=(vn(t*.11,3,7)-.5)*dt*1.5;P.tp=(vn(t*.09,9,2)-.5)*.5;}
+   P.yaw+=(P.ty-P.yaw)*Math.min(1,dt*6);P.pitch+=(P.tp-P.pitch)*Math.min(1,dt*6);
+   const v=P.hold?0:P.sp*(1+.25*Math.sin(t*2.3)),cp=Math.cos(P.pitch);P.x+=-Math.sin(P.yaw)*cp*v*dt;P.z+=-Math.cos(P.yaw)*cp*v*dt;P.y+=Math.sin(P.pitch)*v*dt;
+   // 壁、底、水面、石
+   const m=.14,ax=hw-m;let turn=0;if(P.x>ax){P.x=ax;turn=1;}if(P.x<-ax){P.x=-ax;turn=1;}if(P.z>-m){P.z=-m;turn=1;}if(P.z<-DP+m){P.z=-DP+m;turn=1;}
+   if(turn&&idle){const want=Math.atan2(P.x,P.z+DP/2)+0;let dy=((want-P.ty+3.1416)%6.2832+6.2832)%6.2832-3.1416;P.ty+=dy*Math.min(1,dt*1.6);}
+   const lo=Math.max(ground(P.x,P.z),mossY(P.x,P.z))+.075,hi=TOPY-.08;if(P.y<lo){P.y+=(lo-P.y)*Math.min(1,dt*8);if(idle)P.tp=Math.max(P.tp,.12);}if(P.y>hi){P.y=hi;if(idle)P.tp=Math.min(P.tp,-.1);}
+   for(const k of ROCKS){const dx=P.x-k[0],dz=P.z-k[1],rr=k[2]*.82+.07,dd=Math.hypot(dx,dz);if(dd<rr&&P.y<k[3]+.06){const up=k[3]+.06-P.y;if(up<.09)P.y+=up*Math.min(1,dt*6);else{const q=rr/(dd||1e-3);P.x=k[0]+dx*q;P.z=k[1]+dz*q;if(idle)P.ty+=dt*1.2;}}}}
+  cam.position.set(P.x+Math.sin(t*1.7)*.004,P.y+Math.sin(t*2.3)*.003,P.z);cam.rotation.set(P.pitch,P.yaw+Math.sin(t*2.3)*.012,Math.sin(t*2.3+1)*.012,'YXZ');cam.updateMatrixWorld();
+  cam.fov=74;cam.aspect=cv.clientWidth/Math.max(1,cv.clientHeight);cam.near=.006;cam.far=30;cam.updateProjectionMatrix();}
 const mid=()=>{const a=[...fingers.values()],r=cv.getBoundingClientRect();return {d:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),mx:((a[0][0]+a[1][0])/2-r.left)/r.width*2-1,my:1-((a[0][1]+a[1][1])/2-r.top)/r.height*2};};
-addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('button'))return;fingers.set(e.pointerId,[e.clientX,e.clientY]);
+addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('button'))return;fingers.set(e.pointerId,[e.clientX,e.clientY]);if(fish){FP.hold=true;drag=[e.clientX,e.clientY];lastTouch=performance.now();return;}
  if(fingers.size===2){const m=mid();pinch={d:m.d,z:zt,gx:ftx+m.mx*hw/zt,gy:fty+m.my*HS/2/zt};drag=null;}
  else if(fingers.size===1)drag=[e.clientX,e.clientY,at(tx),at(ty)];});
 addEventListener('pointermove',e=>{if(fingers.has(e.pointerId))fingers.set(e.pointerId,[e.clientX,e.clientY]);
+ if(fish){if(drag){const r=cv.getBoundingClientRect();FP.ty-=(e.clientX-drag[0])/r.width*2.6;FP.tp=Math.max(-1.2,Math.min(1.2,FP.tp-(e.clientY-drag[1])/r.height*2));drag=[e.clientX,e.clientY];lastTouch=performance.now();tip.style.opacity=0;}return;}
  if(pinch&&fingers.size>=2){const m=mid();zt=Math.max(1,Math.min(6,pinch.z*m.d/Math.max(20,pinch.d)));const zw=hw/zt,zh=HS/2/zt;ftx=Math.max(-hw+zw,Math.min(hw-zw,pinch.gx-m.mx*zw));fty=Math.max(-HS/2+zh,Math.min(HS/2-zh,pinch.gy-m.my*zh));lastTouch=performance.now();tip.style.opacity=0;return;}
  if(!drag||tilt)return;const r=cv.getBoundingClientRect();tx=Math.tanh(Math.max(-2.4,Math.min(2.4,drag[2]+(e.clientX-drag[0])/r.width*4.6)));ty=Math.tanh(Math.max(-2.4,Math.min(2.4,drag[3]-(e.clientY-drag[1])/r.height*5.6)));lastTouch=performance.now();tip.style.opacity=0;});
-const up=e=>{fingers.delete(e.pointerId);if(fingers.size<2)pinch=null;drag=null;if(fingers.size===1){const a=[...fingers.values()][0];drag=[a[0],a[1],at(tx),at(ty)];}if(zt<1.06){zt=1;ftx=0;fty=0;}};
+const up=e=>{if(fish){fingers.delete(e.pointerId);if(!fingers.size){FP.hold=false;drag=null;}lastTouch=performance.now();return;}fingers.delete(e.pointerId);if(fingers.size<2)pinch=null;drag=null;if(fingers.size===1){const a=[...fingers.values()][0];drag=[a[0],a[1],at(tx),at(ty)];}if(zt<1.06){zt=1;ftx=0;fty=0;}};
 addEventListener('pointerup',up);addEventListener('pointercancel',up);addEventListener('orientationchange',()=>{gs=null;});
 // 傾き：角度の数字は横持ちで飛ぶので、向きの行列に直してから、はじめの持ち方との差を使う。ゆっくり、今の持ち方をまんなかに戻す。
 function rotOf(e){const A=(e.alpha||0)*Math.PI/180,B=e.beta*Math.PI/180,G=e.gamma*Math.PI/180,ca=Math.cos(A),sa=Math.sin(A),cb=Math.cos(B),sb2=Math.sin(B),cg=Math.cos(G),sg=Math.sin(G),m1=[cg,0,sg],m2=[sb2*sg,cb,-sb2*cg],m3=[-cb*sg,sb2,cb*cg];
@@ -328,7 +362,7 @@ function onTilt(e){if(e.gamma==null||e.beta==null)return;const Rm=rotOf(e),nw=[R
 mb.addEventListener('click',async()=>{if(!tilt){try{if(typeof DeviceOrientationEvent==='undefined'){tip.textContent='この画面では、傾きが使えない';tip.style.opacity=.85;return;}if(typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return;}}catch(err){return;}
   tilt=true;gs=null;addEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：傾き';tip.textContent='スマホを傾けると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}
  else{tilt=false;removeEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：指';tip.textContent='指でなぞると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}});
-const q=new URLSearchParams(location.search);if(q.get('x'))tx=+q.get('x');if(q.get('y'))ty=+q.get('y');const fixed=q.has('x')||q.has('y');if(q.get('zoom')){zm=zt=Math.max(1,+q.get('zoom'));fx=ftx=(+q.get('fx')||0)*2;fy=fty=(+q.get('fy')||0);}
+const q=new URLSearchParams(location.search);if(q.get('x'))tx=+q.get('x');if(q.get('y'))ty=+q.get('y');const fixed=q.has('x')||q.has('y');let fishStart=q.get('fish');if(q.get('zoom')){zm=zt=Math.max(1,+q.get('zoom'));fx=ftx=(+q.get('fx')||0)*2;fy=fty=(+q.get('fy')||0);}
 try{const t=+q.get('tank');if(SIZES[t])tank=t;}catch(err){}
 if(innerHeight>innerWidth)tip.textContent='横にすると、水槽が大きくなる';
 const clock=new THREE.Clock();let first=true;
@@ -337,8 +371,9 @@ function frame(){const t=clock.getElapsedTime();uTime.value=t;
  const k=drag?.75:.22;ex+=(tx*hw*1.1-ex)*k;ey+=(ty*HS*.42-ey)*k;
  if(surf){const sp=surf.geometry.attributes.position;for(let i=0;i<sp.count;i++){const x=surfBase[i*3],y=surfBase[i*3+1];sp.setZ(i,Math.sin(x*6+t*1.5)*.012+Math.cos(y*7+t*1.2)*.01);}sp.needsUpdate=true;}
  for(const r of rays)r.material.opacity=.05+.1*(.5+.5*Math.sin(t*r.userData.sp+r.userData.ph));
- if(motes){const mp=motes.geometry.attributes.position,mv=motes.userData.v;for(let i=0;i<mp.count;i++){let y=mp.getY(i)+.00018;if(y>TOPY)y=BOT+.3;mp.setY(i,y);mp.setX(i,mp.getX(i)+Math.sin(t*.4+mv[i])*.00016);}mp.needsUpdate=true;}
- project();renderer.render(scene,cam);
+ if(motes){motes.material.size=fish?.0028:.011;const mp=motes.geometry.attributes.position,mv=motes.userData.v;for(let i=0;i<mp.count;i++){let y=mp.getY(i)+.00018;if(y>TOPY)y=BOT+.3;mp.setY(i,y);mp.setX(i,mp.getX(i)+Math.sin(t*.4+mv[i])*.00016);}mp.needsUpdate=true;}
+ if(fishStart&&box.children.length){const f=fishStart;fishStart=null;setFish(true);if(f.includes(',')){const a=f.split(',').map(Number);FP.x=a[0];FP.y=a[1];FP.z=a[2];FP.yaw=FP.ty=a[3]||0;FP.pitch=FP.tp=a[4]||0;FP.still=true;}}
+ const dt=Math.min(.05,Math.max(.001,t-(frame.lt||t)));frame.lt=t;if(fish)fishStep(dt,t);else project();renderer.render(scene,cam);
  if(first){first=false;const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),1100);setTimeout(()=>tip.style.opacity=0,5000);window.__ready=true;}
  requestAnimationFrame(frame);}
 setTimeout(()=>{resize();requestAnimationFrame(frame);},60);
