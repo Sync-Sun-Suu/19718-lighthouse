@@ -75,8 +75,11 @@ float ph=instanceMatrix[3].x*5.0+instanceMatrix[3].z*3.7;transformed.x+=sin(uTim
 const pathX=z=>Math.sin(z*1.9+.4)*.13*hw+Math.sin(z*.8)*.05*hw;
 const pathW=z=>Math.max(.07,(.2-.11*sst(0,-DP,z))*hw+.02);
 function ground(x,z){const d=Math.abs(x-pathX(z)),pw=pathW(z),back=sst(0,-DP,z),bank=sst(pw*.9,pw+.55*hw+.12,d);
- return BOT+.05+back*.2+bank*(.1+.42*back)+(fbm(x*2.2+3,0,z*2.2)-.5)*.1*(.3+bank)-sst(pw,0,d)*.015;}
+ return BOT+.04+back*.24+bank*(.07+.56*Math.pow(back,.8))+(fbm(x*2.2+3,0,z*2.2)-.5)*.1*(.3+bank)-sst(pw,0,d)*.015;}
 const pathF=(x,z)=>{const d=Math.abs(x-pathX(z)),pw=pathW(z)*(1+(vn(x*9,0,z*9)-.5)*.5);return sst(pw*1.25,pw*.8,d);};
+const billow=(x,z,f,sd)=>Math.abs(2*vn(x*f+sd,sd,z*f)-1);
+function mossH(x,z){const cov=1-sst(.2,.7,pathF(x,z));return (.012+.065*sst(.25,.8,fbm(x*2.3+2,5,z*2.3))+.05*billow(x,z,6.5,3)+.02*billow(x,z,17,8)+.007*billow(x,z,43,5))*cov-(1-cov)*.03;}
+const mossY=(x,z)=>ground(x,z)+mossH(x,z);
 const onPath=(x,z)=>Math.abs(x-pathX(z))<pathW(z)*(1+(vn(x*9,0,z*9)-.5)*.5);
 /* ---------- 太さの変わる枝 ---------- */
 function limb(pts,r0,r1,mat,seg,rs,opt){opt=opt||{};const curve=new THREE.CatmullRomCurve3(pts),len=curve.getLength(),big=r0>=.08,mid=r0>=.025&&!big,fine=big||mid,
@@ -229,16 +232,34 @@ function build(){
   const fz=[];for(const b of blobs){const n=Math.round(34+b[3]*340);for(let i=0;i<n;i++){const a=R()*6.283,e=Math.acos(1-R()*1.45),rr=b[3]*1.0;fz.push([b[0]+Math.cos(a)*Math.sin(e)*rr,b[1]+Math.cos(e)*rr*.8,b[2]+Math.sin(a)*Math.sin(e)*rr,a,e]);}}
   const bg=new THREE.PlaneGeometry(.009,1,1,1);bg.translate(0,.5,0);const fm=new THREE.InstancedMesh(bg,sway(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.9}),.004),fz.length);
   fz.forEach((f,i)=>{d.position.set(f[0],f[1],f[2]);d.rotation.set(Math.sin(f[4])*Math.sin(f[3])*.9,R()*6,-Math.sin(f[4])*Math.cos(f[3])*.9);const s=.014+R()*.024;d.scale.set(1,s,1);d.updateMatrix();fm.setMatrixAt(i,d.matrix);c.setHSL(.26+R()*.05,.7,.26+R()*.2);fm.setColorAt(i,c);});box.add(fm);}
- /* じゅうたん：丸い小さい葉が二枚ずつ、這って、もこもこ重なる（キューバパールグラスやモンテカルロの仲間） */
- {const P=[],I=[],seg=8;for(const sg of[-1,1]){const o=P.length/3;P.push(sg*1.0,.2,0);for(let k=0;k<seg;k++){const a=k/seg*6.283,x=sg*1.0+Math.cos(a),z=Math.sin(a)*.9;P.push(x,.2*Math.abs(x)/2+.2-.2*(Math.cos(a)*Math.cos(a)*.5+Math.sin(a)*Math.sin(a)),z);}for(let k=0;k<seg;k++)I.push(o,o+1+(k+1)%seg,o+1+k);}
-  const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));lg.setIndex(I);lg.computeVertexNormals();
-  const cl=[];for(let i=0;i<90000;i++){const x=(R()-.5)*WS*.995,z=-.012-R()*(DP-.03);if(pathF(x,z)>.3+R()*.35||inRock(x,z,.5))continue;if(z<-1.45&&R()<.45)continue;
-   const H=(.02+.1*sst(.2,.8,fbm(x*2.6+2,5,z*2.6))+.03*vn(x*11,1,z*11)+(inRock(x,z,1.5)?.04:0))*(1-.6*pathF(x,z)),t=R();cl.push([x,ground(x,z)+.004+H*Math.pow(t,.5),z,t]);}
-  const cm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.75}),cl.length),d=new THREE.Object3D(),c=new THREE.Color();
-  cl.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const tl=.3+(1-b[3])*.6;d.rotation.set((R()-.5)*2*tl,R()*6.283,(R()-.5)*2*tl);d.scale.setScalar(.0095+R()*.006);d.updateMatrix();cm.setMatrixAt(i,d.matrix);c.setHSL(.25+R()*.045,.68+R()*.18,.07+.2*b[3]*b[3]+R()*.05);cm.setColorAt(i,c);});cm.receiveShadow=true;box.add(cm);}
+ /* じゅうたん：ふわもこの苔。細かい山と谷を形で作って、その上に細かい毛と、手前だけ小さい丸い葉 */
+ {const mt=tex(512,512,(x,w,h)=>{x.fillStyle='#b4b4b4';x.fillRect(0,0,w,h);const r=mul(41);for(let i=0;i<90000;i++){const v=r()<.5?40+r()*70:190+r()*65;x.fillStyle=`rgba(${v|0},${v|0},${v|0},${.3+r()*.45})`;const q=.8+r()*1.6;x.fillRect(r()*w,r()*h,q,q);}},[1,1]);
+  const mb=(()=>{const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d'),r=mul(42);x.fillStyle='#808080';x.fillRect(0,0,512,512);for(let i=0;i<70000;i++){const v=r()<.5?10+r()*80:170+r()*85;x.fillStyle=`rgba(${v|0},${v|0},${v|0},${.35+r()*.45})`;x.beginPath();x.arc(r()*512,r()*512,.8+r()*1.8,0,7);x.fill();}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;return t;})();
+  const nx=Math.round(210*hw),nz=250,pos=[],col=[],uv=[],idx=[],c=new THREE.Color();
+  const tone=(x,z)=>{const b1=billow(x,z,6.5,3),b2=billow(x,z,17,8),b3=billow(x,z,43,5);return Math.max(0,Math.min(1,.12+.5*b1*b1+.3*b2+.16*b3+.12*sst(.3,.8,fbm(x*2.3+2,5,z*2.3))));};
+  for(let j=0;j<=nz;j++){const z=-DP*Math.pow(j/nz,1.45);for(let i=0;i<=nx;i++){const x=-hw+WS*i/nx,hh=mossH(x,z);pos.push(x,ground(x,z)+hh,z);uv.push(x*4.5,z*4.5);
+    const t=tone(x,z),pch=vn(x*1.9+7,3,z*1.9);c.setHSL(.305-.065*t-.02*pch,.8,.03+.27*t*t+.035*pch);const sh=hh<.006?.5:1;col.push(c.r*sh,c.g*sh,c.b*sh);}}
+  for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const a=j*(nx+1)+i,b=a+nx+1;idx.push(a,b,a+1,b,b+1,a+1);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+  const mm=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,map:mt,bumpMap:mb,bumpScale:3,roughness:1}));mm.receiveShadow=true;box.add(mm);
+  // 前のガラスに当たる、苔の切り口
+  {const P=[],C=[],I=[],n=200;for(let i=0;i<=n;i++){const x=-hw+WS*i/n,y0=ground(x,-.001),y1=Math.max(y0,mossY(x,-.001)),t=tone(x,0);P.push(x,y0-.004,.0005,x,y1,.0005);c.setHSL(.3,.7,.012);C.push(c.r,c.g,c.b);c.setHSL(.3-.04*t,.75,.03+.08*t*t);C.push(c.r,c.g,c.b);if(i<n){const a=i*2;I.push(a,a+2,a+1,a+1,a+2,a+3);}}
+   const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));fg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));fg.setIndex(I);box.add(new THREE.Mesh(fg,new THREE.MeshBasicMaterial({vertexColors:true,fog:false})));}
+  // 毛：三本ずつの細いふさ。手前ほどたくさん
+  {const P=[],I=[];for(let k=0;k<3;k++){const a=k*2.094+.3,w=.0022,o=P.length/3,px=Math.cos(a+1.571)*w,pz=Math.sin(a+1.571)*w,bx=Math.cos(a)*.0016,bz=Math.sin(a)*.0016;P.push(bx+px,0,bz+pz,bx-px,0,bz-pz,bx+Math.cos(a)*.007,1,bz+Math.sin(a)*.007);I.push(o,o+1,o+2);}
+   const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));tg.setIndex(I);tg.computeVertexNormals();
+   const L=[];for(let i=0;i<150000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.9)*(DP-.02),hh=mossH(x,z);if(hh<.004||inRock(x,z,.42))continue;L.push([x,ground(x,z)+hh-.002,z,tone(x,z)]);}
+   const fm=new THREE.InstancedMesh(tg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.9}),L.length),d=new THREE.Object3D();
+   L.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*.9,R()*6.283,(R()-.5)*.9);const sx=.7+R()*.8;d.scale.set(sx,.009+R()*.016+b[3]*.008,sx);d.updateMatrix();fm.setMatrixAt(i,d.matrix);c.setHSL(.3-.07*b[3]-R()*.02,.82,.07+.27*b[3]*b[3]+R()*.06);fm.setColorAt(i,c);});box.add(fm);}
+  // 手前だけ、小さい丸い葉（二枚ずつ）
+  {const P=[],I=[],seg=7;for(const sg of[-1,1]){const o=P.length/3;P.push(sg*1.0,.15,0);for(let k=0;k<seg;k++){const a=k/seg*6.283;P.push(sg*1.0+Math.cos(a),.15-.15*Math.cos(a)*sg,Math.sin(a)*.9);}for(let k=0;k<seg;k++)I.push(o,o+1+(k+1)%seg,o+1+k);}
+   const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));lg.setIndex(I);lg.computeVertexNormals();
+   const L=[];for(let i=0;i<46000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.6)*DP*.42,hh=mossH(x,z);if(hh<.006||inRock(x,z,.45))continue;const t=tone(x,z);if(R()>.25+t)continue;L.push([x,ground(x,z)+hh+.002+R()*.004,z,t]);}
+   const lm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),L.length),d=new THREE.Object3D();
+   L.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*1.1,R()*6.283,(R()-.5)*1.1);d.scale.setScalar(.0042+R()*.003);d.updateMatrix();lm.setMatrixAt(i,d.matrix);c.setHSL(.265-.035*b[3]+R()*.03,.82,.12+.24*b[3]+R()*.06);lm.setColorAt(i,c);});box.add(lm);}}
  /* 草：手前は短く、奥と端は高く */
  {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
-  const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.02-R()*(DP-.05);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.5+edge*.5+back*.35)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
+  const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.02-R()*(DP-.05);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.3+edge*.45+back*.3)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
   const im=new THREE.InstancedMesh(bg,sway(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.8}),.05),list.length),d=new THREE.Object3D(),c=new THREE.Color();
   list.forEach((b,i)=>{d.position.set(b[0],ground(b[0],b[1])-.005,b[1]);d.rotation.set((R()-.5)*.5,R()*6.283,(R()-.5)*.5);d.scale.set(1+R(),b[2],1);d.updateMatrix();im.setMatrixAt(i,d.matrix);c.setHSL(.24+R()*.1,.62+R()*.2,.3+R()*.26);im.setColorAt(i,c);});im.receiveShadow=true;box.add(im);
   // 背の高い水草（奥と両端）
