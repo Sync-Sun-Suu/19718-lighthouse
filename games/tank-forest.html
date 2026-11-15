@@ -245,18 +245,24 @@ function build(){
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
   const mm=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,map:mt,bumpMap:mb,bumpScale:3,roughness:1}));mm.receiveShadow=true;box.add(mm);
   // 前のガラスでは切らない：苔は手前で丸く下りる（mossH の中）
-  // 毛：三本ずつの細いふさ。手前ほどたくさん
-  {const P=[],I=[];for(let k=0;k<3;k++){const a=k*2.094+.3,w=.0022,o=P.length/3,px=Math.cos(a+1.571)*w,pz=Math.sin(a+1.571)*w,bx=Math.cos(a)*.0016,bz=Math.sin(a)*.0016;P.push(bx+px,0,bz+pz,bx-px,0,bz-pz,bx+Math.cos(a)*.007,1,bz+Math.sin(a)*.007);I.push(o,o+1,o+2);}
-   const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));tg.setIndex(I);tg.computeVertexNormals();
-   const L=[];for(let i=0;i<150000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.9)*(DP-.02),hh=mossH(x,z);if(hh<.004||inRock(x,z,.42))continue;L.push([x,ground(x,z)+hh-.002,z,tone(x,z)]);}
-   const fm=new THREE.InstancedMesh(tg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.9}),L.length),d=new THREE.Object3D();
-   L.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*.9,R()*6.283,(R()-.5)*.9);const sx=.7+R()*.8;d.scale.set(sx,.009+R()*.016+b[3]*.008,sx);d.updateMatrix();fm.setMatrixAt(i,d.matrix);c.setHSL(.3-.07*b[3]-R()*.02,.82,.07+.27*b[3]*b[3]+R()*.06);fm.setColorAt(i,c);});box.add(fm);}
-  // 手前だけ、小さい丸い葉（二枚ずつ）
-  {const P=[],I=[],seg=7;for(const sg of[-1,1]){const o=P.length/3;P.push(sg*1.0,.15,0);for(let k=0;k<seg;k++){const a=k/seg*6.283;P.push(sg*1.0+Math.cos(a),.15-.15*Math.cos(a)*sg,Math.sin(a)*.9);}for(let k=0;k<seg;k++)I.push(o,o+1+(k+1)%seg,o+1+k);}
+  // かたまり：小さいクッションが寄り集まる。手前ほど小さく、たくさん。毛と小さい丸い葉は、かたまりの面から外向きに生える
+  {const cg=new THREE.SphereGeometry(1,10,7),cp=cg.attributes.position,cc=[];
+   for(let i=0;i<cp.count;i++){const a=cp.getX(i),b=cp.getY(i),e=cp.getZ(i),k=1+(vn(a*2.3+3,b*2.3,e*2.3)-.5)*.55;cp.setXYZ(i,a*k,Math.max(-.35,b*k),e*k);const v=.28+.95*sst(-.35,1,b);cc.push(v,v,v);}
+   cg.setAttribute('color',new THREE.Float32BufferAttribute(cc,3));cg.computeVertexNormals();
+   const CL=[];for(let i=0;i<10500;i++){const x=(R()-.5)*WS*.998,z=-.006-Math.pow(R(),1.7)*(DP-.03),hh=mossH(x,z);if(hh<.006||inRock(x,z,.42))continue;const far=sst(-.3,-1.5,z),r=(.011+R()*.017)*(1+far*1.3)*Math.min(1,.45+hh*14);CL.push([x,ground(x,z)+hh-r*.28,z,r,r*(.62+R()*.3),tone(x,z),far]);}
+   const cm=new THREE.InstancedMesh(cg,new THREE.MeshStandardMaterial({vertexColors:true,map:mt,bumpMap:mb,bumpScale:2,roughness:1}),CL.length),d=new THREE.Object3D();
+   CL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(0,R()*6.283,0);d.scale.set(b[3],b[4],b[3]);d.updateMatrix();cm.setMatrixAt(i,d.matrix);c.setHSL(.3-.07*b[5]-R()*.02,.8,.075+.26*b[5]*b[5]+R()*.05);cm.setColorAt(i,c);});cm.receiveShadow=true;box.add(cm);
+   // 毛：細いリボン。根もとは暗く、先は明るい。少し反る
+   const hg=new THREE.BufferGeometry(),w=.075;hg.setAttribute('position',new THREE.Float32BufferAttribute([-w,0,0,w,0,0,-w*.7,.5,.07,w*.7,.5,.07,0,1,.24],3));hg.setAttribute('color',new THREE.Float32BufferAttribute([.4,.4,.4,.4,.4,.4,.8,.8,.8,.8,.8,.8,1.25,1.25,1.25],3));hg.setIndex([0,1,2,1,3,2,2,3,4]);hg.computeVertexNormals();
+   const P=[],I=[],seg=7;for(const sg of[-1,1]){const o=P.length/3;P.push(sg*1.0,.15,0);for(let k=0;k<seg;k++){const a=k/seg*6.283;P.push(sg*1.0+Math.cos(a),.15-.15*Math.cos(a)*sg,Math.sin(a)*.9);}for(let k=0;k<seg;k++)I.push(o,o+1+(k+1)%seg,o+1+k);}
    const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));lg.setIndex(I);lg.computeVertexNormals();
-   const L=[];for(let i=0;i<46000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.6)*DP*.42,hh=mossH(x,z);if(hh<.006||inRock(x,z,.45))continue;const t=tone(x,z);if(R()>.25+t)continue;L.push([x,ground(x,z)+hh+.002+R()*.004,z,t]);}
-   const lm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),L.length),d=new THREE.Object3D();
-   L.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*1.1,R()*6.283,(R()-.5)*1.1);d.scale.setScalar(.0042+R()*.003);d.updateMatrix();lm.setMatrixAt(i,d.matrix);c.setHSL(.265-.035*b[3]+R()*.03,.82,.12+.24*b[3]+R()*.06);lm.setColorAt(i,c);});box.add(lm);}}
+   const HL=[],LL=[],Y=new THREE.Vector3(0,1,0),nv=new THREE.Vector3(),q2=new THREE.Quaternion();
+   for(const b of CL){const nh=Math.round((b[2]>-.7?30:b[2]>-1.3?11:3)*(.6+b[3]*22)),nl=b[2]>-.8?3:0;
+    for(let k=0;k<nh+nl;k++){const th=Math.acos(1-R()*.88),ph=R()*6.283,sx=Math.sin(th)*Math.cos(ph),sy=Math.cos(th),sz=Math.sin(th)*Math.sin(ph);(k<nh?HL:LL).push([b[0]+sx*b[3]*.93,b[1]+sy*b[4]*.93,b[2]+sz*b[3]*.93,sx/b[3],sy/b[4],sz/b[3],b[5],b[6]]);}}
+   const hm=new THREE.InstancedMesh(hg,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.9}),HL.length);
+   HL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*30,b[4]+(R()-.3)*30,b[5]+(R()-.5)*30).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar((.0065+R()*.009)*(1+b[7]*1.1));d.updateMatrix();hm.setMatrixAt(i,d.matrix);c.setHSL(.29-.075*b[6]-R()*.025,.82,.11+.26*b[6]*b[6]+R()*.07);hm.setColorAt(i,c);});box.add(hm);
+   const lm=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),LL.length);
+   LL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*25,b[4]+25,b[5]+(R()-.5)*25).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar(.0028+R()*.0018);d.updateMatrix();lm.setMatrixAt(i,d.matrix);c.setHSL(.285-.05*b[6]+R()*.02,.8,.09+.2*b[6]*b[6]+R()*.05);lm.setColorAt(i,c);});box.add(lm);}}
  /* 草：手前は短く、奥と端は高く */
  {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
   const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.07-R()*(DP-.1);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.3+edge*.45+back*.3)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
