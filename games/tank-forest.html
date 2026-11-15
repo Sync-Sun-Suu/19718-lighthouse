@@ -13,17 +13,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;background:#0a1712;overflow:hidden;touch-action:none}
+  html,body{height:100%;background:#060d0a;overflow:hidden;touch-action:none}
   body{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;color:#f2f6ee}
-  canvas{display:block;width:100vw;height:100vh;height:100dvh}
+  body{display:flex;align-items:center;justify-content:center}
+  canvas{display:block;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 60px rgba(0,0,0,.55)}
   #tip{position:fixed;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;font-size:12px;letter-spacing:.12em;opacity:.85;pointer-events:none;text-shadow:0 0 8px rgba(0,0,0,.8);transition:opacity 1.5s}
-  #mode{position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));font-family:inherit;font-size:11px;letter-spacing:.1em;color:#f2f6ee;background:rgba(10,30,24,.4);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;opacity:.75}
+  #mode,#size{position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));font-family:inherit;font-size:11px;letter-spacing:.1em;color:#f2f6ee;background:rgba(10,30,24,.4);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;opacity:.75}
+  #size{right:auto;left:max(12px,env(safe-area-inset-left))}
   #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a1712;font-size:13px;letter-spacing:.2em;transition:opacity 1s}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <button id="mode">のぞき方：指</button>
+<button id="size">水槽：90cm</button>
 <div id="tip">指でなぞると、のぞく角度が変わる</div>
 <div id="load">水を張っています</div>
 <script src="./vendor/three-0.158.min.js"></script>
@@ -43,7 +46,7 @@ function vn(x,y,z){const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),xf=x
  return L(L(L(h3(xi,yi,zi),h3(xi+1,yi,zi),u),L(h3(xi,yi+1,zi),h3(xi+1,yi+1,zi),u),v),L(L(h3(xi,yi,zi+1),h3(xi+1,yi,zi+1),u),L(h3(xi,yi+1,zi+1),h3(xi+1,yi+1,zi+1),u),v),w);}
 const fbm=(x,y,z)=>vn(x,y,z)*.55+vn(x*2.1,y*2.1,z*2.1)*.3+vn(x*4.3,y*4.3,z*4.3)*.15;
 const sst=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
-const HS=2,DP=2.3,BOT=-HS/2,TOPY=HS/2-.07;let WS=2,hw=1;
+const HS=2,BOT=-HS/2,TOPY=HS/2-.07;let WS=2,hw=1,DP=2;
 const uTime={value:0};
 const box=new THREE.Group();scene.add(box);
 /* ---------- 光 ---------- */
@@ -123,8 +126,8 @@ function build(){
   for(let k=0;k<7;k++){const t=.45+r()*.55,p=c.getPointAt(t);mossPts.push([V(p.x,p.y+.03,p.z),.09+r()*.06]);}
   for(let k=0;k<6;k++){const t=r()*.3,p=c.getPointAt(t);mossPts.push([V(p.x+(r()-.5)*.1,p.y,p.z+.06),.06+r()*.04]);}
  }
- tree(-1,-.62*hw,-.95,11);tree(1,.66*hw,-1.35,23);
- if(hw>.9){tree(-1,-.86*hw,-1.9,37);tree(1,.9*hw,-.55,41);}
+ const zs=DP/2.3;tree(-1,-.62*hw,-.95*zs,11);tree(1,.66*hw,-1.35*zs,23);
+ tree(-1,-.86*hw,-1.9*zs,37);tree(1,.9*hw,-.55*zs,41);
  /* 苔：もこもこ */
  {const blobs=[];for(const [p,rad] of mossPts){const n=16+Math.floor(R()*12);for(let i=0;i<n;i++){const a=R()*6.283,d=Math.sqrt(R())*rad*1.1,hh=(1-d/(rad*1.1));blobs.push([p.x+Math.cos(a)*d,p.y+(R()-.4)*rad*.3+hh*rad*.3,p.z+Math.sin(a)*d,rad*(.2+R()*.22)]);}}
   for(let i=0;i<160;i++){const x=(R()-.5)*WS*.96,z=-.1-R()*(DP-.2);if(onPath(x,z)||Math.abs(x-pathX(z))<pathW(z)+.06)continue;blobs.push([x,ground(x,z)+.01,z,.05+R()*.08]);}
@@ -162,22 +165,39 @@ let surf=null,surfBase=null,rays=[],motes=null;const _b=build;build=function(){_
 /* ---------- 目の位置 → 視野の四角をずらす（画面が前のガラス） ---------- */
 let ex=0,ey=0,tx=0,ty=0;const EZ=3.3;
 function project(){const n=.05,f=40;cam.position.set(ex,ey,EZ);cam.rotation.set(0,0,0);cam.updateMatrixWorld();cam.projectionMatrix.makePerspective((-hw-ex)*n/EZ,(hw-ex)*n/EZ,(HS/2-ey)*n/EZ,(-HS/2-ey)*n/EZ,n,f);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();}
-let rz=0;function resize(){renderer.setSize(innerWidth,innerHeight,false);const w=HS*innerWidth/innerHeight;if(Math.abs(w-WS)>.01||!box.children.length){WS=w;build();}}
+// 水槽の大きさは本物の規格で固定（幅×奥行×高さ cm）。画面には、その形のまま収める。
+const SIZES={60:[60,30,36],90:[90,45,45],120:[120,45,45]};let tank=90;
+let rz=0;function resize(){const sz=SIZES[tank],ratio=sz[0]/sz[2],ch=Math.min(innerHeight,innerWidth/ratio),cw=ch*ratio;renderer.setSize(Math.round(cw),Math.round(ch),true);const w=HS*ratio,d=HS*sz[1]/sz[2];if(Math.abs(w-WS)>.001||Math.abs(d-DP)>.001||!box.children.length){WS=w;DP=d;scene.fog.far=EZ+DP*1.9;build();}}
 addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(resize,200);});
 /* 指と傾き */
-const cv=renderer.domElement,tip=document.getElementById('tip'),mb=document.getElementById('mode');let drag=null,lastTouch=0,tilt=false,g0=null;
-cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,tx,ty];cv.setPointerCapture(e.pointerId);});
-cv.addEventListener('pointermove',e=>{if(!drag||tilt)return;tx=Math.max(-1,Math.min(1,drag[2]+(e.clientX-drag[0])/innerWidth*3.2));ty=Math.max(-1,Math.min(1,drag[3]-(e.clientY-drag[1])/innerHeight*3.2));lastTouch=performance.now();tip.style.opacity=0;});
-cv.addEventListener('pointerup',()=>{drag=null;});cv.addEventListener('pointercancel',()=>{drag=null;});
-function onTilt(e){if(e.gamma==null)return;const land=Math.abs(window.orientation||0)===90,a=land?e.beta:e.gamma,b=land?e.gamma:e.beta;if(!g0)g0=[a,b];tx=Math.max(-1,Math.min(1,-(a-g0[0])/16));ty=Math.max(-1,Math.min(1,(b-g0[1])/16));lastTouch=performance.now();}
+const cv=renderer.domElement,tip=document.getElementById('tip'),mb=document.getElementById('mode'),sb=document.getElementById('size');let drag=null,lastTouch=0,tilt=false,g0=null,gs=null;
+const at=v=>{v=Math.max(-.98,Math.min(.98,v));return .5*Math.log((1+v)/(1-v));};
+addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('button'))return;drag=[e.clientX,e.clientY,at(tx),at(ty)];});
+addEventListener('pointermove',e=>{if(!drag||tilt)return;const r=cv.getBoundingClientRect();tx=Math.tanh(Math.max(-2.4,Math.min(2.4,drag[2]+(e.clientX-drag[0])/r.width*4.6)));ty=Math.tanh(Math.max(-2.4,Math.min(2.4,drag[3]-(e.clientY-drag[1])/r.height*5.6)));lastTouch=performance.now();tip.style.opacity=0;});
+addEventListener('pointerup',()=>{drag=null;});addEventListener('pointercancel',()=>{drag=null;});addEventListener('orientationchange',()=>{gs=null;});
+// 傾き：角度の数字は横持ちで飛ぶので、向きの行列に直してから、はじめの持ち方との差を使う。ゆっくり、今の持ち方をまんなかに戻す。
+function rotOf(e){const A=(e.alpha||0)*Math.PI/180,B=e.beta*Math.PI/180,G=e.gamma*Math.PI/180,ca=Math.cos(A),sa=Math.sin(A),cb=Math.cos(B),sb2=Math.sin(B),cg=Math.cos(G),sg=Math.sin(G),m1=[cg,0,sg],m2=[sb2*sg,cb,-sb2*cg],m3=[-cb*sg,sb2,cb*cg];
+ return [[ca*m1[0]-sa*m2[0],ca*m1[1]-sa*m2[1],ca*m1[2]-sa*m2[2]],[sa*m1[0]+ca*m2[0],sa*m1[1]+ca*m2[1],sa*m1[2]+ca*m2[2]],m3];}
+function onTilt(e){if(e.gamma==null||e.beta==null)return;const Rm=rotOf(e),nw=[Rm[0][2],Rm[1][2],Rm[2][2]];
+ if(!gs){g0=Rm;gs=[0,0,0,0];}
+ const nb=[0,1,2].map(i=>g0[0][i]*nw[0]+g0[1][i]*nw[1]+g0[2][i]*nw[2]);
+ if(nb[2]<.45){g0=Rm;gs=[0,0,0,0];return;}
+ const o=typeof window.orientation==='number'?window.orientation:((screen.orientation&&screen.orientation.angle)||0),oo=((o%360)+360)%360;
+ const a=oo===90?-nb[1]:oo===270?nb[1]:oo===180?-nb[0]:nb[0],b=oo===90?nb[0]:oo===270?-nb[0]:oo===180?-nb[1]:nb[1];
+ gs[0]+=(a-gs[0])*.35;gs[1]+=(b-gs[1])*.35;gs[2]+=(gs[0]-gs[2])*.0012;gs[3]+=(gs[1]-gs[3])*.0012;
+ tx=-Math.tanh((gs[0]-gs[2])/.27);ty=-Math.tanh((gs[1]-gs[3])/.27);lastTouch=performance.now();}
 mb.addEventListener('click',async()=>{if(!tilt){try{if(typeof DeviceOrientationEvent==='undefined'){tip.textContent='この画面では、傾きが使えない';tip.style.opacity=.85;return;}if(typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return;}}catch(err){return;}
-  tilt=true;g0=null;addEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：傾き';tip.textContent='スマホを傾けると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}
+  tilt=true;gs=null;addEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：傾き';tip.textContent='スマホを傾けると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}
  else{tilt=false;removeEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：指';tip.textContent='指でなぞると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}});
 const q=new URLSearchParams(location.search);if(q.get('x'))tx=+q.get('x');if(q.get('y'))ty=+q.get('y');const fixed=q.has('x')||q.has('y');
+try{const t=+(q.get('tank')||localStorage.getItem('forest-tank'));if(SIZES[t])tank=t;}catch(err){}
+const sizeLabel=()=>{sb.textContent='水槽：'+tank+'cm';};sizeLabel();
+sb.addEventListener('click',()=>{tank=tank===60?90:tank===90?120:60;try{localStorage.setItem('forest-tank',tank);}catch(err){}sizeLabel();resize();tip.textContent=SIZES[tank].join(' × ')+' cm';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3000);});
+if(innerHeight>innerWidth)tip.textContent='横にすると、水槽が大きくなる';
 const clock=new THREE.Clock();let first=true;
 function frame(){const t=clock.getElapsedTime();uTime.value=t;
  if(!fixed&&!drag&&!tilt&&performance.now()-lastTouch>4000){tx+=(Math.sin(t*.22)*.4-tx)*.008;ty+=(.08+Math.sin(t*.13)*.1-ty)*.008;}
- const k=drag?.45:.22;ex+=(tx*hw*1.1-ex)*k;ey+=(ty*HS*.42-ey)*k;
+ const k=drag?.75:.22;ex+=(tx*hw*1.1-ex)*k;ey+=(ty*HS*.42-ey)*k;
  if(surf){const sp=surf.geometry.attributes.position;for(let i=0;i<sp.count;i++){const x=surfBase[i*3],y=surfBase[i*3+1];sp.setZ(i,Math.sin(x*6+t*1.5)*.012+Math.cos(y*7+t*1.2)*.01);}sp.needsUpdate=true;surf.geometry.computeVertexNormals();}
  for(const r of rays)r.material.opacity=.05+.1*(.5+.5*Math.sin(t*r.userData.sp+r.userData.ph));
  if(motes){const mp=motes.geometry.attributes.position,mv=motes.userData.v;for(let i=0;i<mp.count;i++){let y=mp.getY(i)+.00018;if(y>TOPY)y=BOT+.3;mp.setY(i,y);mp.setX(i,mp.getX(i)+Math.sin(t*.4+mv[i])*.00016);}mp.needsUpdate=true;}
