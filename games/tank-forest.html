@@ -102,7 +102,7 @@ function limb(pts,r0,r1,mat,seg,rs,opt){opt=opt||{};const curve=new THREE.Catmul
  q=mul(Math.round(sd*977)+7),style=fine?(opt.tip!=null?opt.tip:Math.floor(q()*4)):-1,a0=q()*6.283,tilt=.6+q()*.9,stepL=1.2+q()*1.6,
  rEnd=r1*(1+(q()-.5)*.1),Lz=Math.min(.3,rEnd*2.4/len),Ls=Math.min(.6,rEnd*(5+q()*5)/len);
  // 太さ：根もとは親の木にもぐって、えりのように広がる。先は細らせない（バキッと折れた口にする）
- const radAt=t=>{const sl=t*len;let r=r0+(r1-r0)*Math.pow(t,.8);if(big)r*=1+(opt.flare!=null?opt.flare:.95)*Math.pow(1-t,4.5);
+ const radAt=t=>{const sl=t*len;let r=opt.spindle?r1+(r0-r1)*Math.pow(Math.sin(Math.PI*Math.pow(t,opt.skew||.9)),1.25):r0+(r1-r0)*Math.pow(t,.8);if(big)r*=1+(opt.flare!=null?opt.flare:.95)*Math.pow(1-t,4.5);
   if(mid&&opt.collar!==false)r*=(.3+.7*sst(0,r0*1.1,sl))*(1+.5*Math.exp(-sl/(r0*1.8)));return r;};
  const angd=(a,b)=>{let d=Math.abs(a-b)%6.283;return d>3.1416?6.283-d:d;};
  const last=[];
@@ -233,25 +233,24 @@ function build(){
   for(let k=0;k<6;k++){const t=r()*.3,p=c.getPointAt(t);mossPts.push([V(p.x+(r()-.5)*.1,p.y,p.z+.06),.06+r()*.04]);}
  }
  const zs=DP/2.3;tree(-1,-.62*hw,-.95*zs,11,[[.2,-1,.25,.52],[.27,1,.55,.5],[.15,.7,.9,.36]],[.52,-.5,.5,.3]);tree(1,.66*hw,-1.35*zs,23,[[.27,-1,.55,.6],[.16,-.4,1,.42]],[.48,.55,.55,.35]);
- tree(-1,-.86*hw,-1.9*zs,37,[[.24,1,.5,.42]]);tree(1,.9*hw,-.55*zs,41,[[.22,-1,.15,.46]]);
+ tree(-1,-.86*hw,-1.9*zs,37,[[.24,1,.5,.42]]);tree(1,.9*hw,-.55*zs,41,[]);
  /* 流木（718 の絵、11/17 夜）。木ではなく、流木。立った幹や切り株は置かない（陸の森に見えるから）。
     ・手前の太い二本：石より前に、低く寝かせる。左右で形を変える。
     ・まんなかの二本：アーチとアーチの間を通って、上の角から小道のまんなかへ。上が細く、下が太い。 */
  {const B=BOT,g=(x,z)=>ground(x,z),log=(pts,r0,r1,dens,o)=>{const cv=limb(pts,r0,r1,bark,14,8,o);woodCurves.push([cv,dens]);return cv;},
    stub=(cv,t,dx,dy,dz,r)=>{const p=cv.getPointAt(t);limb([p,V(p.x+dx*.45,p.y+dy*.6,p.z+dz*.45),V(p.x+dx,p.y+dy,p.z+dz)],r,r*.55,bark,12,6);},
    roots=(x,y,z,n,sd,len)=>{const q=mul(sd);for(let i=0;i<n;i++){const a=q()*6.283,l=len*(.6+q()*.7),mx=x+Math.cos(a)*l*.45,mz=Math.min(-.06,z+Math.sin(a)*l*.36),ex=x+Math.cos(a)*l,ez=Math.min(-.06,z+Math.sin(a)*l*.8);limb([V(x,y,z),V(mx,g(mx,mz)+.07,mz),V(ex,g(ex,ez)-.03,ez)],.045+q()*.02,.012,bark,12,6);}};
-  // まんなか・左：急で短め。先は左上の角から水面の上へ
-  {const z0=-1.12,x0=pathX(z0)-.05,cv=log([V(x0,g(x0,z0)-.08,z0),V(x0-.1,B+.36,z0-.02),V(-.4*hw,B+.7,-1.18),V(-.56*hw,B+.98,-1.2),V(-.7*hw,B+1.3,-1.25),V(-.88*hw,B+1.62,-1.3),V(-.98*hw,TOPY+.12,-1.32)],.12,.034,.45,{flare:.5});
-   roots(x0-.03,B+.34,z0,3,61,.3);stub(cv,.4,.1,.26,.12,.045);stub(cv,.66,-.04,.3,-.14,.035);spot(cv,.55,.9);}
-  // まんなか・右：長くて、なだらか。途中に一回、こぶ
-  {const z0=-.78,x0=pathX(z0)+.1,cv=log([V(x0,g(x0,z0)-.08,z0),V(x0+.08,B+.34,z0-.02),V(.2*hw,B+.58,-.82),V(.42*hw,B+.78,-.86),V(.6*hw,B+1.16,-.9),V(.8*hw,B+1.5,-.93),V(.97*hw,TOPY+.1,-.96)],.115,.03,.45,{flare:.5});
-   roots(x0+.03,B+.32,z0,3,67,.28);stub(cv,.5,-.12,.3,.1,.045);stub(cv,.58,.06,.22,-.16,.035);stub(cv,.74,-.16,.2,.06,.03);spot(cv,.45,.9);}
+  // まんなかの二本（718 の青い線）：下も上も細く、まんなかが太い。先は小道の左右のきわに別々に着く（ぶつけない）。上は水面の下で止まる（水面から出さない）。ゆるい S の字
+  {const z0=-1.12,x0=pathX(z0)-pathW(z0)*.5,cv=log([V(x0+.04,g(x0,z0)-.07,z0+.02),V(x0-.01,g(x0,z0)+.14,z0),V(x0-.07,B+.52,-1.14),V(-.34*hw,B+.88,-1.17),V(-.5*hw,B+1.2,-1.21),V(-.7*hw,B+1.5,-1.25),V(-.87*hw,B+1.74,-1.29),V(-.955*hw,TOPY-.1,-1.31)],.145,.024,.45,{spindle:true,skew:.8,flare:0});
+   stub(cv,.46,.1,.24,.12,.04);stub(cv,.7,-.04,.2,-.14,.03);spot(cv,.55,.9);}
+  {const z0=-.78,x0=pathX(z0)+pathW(z0)*1.3,cv=log([V(x0-.04,g(x0,z0)-.07,z0+.02),V(x0+.03,g(x0,z0)+.12,z0),V(.2*hw,B+.44,-.81),V(.36*hw,B+.72,-.85),V(.56*hw,B+1.0,-.89),V(.72*hw,B+1.36,-.92),V(.87*hw,B+1.66,-.95),V(.96*hw,TOPY-.1,-.97)],.15,.024,.45,{spindle:true,skew:.86,flare:0});
+   stub(cv,.5,-.12,.26,.1,.04);stub(cv,.72,-.14,.18,.06,.03);spot(cv,.45,.9);}
   // 手前・左：細い先が小道のきわ。太い方は左の高い所で、折れた口を見せる
   {const tx=-.24*hw,tz=-.19,cv=log([V(tx,g(tx,tz)-.03,tz),V(-.34*hw,g(-.34*hw,-.22)+.13,-.22),V(-.5*hw,B+.44,-.28),V(-.66*hw,B+.6,-.36),V(-.8*hw,B+.84,-.45),V(-.9*hw,B+.96,-.52)],.055,.175,.45,{big:true,flare:0});
    frontLogs.push([cv,[.18,.34,.5,.66]]);stub(cv,.55,.05,.24,-.1,.055);stub(cv,.8,.12,.1,.16,.05);}
   // 手前・右：太い方が地面に寝る（こぶつき）。細い先は右の壁の方へ上がる
-  {const bx=.4*hw,bz=-.22,cv=log([V(hw+.06,B+1.02,-.52),V(.9*hw,B+.84,-.46),V(.76*hw,B+.56,-.38),V(.6*hw,B+.4,-.3),V(.48*hw,g(.48*hw,-.25)+.2,-.25),V(bx,g(bx,bz)+.15,bz)],.05,.185,.45,{big:true,flare:0});
-   frontLogs.push([cv,[.6,.74,.86,.96]]);stub(cv,.72,-.02,.1,.2,.065);stub(cv,.5,.1,.26,-.06,.045);}}
+  {const bx=.4*hw,bz=-.21,cv=log([V(hw+.06,B+1.0,-.2),V(.9*hw,B+.84,-.18),V(.76*hw,B+.6,-.17),V(.6*hw,B+.42,-.18),V(.48*hw,g(.48*hw,-.2)+.2,-.2),V(bx,g(bx,bz)+.15,bz)],.05,.172,.45,{big:true,flare:0});
+   frontLogs.push([cv,[.6,.74,.86,.96]]);stub(cv,.7,-.04,.2,.06,.06);}}
  for(let i=0;i<4;i++){const z=-.14-R()*(DP*.6),x0=pathX(z)+(R()-.5)*pathW(z),a=R()*6.283,l=.22+R()*.3,pts=[];for(let k=0;k<5;k++){const t=k/4,px=x0+Math.cos(a)*l*(t-.5)+Math.sin(t*6+i*2)*.05,pz=z+Math.sin(a)*l*(t-.5)*.6+Math.cos(t*5+i)*.04;pts.push(V(px,ground(px,pz)+.008+Math.sin(t*3.14)*.012,pz));}limb(pts,.0055,.002,bark,16,5);}
  /* 苔：もこもこ */
  {const blobs=[]; // 石の上の苔のかたまり（rockMoss）は、苔を話し合ってから
