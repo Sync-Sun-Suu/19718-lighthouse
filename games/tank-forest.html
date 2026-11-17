@@ -325,20 +325,24 @@ function build(){
     FL.push([pt.x+tg.x*u,pt.y+tg.y*u-.008,pt.z+tg.z*u,Math.atan2(dxx,dzz),young?.1+q()*.35:.4+q()*.75,len,young,tone]);}}
   const fm=new THREE.InstancedMesh(fg,sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.6,emissive:0x2c4a1e,emissiveIntensity:.3}),.12),FL.length),d=new THREE.Object3D(),c=new THREE.Color();
   FL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.5,'YXZ');d.scale.set(b[5]*(.8+q()*.35),b[5],b[5]);d.updateMatrix();fm.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.215+q()*.03,.48,.44+q()*.1);else if(q()<.25+.45*b[7])c.setHSL(.215+q()*.05,.3+q()*.12,.4+q()*.14);else c.setHSL(.25+q()*.06,.36+q()*.16,.22+q()*.16);fm.setColorAt(i,c);});fm.castShadow=true;fm.receiveShadow=true;box.add(fm);}
- /* 赤い有茎草（ロタラの仲間）：まっすぐな茎に、細い葉が二枚ずつ向かい合って、段ごとに向きを変えて付く。下は緑、先へ行くほど赤。刈り込んだ茂みの形で、後ろと両端に */
- const RB=[[.6*hw,-1.68,.46,1.3,0],[-.5*hw,-1.8,.38,1.12,.5],[.14*hw,-1.86,.3,.86,1],[.92*hw,-.98,.22,.74,.2],[-.93*hw,-.72,.2,.62,.7],[-.12*hw,-1.9,.2,.6,.4]];
- {const P=[],C=[],I=[],N=22,col=y=>{const g=[.26,.36,.13],o=[.8,.22,.13],r=[.98,.1,.2],t=Math.min(1,Math.max(0,(y-.12)/.88)),a=t<.35?g:o,b=t<.35?o:r,k=t<.35?t/.35:(t-.35)/.65;return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k];};
-  for(let i=0;i<=6;i++){const y=i/6,w=.0055,c0=col(y);for(const a of[0,2.094,4.189]){P.push(Math.cos(a)*w,y,Math.sin(a)*w);C.push(c0[0]*.7,c0[1]*.7,c0[2]*.7);}if(i<6){const o=i*3;for(let j=0;j<3;j++){const a=o+j,b=o+(j+1)%3;I.push(a,b,a+3,b,b+3,a+3);}}}
-  for(let k=0;k<N;k++){const y=.1+.9*Math.pow(k/(N-1),.85),L=.14*(1-.3*y)*(k===N-1?.6:1),e=.45+.4*y,c0=col(y);
-   for(const sg of[0,Math.PI]){const ph=k*1.5708+sg+(h3(k,sg,1)-.5)*.5,dx=Math.cos(ph),dz=Math.sin(ph),o=P.length/3;
-    for(let i=0;i<=4;i++){const u=i/4,hwd=i===4?0:L*.2*Math.pow(Math.sin(Math.PI*Math.pow(u,.7)),.8)+(i===0?L*.03:0),r=L*u*Math.cos(e),yy=y+L*u*Math.sin(e)-u*u*L*.3,v=.8+.35*u;
-     P.push(dx*r-dz*hwd,yy,dz*r+dx*hwd,dx*r+dz*hwd,yy,dz*r-dx*hwd);C.push(c0[0]*v,c0[1]*v,c0[2]*v,c0[0]*v,c0[1]*v,c0[2]*v);if(i<4){const a=o+i*2;I.push(a,a+1,a+2,a+1,a+3,a+2);}}}}
-  const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));rg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));rg.setIndex(I);rg.computeVertexNormals();
-  const q=mul(718),SL=[];
-  for(const [bx,bz,br,bh,tint] of RB){const n=Math.round(br*br*3400);for(let i=0;i<n;i++){const a=q()*6.283,d=Math.sqrt(q())*br,x=bx+Math.cos(a)*d,z=bz+Math.sin(a)*d*.8;if(Math.abs(x)>hw-.04||z<-DP+.04||z>-.1||onPath(x,z)||inRock(x,z,.6))continue;
-    const g0=ground(x,z),h=Math.min(TOPY-.04-g0,bh*(.3+.7*Math.sqrt(Math.max(0,1-d*d/(br*br))))*(.85+q()*.3));if(h<.15)continue;SL.push([x,g0-.01,z,h,a,d/br,tint+(q()-.5)*.3]);}}
-  const rm=new THREE.InstancedMesh(rg,sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.55,emissive:0x70101c,emissiveIntensity:.55}),.035),SL.length),d=new THREE.Object3D(),c=new THREE.Color();
-  SL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.08+b[5]*.3;d.rotation.set(Math.sin(b[4])*ln*-1+(q()-.5)*.12,q()*6.283,-Math.cos(b[4])*ln*-1+(q()-.5)*.12);const w=.5+q()*.25;d.scale.set(w,b[3],w);d.updateMatrix();rm.setMatrixAt(i,d.matrix);const t=Math.max(0,Math.min(1,b[6]));c.setRGB(.9+q()*.1,.7+.3*(1-t)*q(),.55+.45*t+q()*.1);rm.setColorAt(i,c);});rm.castShadow=true;rm.receiveShadow=true;box.add(rm);}
+ /* 赤い有茎草（ロタラの仲間）：差し色。小さい茂みを三つだけ。葉は小さく、付き方は不ぞろい（節の間隔、向き、長さ、角度が一本ずつ違う）。茎も少し曲がる。下は緑、先は赤 */
+ const RB=[[.5*hw,-1.3,.2,.62,.1],[-.43*hw,-1.52,.16,.5,.7],[.16*hw,-1.78,.12,.38,.4]];
+ {const col=y=>{const g=[.26,.36,.13],o=[.8,.22,.13],r=[.98,.1,.2],t=Math.min(1,Math.max(0,(y-.1)/.9)),a=t<.35?g:o,b=t<.35?o:r,k=t<.35?t/.35:(t-.35)/.65;return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k];};
+  const makeStem=seed=>{const P=[],C=[],I=[],g=mul(seed),p1=g()*6,p2=g()*6,cx=y=>Math.sin(y*2.4+p1)*.035*y+Math.sin(y*6+p2)*.008,cz=y=>Math.cos(y*1.9+p2)*.03*y;
+   for(let i=0;i<=10;i++){const y=i/10,w=.0045,c0=col(y);for(const a of[0,2.094,4.189]){P.push(cx(y)+Math.cos(a)*w,y,cz(y)+Math.sin(a)*w);C.push(c0[0]*.7,c0[1]*.7,c0[2]*.7);}if(i<10){const o=i*3;for(let j=0;j<3;j++){const a=o+j,b=o+(j+1)%3;I.push(a,b,a+3,b,b+3,a+3);}}}
+   let y=.06+g()*.06,ph=g()*6.283;
+   while(y<1){ph+=1.5708+(g()-.5)*1.1;const top=y>.9,c0=col(y),np=g()<.12?1:2;
+    for(let s2=0;s2<np;s2++){const a=ph+s2*Math.PI+(g()-.5)*.7,L=.07*(1-.25*y)*(.55+g()*.8)*(top?.7:1),e=.25+.5*y+(g()-.5)*.5,dx=Math.cos(a),dz=Math.sin(a),o=P.length/3,dr=.15+g()*.5,tw=(g()-.5)*.8,v0=.75+g()*.3;
+     for(let i=0;i<=4;i++){const u=i/4,hwd=i===4?0:L*.19*Math.pow(Math.sin(Math.PI*Math.pow(u,.7)),.8)+(i===0?L*.03:0),r=L*u*Math.cos(e),yy=y+L*u*Math.sin(e)-u*u*L*dr,v=v0*(.8+.35*u),ty=hwd*tw;
+      P.push(cx(y)+dx*r-dz*hwd,yy+ty,cz(y)+dz*r+dx*hwd,cx(y)+dx*r+dz*hwd,yy-ty,cz(y)+dz*r-dx*hwd);C.push(c0[0]*v,c0[1]*v,c0[2]*v,c0[0]*v,c0[1]*v,c0[2]*v);if(i<4){const b=o+i*2;I.push(b,b+1,b+2,b+1,b+3,b+2);}}}
+    y+=(.028+g()*.034)*(1-.35*y);}
+   const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));rg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));rg.setIndex(I);rg.computeVertexNormals();return rg;};
+  const q=mul(718),SL=[[],[],[],[]];
+  for(const [bx,bz,br,bh,tint] of RB){const n=Math.round(br*br*3000);for(let i=0;i<n;i++){const a=q()*6.283,d=Math.sqrt(q())*br*(.75+.4*vn(Math.cos(a)*2+bx,bz,Math.sin(a)*2)),x=bx+Math.cos(a)*d,z=bz+Math.sin(a)*d*.8;if(Math.abs(x)>hw-.04||z<-DP+.04||z>-.1||onPath(x,z)||inRock(x,z,.6))continue;
+    const g0=ground(x,z),h=Math.min(TOPY-.04-g0,bh*(.35+.65*Math.sqrt(Math.max(0,1-d*d/(br*br*1.3))))*(.6+q()*.55));if(h<.12)continue;SL[Math.floor(q()*4)].push([x,g0-.01,z,h,a,d/br,tint+(q()-.5)*.3]);}}
+  const rmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.55,emissive:0x60101a,emissiveIntensity:.45}),.035),d=new THREE.Object3D(),c=new THREE.Color();
+  SL.forEach((list,vi)=>{const rm=new THREE.InstancedMesh(makeStem(101+vi*37),rmat,list.length);
+   list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.06+b[5]*.34;d.rotation.set(-Math.sin(b[4])*ln+(q()-.5)*.22,q()*6.283,Math.cos(b[4])*ln+(q()-.5)*.22);const w=b[3]*(.9+q()*.3);d.scale.set(w,b[3],w);d.updateMatrix();rm.setMatrixAt(i,d.matrix);const t=Math.max(0,Math.min(1,b[6]));c.setRGB(.82+q()*.18,.7+.3*(1-t)*q(),.55+.45*t+q()*.1);rm.setColorAt(i,c);});rm.castShadow=true;rm.receiveShadow=true;box.add(rm);});}
  /* 草：手前は短く、奥と端は高く */
  {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
   const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.07-R()*(DP-.1);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.3+edge*.45+back*.3)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
@@ -346,7 +350,7 @@ function build(){
   list.forEach((b,i)=>{d.position.set(b[0],ground(b[0],b[1])-.005,b[1]);d.rotation.set((R()-.5)*.5,R()*6.283,(R()-.5)*.5);d.scale.set(1+R(),b[2],1);d.updateMatrix();im.setMatrixAt(i,d.matrix);c.setHSL(.24+R()*.1,.62+R()*.2,.3+R()*.26);im.setColorAt(i,c);});im.receiveShadow=true;box.add(im);
   // 背の高い水草（奥と両端）
   const tg=new THREE.PlaneGeometry(.045,1,1,10);tg.translate(0,.5,0);const tp=tg.attributes.position;for(let i=0;i<tp.count;i++){const y=tp.getY(i);tp.setX(i,tp.getX(i)*Math.pow(1-y,.55)*(.55+.45*Math.sin(Math.min(1,y*3)*1.57))+Math.sin(y*5)*.014);tp.setZ(i,Math.sin(y*2.4)*.09);}tg.computeVertexNormals();
-  const tl=[];for(let i=0;i<900;i++){const x=(R()-.5)*WS*.98,z=-.25-R()*(DP-.3);const want=sst(.5*hw,.95*hw,Math.abs(x))+sst(-1.2,-DP,z)*.9*sst(.2*hw,.5*hw,Math.abs(x-pathX(z)));if(R()>want||inRock(x,z,.9)||RB.some(b=>Math.hypot(x-b[0],z-b[1])<b[2]*.9))continue;tl.push([x,z,.55+R()*1.05]);}
+  const tl=[];for(let i=0;i<0;i++){const x=(R()-.5)*WS*.98,z=-.25-R()*(DP-.3);const want=sst(.5*hw,.95*hw,Math.abs(x))+sst(-1.2,-DP,z)*.9*sst(.2*hw,.5*hw,Math.abs(x-pathX(z)));if(R()>want||inRock(x,z,.9)||RB.some(b=>Math.hypot(x-b[0],z-b[1])<b[2]*.9))continue;tl.push([x,z,.55+R()*1.05]);}
   const tm=new THREE.InstancedMesh(tg,sway(new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.7}),.07),tl.length);
   tl.forEach((b,i)=>{d.position.set(b[0],ground(b[0],b[1])-.01,b[1]);d.rotation.set((R()-.5)*.25,R()*6.283,(R()-.5)*.25);d.scale.set(.8+R()*.9,Math.min(b[2],TOPY-ground(b[0],b[1])+.1),1);d.updateMatrix();tm.setMatrixAt(i,d.matrix);c.setHSL(.26+R()*.09,.55+R()*.25,.22+R()*.24);tm.setColorAt(i,c);});tm.castShadow=true;box.add(tm);
   // 広い葉の株（木の根もとや岸）
