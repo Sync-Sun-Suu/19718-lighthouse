@@ -214,7 +214,7 @@ function build(){
  const woodCurves=[],fernSpots=[];const spot=(cv,t,k)=>{const p=cv.getPointAt(t),tg=cv.getTangentAt(t);fernSpots.push([V(p.x,p.y+cv.radAt(t)*.75,p.z),tg,k]);};const mossPts=[],MOSS_ON_WOOD=false; // 718 と決めた：いったん苔を外して、流木だけを作り込む
  function tree(side,bx,bz,seed,legs,longB){const r=mul(seed),g0=ground(bx,bz),s=side,top=TOPY-.02;
   const trunk=[V(bx,g0-.05,bz),V(bx+s*.03,g0+.3,bz+.02),V(bx-s*.06*hw,g0+.62,bz+.05),V(bx-s*.3*hw,BOT+1.22,bz+.1),V(bx-s*.62*hw,BOT+1.5,bz+.14),V(bx-s*.95*hw,BOT+1.58,bz+.2)];
-  const c=limb(trunk,.105,.03,bark,44,10);woodCurves.push([c,1]);spot(c,.07,.8);spot(c,.13,.7);
+  const c=limb(trunk,.105,.03,bark,44,10);woodCurves.push([c,1]);spot(c,.07,.8);spot(c,.13,.7);for(const tt of[.46,.56,.66,.76,.86,.94])spot(c,tt+(r()-.5)*.05,.95+r()*.3);
   // 根：地面に張る
   for(let k=0;k<8;k++){const a=k/8*6.283+r(),l=.25+r()*.4,ex=bx+Math.cos(a)*l,ez=bz+Math.sin(a)*l*.9,mx=bx+Math.cos(a)*l*.45,mz=bz+Math.sin(a)*l*.4;if(Math.abs(ex)>hw-.03)continue;limb([V(bx+Math.cos(a)*.04,g0+.22+r()*.12,bz+Math.sin(a)*.04),V(mx,ground(mx,mz)+.1+r()*.08,mz),V(ex,ground(ex,ez)+.005,ez),V(ex+Math.cos(a)*.08,ground(ex,ez)-.05,ez+Math.sin(a)*.08)],.04+r()*.02,.008,bark,14,6);}
   // 枝
@@ -281,7 +281,7 @@ function build(){
       if(nl<1e-3)n.set(1,0,0);else n.multiplyScalar(1/nl);bn.crossVectors(T,n);
       const a=(R()-.5)*(nl<.62?4:1.7);n.multiplyScalar(Math.cos(a)).addScaledVector(bn,Math.sin(a)).normalize();
       const cr=Math.max(.016,Math.min(.07,rr*(.6+R()*.6)))*(.7+.6*sst(.44,.8,patch));
-      if(patch>.6&&nl>=.62&&R()<.035)fernSpots.push([V(p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9),T.clone(),.75]);
+      if(patch>.56&&nl>=.62&&R()<.03*(1+2.6*sst(BOT+.95,BOT+1.5,p.y)))fernSpots.push([V(p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9),T.clone(),.75]);
       WC.push([p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9,cr,cr*(.2+R()*.13),n.x,n.y,n.z,patch]);
       if(dens===1&&Math.abs(T.y)<.55&&t>.3&&R()<.035)HP.push([p.x,p.y-rr*.85,p.z,rr]);}}
     // 木の上のかたまりは、すそ無し（下から見た時に、枝の下へはみ出さない）
