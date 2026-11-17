@@ -277,19 +277,19 @@ function build(){
    {const WC=[],up=new THREE.Vector3(0,1,0),T=new THREE.Vector3(),n=new THREE.Vector3(),bn=new THREE.Vector3(),qq=new THREE.Quaternion(),HP=[];
     for(const [cv2,dens] of woodCurves){const len=cv2.getLength(),steps=Math.round(len*170*dens);
      for(let i=0;i<steps;i++){const t=.1+.86*R(),p=cv2.getPointAt(t);cv2.getTangentAt(t,T);const rr=cv2.radAt(t),patch=vn(p.x*3.2+5,p.y*3.2,p.z*3.2+9);if(patch<.44)continue;
-      n.copy(up).addScaledVector(T,-up.dot(T));const nl=n.length();if(nl<.35&&R()<.8)continue;
+      n.copy(up).addScaledVector(T,-up.dot(T));const nl=n.length();if(nl<.62&&R()<.9)continue;
       if(nl<1e-3)n.set(1,0,0);else n.multiplyScalar(1/nl);bn.crossVectors(T,n);
-      const a=(R()-.5)*(nl<.35?5:1.9);n.multiplyScalar(Math.cos(a)).addScaledVector(bn,Math.sin(a)).normalize();
-      const cr=Math.max(.011,Math.min(.05,rr*(.42+R()*.5)))*(.6+.65*sst(.44,.8,patch));
-      WC.push([p.x+n.x*rr*.84,p.y+n.y*rr*.84,p.z+n.z*rr*.84,cr,cr*(.5+R()*.25),n.x,n.y,n.z,patch]);
+      const a=(R()-.5)*(nl<.62?4:1.7);n.multiplyScalar(Math.cos(a)).addScaledVector(bn,Math.sin(a)).normalize();
+      const cr=Math.max(.016,Math.min(.07,rr*(.6+R()*.6)))*(.7+.6*sst(.44,.8,patch));
+      WC.push([p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9,cr,cr*(.2+R()*.13),n.x,n.y,n.z,patch]);
       if(dens===1&&Math.abs(T.y)<.55&&t>.3&&R()<.035)HP.push([p.x,p.y-rr*.85,p.z,rr]);}}
     // 木の上のかたまりは、すそ無し（下から見た時に、枝の下へはみ出さない）
     const wg=new THREE.SphereGeometry(1,10,7),wp=wg.attributes.position,wc=[];for(let i=0;i<wp.count;i++){const a=wp.getX(i),b=wp.getY(i),e=wp.getZ(i),k=1+(vn(a*2.3+3,b*2.3,e*2.3)-.5)*.55;wp.setXYZ(i,a*k,Math.max(-.3,b*k),e*k);const v=.42+.8*sst(-.3,1,b);wc.push(v,v,v);}wg.setAttribute('color',new THREE.Float32BufferAttribute(wc,3));wg.computeVertexNormals();
     const wm=new THREE.InstancedMesh(wg,cm.material,WC.length);
     WC.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[5],b[6],b[7]);d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.set(b[3],b[4],b[3]);d.updateMatrix();wm.setMatrixAt(i,d.matrix);c.setHSL(.29-.045*b[8]-R()*.02,.74,.045+.14*b[8]*b[8]+R()*.04);wm.setColorAt(i,c);});wm.receiveShadow=true;box.add(wm);
-    const WH=[];for(const b of WC){const nh=Math.round(10+b[3]*520);nv.set(b[5],b[6],b[7]);qq.setFromUnitVectors(Y,nv);for(let k=0;k<nh;k++){const th=Math.acos(1-R()*.9),ph=R()*6.283;T.set(Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph));bn.set(T.x*b[3]*.93,T.y*b[4]*.93,T.z*b[3]*.93).applyQuaternion(qq);n.set(T.x/b[3],T.y/b[4],T.z/b[3]).normalize().applyQuaternion(qq);WH.push([b[0]+bn.x,b[1]+bn.y,b[2]+bn.z,n.x,n.y,n.z,b[8]]);}}
+    const WH=[];for(const b of WC){const nh=Math.round(3+b[3]*150);nv.set(b[5],b[6],b[7]);qq.setFromUnitVectors(Y,nv);for(let k=0;k<nh;k++){const th=Math.acos(1-R()*.9),ph=R()*6.283;T.set(Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph));bn.set(T.x*b[3]*.93,T.y*b[4]*.93,T.z*b[3]*.93).applyQuaternion(qq);n.set(T.x/b[3],T.y/b[4],T.z/b[3]).normalize().applyQuaternion(qq);WH.push([b[0]+bn.x,b[1]+bn.y,b[2]+bn.z,n.x,n.y,n.z,b[8]]);}}
     const wh=new THREE.InstancedMesh(hg,hm.material,WH.length);
-    WH.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*.6,b[4]+(R()-.3)*.6,b[5]+(R()-.5)*.6).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar(.006+R()*.009);d.updateMatrix();wh.setMatrixAt(i,d.matrix);c.setHSL(.285-.05*b[6]-R()*.025,.78,.085+.2*b[6]*b[6]+R()*.06);wh.setColorAt(i,c);});box.add(wh);
+    WH.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3]+(R()-.5)*.6,b[4]+(R()-.3)*.6,b[5]+(R()-.5)*.6).normalize();d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,R()*6.283);d.quaternion.multiply(q2);d.scale.setScalar(.004+R()*.006);d.updateMatrix();wh.setMatrixAt(i,d.matrix);c.setHSL(.285-.05*b[6]-R()*.025,.78,.085+.2*b[6]*b[6]+R()*.06);wh.setColorAt(i,c);});box.add(wh);
     // 垂れる苔：太い幹の下から、少しだけ
     const sg=new THREE.PlaneGeometry(.006,1,1,6);sg.translate(0,-.5,0);{const q=sg.attributes.position;for(let i=0;i<q.count;i++){const y=-q.getY(i);q.setX(i,q.getX(i)*(1-y*.75)+Math.sin(y*8)*.003);}}
     const SL=[];for(const h of HP){const k=2+Math.floor(R()*3);for(let j=0;j<k;j++)SL.push([h[0]+(R()-.5)*h[3]*1.2,h[1]+R()*h[3]*.25,h[2]+(R()-.5)*h[3]*1.2,.035+R()*R()*.2]);}
@@ -308,6 +308,20 @@ function build(){
    const M=[];for(let i=0;i<34000;i++){const x=(R()-.5)*WS*.998,z=-.004-Math.pow(R(),1.6)*DP*.42,hh=mossH(x,z);if(hh<.006||inRock(x,z,.45))continue;const t=tone(x,z);if(R()>.25+t)continue;M.push([x,ground(x,z)+hh+.002+R()*.004,z,t]);}
    const lm2=new THREE.InstancedMesh(lg,new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.6}),M.length);
    M.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set((R()-.5)*1.1,R()*6.283,(R()-.5)*1.1);d.scale.setScalar(.0042+R()*.003);d.updateMatrix();lm2.setMatrixAt(i,d.matrix);c.setHSL(.265-.035*b[3]+R()*.03,.82,.12+.24*b[3]+R()*.06);lm2.setColorAt(i,c);});box.add(lm2);}}
+ /* シダ：一枚の葉は、軸の左右に小さい葉が並ぶ形。先へ向かって小さくなって、弓なりに垂れる。モックで緑のパッドがあった場所に株で生える */
+ {const P=[],C=[],I=[],N=13,bend=y=>y*y*.45;
+  for(let i=0;i<=8;i++){const y=i/8,w=.011*(1-y*.8);P.push(-w,y,bend(y),w,y,bend(y));C.push(.5,.42,.3,.5,.42,.3);if(i<8){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2);}}
+  const leaflet=(y0,L,ang,sg)=>{const o=P.length/3,dx=Math.sin(ang)*sg,dy=Math.cos(ang),M=8;
+   for(let i=0;i<=M;i++){const u=i/M,hwd=L*.115*Math.pow(Math.sin(Math.PI*Math.pow(u,.75)),.7)*(1+(i%2?.2:-.12))*(i===M?0:1)+(i===0?L*.035:0),cx=dx*L*u,cy=y0+dy*L*u,cz=bend(Math.min(1,cy))-u*u*L*.22;
+    P.push(cx-dy*hwd,cy+dx*hwd,cz+hwd*.25,cx+dy*hwd,cy-dx*hwd,cz+hwd*.25);const v=.62+.5*u;C.push(v*.9,v,v*.8,v*.9,v,v*.8);if(i<M){const a=o+i*2;I.push(a,a+1,a+2,a+1,a+3,a+2);}}};
+  for(let k=0;k<N;k++){const t=(k+.5)/(N+.3),L=.27*Math.pow(Math.sin(Math.PI*(t*.8+.15)),.8),ang=1.12-.45*t;for(const sg of[-1,1])leaflet(.1+t*.86+(sg>0?.02:0),L,ang,sg);}
+  leaflet(.95,.11,0,1);
+  const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));fg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));fg.setIndex(I);fg.computeVertexNormals();
+  const q=mul(4242),FL=[];
+  for(const [pt,rad] of mossPts){const nf=5+Math.floor(q()*4),a0=q()*6.283,big=Math.min(rad*(1.7+q()*1.0),(TOPY-pt.y)*1.5+.09);
+   for(let k=0;k<nf;k++){const az=a0+k/nf*6.283+(q()-.5)*.6,young=q()<.25;FL.push([pt.x+Math.cos(az)*.012,pt.y-.01,pt.z-Math.sin(az)*.012,az,young?.15+q()*.3:.55+q()*.6,big*(young?.45+q()*.2:.7+q()*.5),young]);}}
+  const fm=new THREE.InstancedMesh(fg,sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.55}),.1),FL.length),d=new THREE.Object3D(),c=new THREE.Color();
+  FL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.4,'YXZ');d.scale.setScalar(b[5]);d.updateMatrix();fm.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.7,.34+q()*.1);else c.setHSL(.29+q()*.05,.62,.17+q()*.13);fm.setColorAt(i,c);});fm.castShadow=true;fm.receiveShadow=true;box.add(fm);}
  /* 草：手前は短く、奥と端は高く */
  {const bg=new THREE.PlaneGeometry(.014,1,1,4);bg.translate(0,.5,0);const p=bg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setX(i,p.getX(i)*(1-y*.85));p.setZ(i,y*y*.12);}bg.computeVertexNormals();
   const list=[];for(let i=0;i<5200;i++){const x=(R()-.5)*WS*.99,z=-.07-R()*(DP-.1);if(Math.abs(x-pathX(z))<pathW(z)+.015||inRock(x,z,.5))continue;const edge=sst(.45*hw,hw,Math.abs(x)),back=sst(-.6,-DP,z),near=inRock(x,z,1.7)?1:0;if(R()>near*.3+edge*.45+back*.3)continue;list.push([x,z,.05+R()*.07+edge*.22*R()+back*.26*R()]);}
