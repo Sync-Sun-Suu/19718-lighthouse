@@ -212,7 +212,7 @@ function build(){
  for(let i=0;i<8;i++){const z=-.1-R()*(DP-.7),x=pathX(z)+(R()-.5)*pathW(z)*1.3;rock(x,z,.016+R()*.022,{sy:.5+R()*.2,hard:.2,lift:.3});}
  /* 流木の木：左右から、まんなかの上でアーチになる */
  const bark=new THREE.MeshStandardMaterial({map:barkTex,bumpMap:barkBump,bumpScale:2.5,roughness:1,metalness:0,vertexColors:true});bark.color.setRGB(1.04,.87,.73);bark.side=THREE.DoubleSide;
- const woodCurves=[],fernSpots=[];const spot=(cv,t,k)=>{const p=cv.getPointAt(t),tg=cv.getTangentAt(t);fernSpots.push([V(p.x,p.y+cv.radAt(t)*.75,p.z),tg,k]);};const mossPts=[],MOSS_ON_WOOD=false; // 718 と決めた：いったん苔を外して、流木だけを作り込む
+ const woodCurves=[],fernSpots=[],frontLogs=[];const spot=(cv,t,k)=>{const p=cv.getPointAt(t),tg=cv.getTangentAt(t);fernSpots.push([V(p.x,p.y+cv.radAt(t)*.75,p.z),tg,k]);};const mossPts=[],MOSS_ON_WOOD=false; // 718 と決めた：いったん苔を外して、流木だけを作り込む
  function tree(side,bx,bz,seed,legs,longB){const r=mul(seed),g0=ground(bx,bz),s=side,top=TOPY-.02;
   const trunk=[V(bx,g0-.05,bz),V(bx+s*.03,g0+.3,bz+.02),V(bx-s*.06*hw,g0+.62,bz+.05),V(bx-s*.3*hw,BOT+1.22,bz+.1),V(bx-s*.62*hw,BOT+1.5,bz+.14),V(bx-s*.95*hw,BOT+1.58,bz+.2)];
   const c=limb(trunk,.105,.03,bark,44,10);woodCurves.push([c,1]);spot(c,.07,.8);spot(c,.13,.7);for(const tt of[.46,.56,.66,.76,.86,.94])spot(c,tt+(r()-.5)*.05,.95+r()*.3);
@@ -240,6 +240,14 @@ function build(){
    add([V(ax+sd*.02,B+.7,az+.02),V(ax-sd*.3,B+1.0,az+.3),V(ax-sd*.62,B+1.18,az+.5)],.05,.026,.6,[.6]);                                      // そこから出る枝
    add([V(bx,g(bx,bz)-.06,bz),V(bx+sd*.03,B+.38,bz+.02),V(bx+sd*.1,B+.7,bz-.03),V(bx+sd*.2,B+.9,bz-.08)],.09,.05,1,[.7]);                    // 手前の折れた株
    add([V(dx0,g(dx0,dz0)-.04,dz0),V((dx0+dx1)/2-sd*.04,B+.62,(dz0+dz1)/2),V(dx1,B+1.28,dz1)],.062,.03,.6,[.45,.75]);}}                       // 斜めにもたれる枝
+ /* 手前の太い流木（718 の絵）：石より前に、左右から一本ずつ。水槽の上にはみ出す所から下りてきて、小道のまんなかに架かる。形は不ぞろい、左右は非対称。
+    左は砂の上に先が着く。右は長くて、小道の上に浮いて架かる（脚が一本）。上にもう一本ずつ、細いのを添える */
+ {const B=BOT,log=(pts,r0,r1,spots,front)=>{const cv=limb(pts,r0,r1,bark,14,8);woodCurves.push([cv,.8]);for(const t of spots||[])spot(cv,t,.9);if(front)frontLogs.push(cv);return cv;},gl=ground(-.05*hw,-.3);
+  log([V(-.98*hw,TOPY+.15,-.86),V(-.8*hw,B+1.32,-.7),V(-.6*hw,B+.98,-.56),V(-.36*hw,B+.5,-.4),V(-.18*hw,B+.34,-.34),V(-.05*hw,gl+.07,-.3)],.092,.04,[.3,.45],true);
+  const Rg=log([V(.985*hw,TOPY+.12,-.6),V(.86*hw,B+1.42,-.52),V(.69*hw,B+1.02,-.42),V(.45*hw,B+.9,-.36),V(.2*hw,B+.6,-.3),V(.01*hw,B+.52,-.25)],.086,.034,[.28,.5],true);
+  {const p0=Rg.getPointAt(.62),ex=p0.x-.12,ez=p0.z+.1;log([p0,V(p0.x-.03,B+.45,p0.z+.06),V(ex,ground(ex,ez)-.05,ez)],.05,.03);const p1=Rg.getPointAt(.36);log([p1,V(p1.x+.04,p1.y+.22,p1.z-.06),V(p1.x-.06,p1.y+.42,p1.z-.14)],.045,.03);}
+  log([V(-.95*hw,TOPY+.1,-1.16),V(-.76*hw,B+1.36,-1.0),V(-.52*hw,B+.96,-.86)],.062,.03,[.6]);
+  log([V(.95*hw,TOPY+.08,-1.2),V(.86*hw,B+1.46,-1.08),V(.72*hw,B+1.2,-.98)],.056,.03,[.7]);}
  for(let i=0;i<4;i++){const z=-.14-R()*(DP*.6),x0=pathX(z)+(R()-.5)*pathW(z),a=R()*6.283,l=.22+R()*.3,pts=[];for(let k=0;k<5;k++){const t=k/4,px=x0+Math.cos(a)*l*(t-.5)+Math.sin(t*6+i*2)*.05,pz=z+Math.sin(a)*l*(t-.5)*.6+Math.cos(t*5+i)*.04;pts.push(V(px,ground(px,pz)+.008+Math.sin(t*3.14)*.012,pz));}limb(pts,.0055,.002,bark,16,5);}
  /* 苔：もこもこ */
  {const blobs=[]; // 石の上の苔のかたまり（rockMoss）は、苔を話し合ってから
@@ -388,6 +396,7 @@ function build(){
   // 木の付け根そのものと、大きい石の肌にも着ける（この草は土ではなく、木や石に着く）。付け根をかくす
   const clump2=(x,y,z,H,out,spread)=>{const n=10+Math.floor(q()*8);for(let k=0;k<n;k++){const az=out+(q()-.5)*spread,flop=q()<.15,L=H*(.45+q()*.75)*(flop?.8:1);JL[Math.floor(q()*4)].push([x+(q()-.5)*.03,y,z+(q()-.5)*.03,az,flop?.6+q()*.4:.1+q()*.55,L,q()<.18]);}};
   for(const [cv2,dens] of woodCurves){if(dens!==1)continue;for(const t of[.03,.08,.14]){const p0=cv2.getPointAt(t),r=cv2.radAt(t);for(const sg of[-1,0,1]){if(q()<.15)continue;clump2(p0.x+sg*r*.85,Math.max(p0.y-.03,ground(p0.x,p0.z)),p0.z+r*(sg?.55:.95),(.22+q()*.16)*(1+.4*sst(-.4,-1.7,p0.z)),sg*1.1,3.2);}}}
+  for(const cv2 of frontLogs)for(const t of[.42,.56,.7,.82]){const p0=cv2.getPointAt(t),r=cv2.radAt(t),sg=q()<.5?-1:1;if(q()<.2)continue;clump2(p0.x+(q()-.5)*.08,Math.max(p0.y-r*.4,ground(p0.x,p0.z+sg*r)),p0.z+sg*r*.9,.2+q()*.16,sg>0?0:3.1416,3.2);}
   for(const k of rocks){if(k[2]<.3)continue;for(let j=0;j<6;j++){const a=1.5708+(q()-.5)*3.8,bi=Math.floor((a+Math.PI)/6.2832*32)%32,rr=k[4][bi]*.8,x=k[0]+Math.cos(a)*rr,z=k[1]+Math.sin(a)*rr,g0=ground(x,z);if(Math.abs(x)>hw-.05)continue;clump2(x,g0+(k[3]-g0)*(.15+q()*.4),z,.2+q()*.16,Math.atan2(Math.cos(a),Math.sin(a)),2.6);}}
   const jm=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1c3a12,emissiveIntensity:.3}),.035),d=new THREE.Object3D(),c=new THREE.Color();
   JL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(77+vi*13),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.9,'YXZ');d.scale.set(b[5]*(.8+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.6,.36+q()*.08);else c.setHSL(.27+q()*.05,.55+q()*.15,.17+q()*.12);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});}
