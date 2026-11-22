@@ -394,7 +394,34 @@ function build(){
     const g0=Math.max(ground(x,z),mossY(x,z)),h=Math.min(TOPY-.04-g0,bh*(.4+.6*Math.sqrt(Math.max(0,1-d*d/(br*br*1.3))))*(.6+q()*.55));if(h<.07)continue;GL[Math.floor(q()*4)].push([x,g0-.01,z,h,a,d/br]);}}
   const gmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.6,emissive:0x18340c,emissiveIntensity:.4}),.03);
   GL.forEach((list,vi)=>{const gm=new THREE.InstancedMesh(makeStem(301+vi*41),gmat,list.length);
-   list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.08+b[5]*.4;d.rotation.set(-Math.sin(b[4])*ln+(q()-.5)*.25,q()*6.283,Math.cos(b[4])*ln+(q()-.5)*.25);const w=b[3]*(1.5+q()*.7);d.scale.set(w,b[3],w);d.updateMatrix();gm.setMatrixAt(i,d.matrix);c.setRGB(.9+q()*.3,.95+q()*.2,.55+q()*.4);gm.setColorAt(i,c);});gm.castShadow=true;gm.receiveShadow=true;box.add(gm);});}
+   list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.08+b[5]*.4;d.rotation.set(-Math.sin(b[4])*ln+(q()-.5)*.25,q()*6.283,Math.cos(b[4])*ln+(q()-.5)*.25);const w=b[3]*(1.5+q()*.7);d.scale.set(w,b[3],w);d.updateMatrix();gm.setMatrixAt(i,d.matrix);c.setRGB(.9+q()*.3,.95+q()*.2,.55+q()*.4);gm.setColorAt(i,c);});gm.castShadow=true;gm.receiveShadow=true;box.add(gm);});
+  /* ふわふわの緑の塔（ポゴステモン・エレクタスふう。11/23、718 が白い丸で囲った二か所）：針の葉が段々に密につく。まっすぐ上へ。束で植える。
+     右：流木と壁の間の、何もなかった水に大きい束。左：大きい石の前、小さい石との間から小さい束。左右で同じ草、大きさは変える */
+  {const makePogo=seed=>{const P=[],C=[],I=[],g=mul(seed),p1=g()*6,p2=g()*6,cx=y=>Math.sin(y*2.1+p1)*.02*y+Math.sin(y*5+p2)*.004,cz=y=>Math.cos(y*1.7+p2)*.018*y,lo=[.15,.34,.1],hi=[.5,.8,.24],cl=y=>{const t=Math.pow(y,1.4);return [lo[0]+(hi[0]-lo[0])*t,lo[1]+(hi[1]-lo[1])*t,lo[2]+(hi[2]-lo[2])*t];};
+    for(let i=0;i<=10;i++){const y=i/10,w=.004,c0=cl(y);for(const a of[0,2.094,4.189]){P.push(cx(y)+Math.cos(a)*w,y,cz(y)+Math.sin(a)*w);C.push(c0[0]*.6,c0[1]*.6,c0[2]*.6);}if(i<10){const o=i*3;for(let j=0;j<3;j++){const a=o+j,b=o+(j+1)%3;I.push(a,b,a+3,b,b+3,a+3);}}}
+    let y=.05+g()*.03,ph=g()*6.283;
+    while(y<1){const n=9+Math.floor(g()*3),top=Math.max(0,(y-.88)/.12),c0=cl(y),Lb=.115*(.55+.45*Math.sin(Math.PI*Math.min(1,y*1.15+.12)))*(1-.45*top);ph+=.5+g()*.4;
+     for(let s2=0;s2<n;s2++){const a=ph+s2*6.283/n+(g()-.5)*.35,L=Lb*(.75+g()*.5),e=.45+.5*y+top*.5+(g()-.5)*.3,dx=Math.cos(a),dz=Math.sin(a),o=P.length/3,v0=.8+g()*.35,up=.25+g()*.3;
+      for(let i=0;i<=2;i++){const u=i/2,hwd=i===2?0:L*.05*(1-.5*u)+.001,r=L*u*Math.cos(e),yy=y+L*u*Math.sin(e)+u*u*L*up*.4,v=v0*(.75+.45*u);
+       P.push(cx(y)+dx*r-dz*hwd,yy,cz(y)+dz*r+dx*hwd,cx(y)+dx*r+dz*hwd,yy,cz(y)+dz*r-dx*hwd);C.push(c0[0]*v,c0[1]*v,c0[2]*v,c0[0]*v,c0[1]*v,c0[2]*v);if(i<2){const b=o+i*2;I.push(b,b+1,b+2,b+1,b+3,b+2);}}}
+     y+=(.02+g()*.01)*(1-.3*y);}
+    const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));rg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));rg.setIndex(I);rg.computeVertexNormals();return rg;};
+   const PB=[[.9*hw,-1.02,.25,1.3],[.94*hw,-.66,.13,.95],[-.84*hw,-.8,.18,.95]],PL=[[],[],[],[]];
+   for(const [bx,bz,br,bh] of PB){const n=Math.round(br*br*1600);for(let i=0;i<n;i++){const a=q()*6.283,dd=Math.sqrt(q())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.07||z<-DP+.06||z>-.07||pathF(x,z)>.15||rockHit(x,z,.02))continue;
+     const g0=Math.max(ground(x,z),mossY(x,z)),h=Math.min(TOPY-.06-g0,bh*(.55+.45*Math.sqrt(Math.max(0,1-dd*dd/(br*br*1.2))))*(.75+q()*.4));if(h<.2)continue;PL[Math.floor(q()*4)].push([x,g0-.01,z,h,a,dd/br]);}}
+   const pmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.6,emissive:0x1a3a0c,emissiveIntensity:.4}),.03);
+   PL.forEach((list,vi)=>{const pm=new THREE.InstancedMesh(makePogo(701+vi*29),pmat,list.length);
+    list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.03+b[5]*.18;d.rotation.set(-Math.sin(b[4])*ln+(q()-.5)*.1,q()*6.283,Math.cos(b[4])*ln+(q()-.5)*.1);const w=.85+q()*.4;d.scale.set(w,b[3],w);d.updateMatrix();pm.setMatrixAt(i,d.matrix);c.setRGB(.85+q()*.3,.9+q()*.2,.6+q()*.5);pm.setColorAt(i,c);});pm.castShadow=true;pm.receiveShadow=true;box.add(pm);});
+   /* ぎざぎざの葉（ハイグロフィラ・ピンナティフィダふう）：大きい石の顔に着ける。土ではなく石に着く草。葉のふちが深く切れこむ。石を少し隠して、時間がたった感じに */
+   const mkP=sd=>{const g=mul(sd),P=[],C=[],I=[],M=28,ph=g()*3,dr=.25+g()*.5,wm=.11+g()*.04,p2=g()*6;
+     for(let i=0;i<=M;i++){const u=i/M,env=wm*Math.pow(Math.sin(Math.PI*Math.pow(u,.7)),.8),lob=.5+.5*Math.abs(Math.sin(u*Math.PI*6.5+ph)),hwd=i===M?0:env*(.3+.7*lob)+.006,bb=1+dr,y=Math.sin(bb*u)/bb,zo=(1-Math.cos(bb*u))/bb,xo=Math.sin(u*4+p2)*.03*u;
+      P.push(xo-hwd,y,zo+hwd*.25, xo,y,zo, xo+hwd,y,zo+hwd*.25);const e=.7+.2*u;C.push(e,e*.95,e*.75, 1.15,1.15,.9, e,e*.95,e*.75);if(i<M){const a=i*3;I.push(a,a+3,a+1,a+1,a+3,a+4,a+1,a+4,a+2,a+2,a+4,a+5);}}
+     const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));bg.setIndex(I);bg.computeVertexNormals();return bg;};
+   const big=rocks.reduce((a,k)=>k[2]>a[2]?k:a,rocks[0]),HL=[[],[],[]];
+   for(const [a,f] of[[1.6,.5],[2.0,.68],[2.4,.45],[1.3,.75],[2.2,.28]]){const bi=Math.floor((a+Math.PI)/6.2832*32)%32,g0=ground(big[0],big[1]),rr=big[4][bi]*Math.sqrt(1-f*f)*.92,x=big[0]+Math.cos(a)*rr,z=big[1]+Math.sin(a)*rr,y=g0+(big[3]-g0)*f,n=7+Math.floor(q()*4),out=Math.atan2(Math.cos(a),Math.sin(a));
+    for(let k=0;k<n;k++)HL[Math.floor(q()*3)].push([x+(q()-.5)*.04,y+(q()-.5)*.05,z+(q()-.5)*.03,out+(q()-.5)*2.6,.5+q()*.8,.2+q()*.16]);}
+   const hmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x14260a,emissiveIntensity:.3}),.012);
+   HL.forEach((list,vi)=>{const hm=new THREE.InstancedMesh(mkP(811+vi*23),hmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.6,'YXZ');d.scale.set(b[5]*(.9+q()*.4),b[5],b[5]);d.updateMatrix();hm.setMatrixAt(i,d.matrix);if(q()<.3)c.setHSL(.1+q()*.04,.5,.085+q()*.035);else c.setHSL(.22+q()*.06,.5+q()*.1,.085+q()*.05);hm.setColorAt(i,c);});hm.castShadow=true;hm.receiveShadow=true;box.add(hm);});}}
  /* 濃くて広い葉（アヌビアス・ナナふう）：石のきわと木の根もとに。這う短い茎から、柄が立ち上がって、その先で葉が外へ倒れる。葉の表が上を向く。
     厚くて硬くて、つやがある（揺れない）。一株の中で、葉の大きさがばらばら */
  {const P=[],C=[],I=[],PT=.42,BL=.72,be=.62,dy=Math.cos(be),dz=Math.sin(be),ny=Math.sin(be),nz=-Math.cos(be),pz=y=>Math.pow(y/PT,2)*.06;
