@@ -49,7 +49,7 @@
 <button id="go" data-k="go">進む</button>
 <button id="edit">流木を動かす</button>
 <svg id="edsvg"></svg>
-<div id="edbar"><span id="edmsg">点を指でつまんで動かす</span><button id="edwhole">一本まるごと</button><button id="edback">奥へ</button><button id="edfront">手前へ</button><button id="edthin">細く</button><button id="edthick">太く</button><button id="edfrontlogs">前の二本をかくす</button><button id="edreset">もどす</button><button id="edcopy">数字をコピー</button></div>
+<div id="edbar"><span id="edmsg">点を指でつまんで動かす</span><button id="edwhole">一本まるごと</button><button id="edback">奥へ</button><button id="edfront">手前へ</button><button id="edthin">細く</button><button id="edthick">太く</button><button id="edfrontlogs">前の二本を出す</button><button id="edreset">もどす</button><button id="edcopy">数字をコピー</button></div>
 <textarea id="edout" readonly></textarea>
 <div id="tip">指でなぞると、のぞく角度が変わる</div>
 <div id="load">水を張っています</div>
@@ -153,7 +153,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 let blades=[];
 /* 流木を動かす道具（仮、11/23）：718 が指で動かした流木の点。ここに入っている間は、下の決め打ちの点よりこっちを使う。
    19 が数字を下に焼きこんだら、EDREV を変える（古い手直しは捨てられる） */
-const EDREV='1123b',LOGCV={};let EDIT={};try{const s0=JSON.parse(localStorage.getItem('tf-logs')||'null');if(s0&&s0.rev===EDREV&&s0.e)EDIT=s0.e;}catch(err){}
+const EDREV='1123c',LOGCV={};let EDIT={};try{const s0=JSON.parse(localStorage.getItem('tf-logs')||'null');if(s0&&s0.rev===EDREV&&s0.e)EDIT=s0.e;}catch(err){}
 const EP=(id,def)=>EDIT[id]&&EDIT[id].p?EDIT[id].p.map(a=>V(a[0],a[1],a[2])):def,EK=id=>(EDIT[id]&&EDIT[id].k)||1;
 function build(){
  {const seen=new Set();box.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms){if(seen.has(m))continue;seen.add(m);for(const k of ['map','bumpMap','normalMap','alphaMap'])if(m[k]&&m[k].dispose)m[k].dispose();m.dispose();}});}
@@ -270,8 +270,8 @@ function build(){
   // 右：手前の列。斜めに外へ上がって、肩で少し寝て、先は右上へ立つ（718 の赤い線）
   {const cv=LOGCV.mr=log(EP('mr',[V(.30,g(.30,-.45)-.05,-.45),V(.48,g(.48,-.46)+.13,-.46),V(.75,B+.44,-.47),V(1.05,B+.58,-.44),V(1.3,B+.82,-.55),V(1.5,B+1.12,-.66),V(1.72,B+1.4,-.72),V(1.84,B+1.5,-.72),V(1.895,B+1.66,-.72),V(1.925,B+1.84,-.7)]),.11*EK('mr'),.022*EK('mr'),.45,{spindle:true,skew:.86,flare:0});
    spot(cv,.45,.9);}
-  // 手前の二本は、かくせる（718「流木は素材として残しつつ、前の2本を外そうかな」）。消さずに取っておく
-  delete LOGCV.fl;delete LOGCV.fr;if(!EDIT._nofront){
+  // 手前の二本は、外した（718、11/23「なしの方がいいね！これで行こう！」）。素材として取っておく。道具の「前の二本を出す」か ?front=1 で見られる
+  delete LOGCV.fl;delete LOGCV.fr;if(EDIT._front){
   // 手前・左：細い先が小道のきわ。太い方は左の高い所で、折れた口を見せる
   {const tx=-.24*hw,tz=-.19,cv=LOGCV.fl=log(EP('fl',[V(tx,g(tx,tz)-.03,tz),V(-.34*hw,g(-.34*hw,-.22)+.13,-.22),V(-.5*hw,B+.44,-.28),V(-.66*hw,B+.6,-.36),V(-.8*hw,B+.84,-.45),V(-.9*hw,B+.96,-.52)]),.055*EK('fl'),.175*EK('fl'),.45,{big:true,flare:0});
    frontLogs.push([cv,[.18,.34,.5,.66]]);stub(cv,.55,.05,.24,-.1,.055);stub(cv,.8,.12,.1,.16,.05);}
@@ -429,7 +429,15 @@ function build(){
   for(const [cv2,ts] of frontLogs)for(const t of ts){const p0=cv2.getPointAt(t),r=cv2.radAt(t),sg=q()<.75?1:-1,zz=Math.min(-.05,p0.z+sg*r*.95);clump2(p0.x+(q()-.5)*.08,Math.max(ground(p0.x,zz),mossY(p0.x,zz))-.01,zz,.2+q()*.16,sg>0?0:3.1416,3.2);}
   for(const k of rocks){if(k[2]<.3)continue;for(let j=0;j<6;j++){const a=1.5708+(q()-.5)*3.8,bi=Math.floor((a+Math.PI)/6.2832*32)%32,rr=k[4][bi]*.8,x=k[0]+Math.cos(a)*rr,z=k[1]+Math.sin(a)*rr,g0=ground(x,z);if(Math.abs(x)>hw-.05)continue;clump2(x,g0+(k[3]-g0)*(.15+q()*.4),z,.2+q()*.16,Math.atan2(Math.cos(a),Math.sin(a)),2.6);}}
   const jm=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1c3a12,emissiveIntensity:.3}),.035),d=new THREE.Object3D(),c=new THREE.Color();
-  JL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(77+vi*13),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.9,'YXZ');d.scale.set(b[5]*(.8+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.6,.36+q()*.08);else c.setHSL(.27+q()*.05,.55+q()*.15,.17+q()*.12);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});}
+  JL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(77+vi*13),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.9,'YXZ');d.scale.set(b[5]*(.8+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.6,.36+q()*.08);else c.setHSL(.27+q()*.05,.55+q()*.15,.17+q()*.12);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});
+  /* 茶色の広い葉（クリプトコリネふう。11/23、まず少しだけ）：前の両はし、流木を外して空いた所に低く。緑の中の色の重し。
+     左に三株、右に二株（数も大きさもそろえない）。小道の前は空けたまま。石は rockHit でよける */
+  {const KL=[[],[],[],[]],crypt=(x,z,H)=>{for(let t=0;t<20&&rockHit(x,z,.03);t++)z+=.03;if(z>-.07||Math.abs(x)>hw-.06||onPath(x,z))return;const y=Math.max(ground(x,z),mossY(x,z))-.008,n=19+Math.floor(q()*8),a0=q()*6.283;
+    for(let k=0;k<n;k++){const inner=k<5,az=a0+k*2.4+(q()-.5)*.8,L=H*(inner?.5+q()*.2:.7+q()*.5);KL[Math.floor(q()*4)].push([x+(q()-.5)*.025,y,z+(q()-.5)*.025,az,inner?.08+q()*.18:.22+q()*.45,L,inner]);}};
+   for(const [x,z,H] of[[-.72*hw,-.17,.3],[-.5*hw,-.13,.22],[-.87*hw,-.3,.35],[.66*hw,-.16,.31],[.85*hw,-.3,.24]])crypt(x,z,H);
+   const km=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.42,emissive:0x1c0a04,emissiveIntensity:.15}),.018);
+   KL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(301+vi*17),km,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.7,'YXZ');d.scale.set(b[5]*(1.15+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);
+     if(b[6])c.setHSL(.16+q()*.04,.5,.15+q()*.05);else if(q()<.3)c.setHSL(.12+q()*.05,.5,.09+q()*.04);else c.setHSL(.04+q()*.045,.55+q()*.12,.065+q()*.05);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});}}
  /* 後ろの長い草（バリスネリア・ナナふう）：ネギの作り直し。糸みたいに細くて、やわらかい。束で生えて、水面まで届いたら、流れにそって横へなびく。いちばん奥の両側に */
  {const mkV=(sd,tall)=>{const g=mul(sd),P=[],C=[],I=[],M=26,p1=g()*6,p2=g()*6,tw=(g()-.5)*4,w0=.0038+g()*.0022,
     u0=tall?.3+g()*.3:.25+g()*.3,u1=u0+(tall?.4+g()*.45:.5+g()*.4),th=tall?1.5708:.35+g()*.7,trail=tall?.04+g()*g()*.75:0,S=1+trail,pts=[];
@@ -536,7 +544,7 @@ mb.addEventListener('click',async()=>{if(!tilt){try{if(typeof DeviceOrientationE
  else{tilt=false;removeEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：指';tip.textContent='指でなぞると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}});
 const q=new URLSearchParams(location.search);if(q.get('x'))tx=+q.get('x');if(q.get('y'))ty=+q.get('y');const fixed=q.has('x')||q.has('y');let fishStart=q.get('fish');if(q.get('zoom')){zm=zt=Math.max(1,+q.get('zoom'));fx=ftx=(+q.get('fx')||0)*2;fy=fty=(+q.get('fy')||0);}
 try{const t=+q.get('tank');if(SIZES[t])tank=t;}catch(err){}
-if(q.get('front')==='0')EDIT._nofront=1;
+if(q.get('front')==='1')EDIT._front=1;
 if(innerHeight>innerWidth)tip.textContent='横にすると、水槽が大きくなる';
 /* 流木を動かす道具（仮）。点を指でつまんで動かす。指を離すと、その流木を組み直す。「数字をコピー」で 19 に渡す */
 const ED={on:false,sel:null,drag:null,whole:false,h:{},el:{},t:0,names:{ml:'左のまんなか',mr:'右のまんなか',fl:'左の手前',fr:'右の手前'},n:{ml:7,mr:6,fl:5,fr:5},col:{ml:'#ffd76a',mr:'#7fe3ff',fl:'#ff9db1',fr:'#b6ff9a'}};
@@ -564,8 +572,8 @@ const ED={on:false,sel:null,drag:null,whole:false,h:{},el:{},t:0,names:{ml:'左�
  $('edback').addEventListener('click',()=>zmove(-.06));$('edfront').addEventListener('click',()=>zmove(.06));
  const kmul=m=>{if(!ED.sel){say('先に、太さを変えたい流木の点をさわってね');return;}const id=ED.sel[0];EDIT[id]=EDIT[id]||{};EDIT[id].k=r3(cl((EDIT[id].k||1)*m,.4,2.2));commit(id,'k');};
  $('edthin').addEventListener('click',()=>kmul(.92));$('edthick').addEventListener('click',()=>kmul(1.09));
- const fl=$('edfrontlogs'),flT=()=>{fl.textContent=EDIT._nofront?'前の二本をもどす':'前の二本をかくす';fl.classList.toggle('on',!!EDIT._nofront);};
- fl.addEventListener('click',()=>{if(EDIT._nofront)delete EDIT._nofront;else EDIT._nofront=1;save();flT();ED.sel=null;say('組み直してる…');setTimeout(()=>{build();load();dom();say(EDIT._nofront?'前の二本をかくした（消してはいない）':'前の二本をもどした');},40);});
+ const fl=$('edfrontlogs'),flT=()=>{fl.textContent=EDIT._front?'前の二本をかくす':'前の二本を出す';fl.classList.toggle('on',!!EDIT._front);};
+ fl.addEventListener('click',()=>{if(EDIT._front)delete EDIT._front;else EDIT._front=1;save();flT();ED.sel=null;say('組み直してる…');setTimeout(()=>{build();load();dom();say(EDIT._front?'前の二本を出した':'前の二本をかくした（消してはいない）');},40);});
  eb.addEventListener('click',flT);
  $('edreset').addEventListener('click',()=>{EDIT={};flT();try{localStorage.removeItem('tf-logs');}catch(err){}ED.sel=null;say('もどしてる…');setTimeout(()=>{build();load();dom();say('はじめの形にもどした');},40);});
  $('edcopy').addEventListener('click',async()=>{if(!Object.keys(EDIT).length){say('まだ何も動かしてない');return;}const t='流木の数字 '+EDREV+' '+JSON.stringify(EDIT);let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(err){}
