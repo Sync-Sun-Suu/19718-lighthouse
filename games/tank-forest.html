@@ -406,7 +406,7 @@ function build(){
        P.push(cx(y)+dx*r-dz*hwd,yy,cz(y)+dz*r+dx*hwd,cx(y)+dx*r+dz*hwd,yy,cz(y)+dz*r-dx*hwd);C.push(c0[0]*v,c0[1]*v,c0[2]*v,c0[0]*v,c0[1]*v,c0[2]*v);if(i<2){const b=o+i*2;I.push(b,b+1,b+2,b+1,b+3,b+2);}}}
      y+=(.02+g()*.01)*(1-.3*y);}
     const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));rg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));rg.setIndex(I);rg.computeVertexNormals();return rg;};
-   const PB=[[.9*hw,-1.02,.25,1.3],[.94*hw,-.66,.13,.95],[-.84*hw,-.8,.18,.95]],PL=[[],[],[],[]];
+   const PB=[],PL=[[],[],[],[]]; // 塔は素材として取っておく（718、11/23「19のやつ素材で取って置いてほしい。苔に足すかも」）。植えていた場所：[[.9*hw,-1.02,.25,1.3],[.94*hw,-.66,.13,.95],[-.84*hw,-.8,.18,.95]]
    for(const [bx,bz,br,bh] of PB){const n=Math.round(br*br*1600);for(let i=0;i<n;i++){const a=q()*6.283,dd=Math.sqrt(q())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.07||z<-DP+.06||z>-.07||pathF(x,z)>.15||rockHit(x,z,.02))continue;
      const g0=Math.max(ground(x,z),mossY(x,z)),h=Math.min(TOPY-.06-g0,bh*(.55+.45*Math.sqrt(Math.max(0,1-dd*dd/(br*br*1.2))))*(.75+q()*.4));if(h<.2)continue;PL[Math.floor(q()*4)].push([x,g0-.01,z,h,a,dd/br]);}}
    const pmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.6,emissive:0x1a3a0c,emissiveIntensity:.4}),.03);
@@ -440,8 +440,8 @@ function build(){
   const am=new THREE.InstancedMesh(ag,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.26,metalness:.08}),AL.length),d=new THREE.Object3D(),c=new THREE.Color();
   AL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.5,'YXZ');d.scale.set(b[5]*b[8],b[5]*b[7],b[5]);d.updateMatrix();am.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.25+q()*.03,.55,.3+q()*.07);else c.setHSL(.275+q()*.04,.5+q()*.15,.1+q()*.08);am.setColorAt(i,c);});am.castShadow=true;am.receiveShadow=true;box.add(am);}
  /* 「ほうれん草」（ミクロソリウムふう）：岩と木の根もとに着く。細長い葉。ふちが波打って、葉そのものもくねくねうねる。向きも長さもばらばらで、倒れているのもある（整いすぎを崩す） */
- {const mk=sd=>{const g=mul(sd),P=[],C=[],I=[],M=16,p1=g()*6,p2=g()*6,p3=g()*6,dr=.3+g()*.5,wm=.07+g()*.035;
-   for(let i=0;i<=M;i++){const u=i/M,hwd=i===M?0:wm*Math.pow(Math.sin(Math.PI*Math.pow(u,.62)),.75)+.007,bb=1.1+dr*1.3,y=Math.sin(bb*u)/bb,zo=(1-Math.cos(bb*u))/bb+Math.sin(u*5+p1)*.04*u,xo=Math.sin(u*6.5+p2)*.045*u,rp=Math.sin(u*19+p3)*hwd*.5,rq=Math.sin(u*23+p1)*hwd*.5;
+ {const mk=(sd,up)=>{const g=mul(sd),P=[],C=[],I=[],M=16,p1=g()*6,p2=g()*6,p3=g()*6,dr=.3+g()*.5,wm=up?.062+g()*.026:.07+g()*.035;
+   for(let i=0;i<=M;i++){const u=i/M,hwd=i===M?0:wm*Math.pow(Math.sin(Math.PI*Math.pow(u,.62)),.75)+.007,bb=up?.3+dr*.75:1.1+dr*1.3,y=Math.sin(bb*u)/bb,zo=(1-Math.cos(bb*u))/bb+Math.sin(u*5+p1)*.04*u,xo=Math.sin(u*6.5+p2)*.045*u,rp=Math.sin(u*19+p3)*hwd*.5,rq=Math.sin(u*23+p1)*hwd*.5;
     P.push(xo-hwd,y+rp*.3,zo+hwd*.3+rp, xo,y,zo, xo+hwd,y+rq*.3,zo+hwd*.3+rq);const e=.7+.25*u+.12*Math.sin(u*19+p3);C.push(e,e,e*.85, 1.18,1.22,.95, e*1.02,e,e*.85);if(i<M){const a=i*3;I.push(a,a+3,a+1,a+1,a+3,a+4,a+1,a+4,a+2,a+2,a+4,a+5);}}
    const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));bg.setIndex(I);bg.computeVertexNormals();return bg;};
   const q=mul(5151),JL=[[],[],[],[]],clump=(x,z,H,out)=>{if(Math.abs(x)>hw-.05||z>-.06||z<-DP+.05||onPath(x,z))return;const y=Math.max(ground(x,z),mossY(x,z))-.01,n=10+Math.floor(q()*9);
@@ -455,8 +455,14 @@ function build(){
   for(const [cv2,dens] of woodCurves){if(dens!==1)continue;for(const t of[.03,.08,.14]){const p0=cv2.getPointAt(t),r=cv2.radAt(t);for(const sg of[-1,0,1]){if(q()<.15)continue;clump2(p0.x+sg*r*.85,Math.max(p0.y-.03,ground(p0.x,p0.z)),p0.z+r*(sg?.55:.95),(.22+q()*.16)*(1+.4*sst(-.4,-1.7,p0.z)),sg*1.1,3.2);}}}
   for(const [cv2,ts] of frontLogs)for(const t of ts){const p0=cv2.getPointAt(t),r=cv2.radAt(t),sg=q()<.75?1:-1,zz=Math.min(-.05,p0.z+sg*r*.95);clump2(p0.x+(q()-.5)*.08,Math.max(ground(p0.x,zz),mossY(p0.x,zz))-.01,zz,.2+q()*.16,sg>0?0:3.1416,3.2);}
   for(const k of rocks){if(k[2]<.3)continue;for(let j=0;j<6;j++){const a=1.5708+(q()-.5)*3.8,bi=Math.floor((a+Math.PI)/6.2832*32)%32,rr=k[4][bi]*.8,x=k[0]+Math.cos(a)*rr,z=k[1]+Math.sin(a)*rr,g0=ground(x,z);if(Math.abs(x)>hw-.05)continue;clump2(x,g0+(k[3]-g0)*(.15+q()*.4),z,.2+q()*.16,Math.atan2(Math.cos(a),Math.sin(a)),2.6);}}
+  /* 上にすっと立つ、長くて広い葉（718 が写真に赤丸をつけた葉。11/23）：塔のかわりに、右の流木と壁の間と、左の大きい石の前に。
+     同じ「ほうれん草」の葉を、大きく、立てて、束で。高さはそろえない */
+  const TL=[[],[],[],[]];{const q2=mul(8451),tall=(bx,bz,br,H,n)=>{for(let k=0;k<n;k++){const a=q2()*6.283,dd=Math.sqrt(q2())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.05||z>-.07||z<-DP+.05||rockHit(x,z,.015))continue;
+     const y=Math.max(ground(x,z),mossY(x,z))-.01,L=Math.min(TOPY-.05-y,H*(.45+.55*Math.sqrt(Math.max(0,1-dd*dd/(br*br*1.2))))*(.7+q2()*.45));TL[Math.floor(q2()*4)].push([x,y,z,a+(q2()-.5)*2,.03+q2()*.12+dd/br*.12,L,q2()<.2]);}};
+   tall(.9*hw,-1.02,.22,1.15,230);tall(.94*hw,-.66,.12,.8,70);tall(-.84*hw,-.8,.18,1.0,170);}
   const jm=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1c3a12,emissiveIntensity:.3}),.035),d=new THREE.Object3D(),c=new THREE.Color();
   JL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(77+vi*13),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.9,'YXZ');d.scale.set(b[5]*(.8+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.6,.36+q()*.08);else c.setHSL(.27+q()*.05,.55+q()*.15,.17+q()*.12);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});
+  {const q3=mul(8452);TL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(177+vi*19,1),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q3()-.5)*.5,'YXZ');d.scale.set(b[5]*(.8+q3()*.45),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.25+q3()*.03,.6,.34+q3()*.08);else c.setHSL(.28+q3()*.05,.55+q3()*.15,.16+q3()*.11);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});}
   /* 茶色の広い葉（クリプトコリネふう。11/23、まず少しだけ）：前の両はし、流木を外して空いた所に低く。緑の中の色の重し。
      左に三株、右に二株（数も大きさもそろえない）。小道の前は空けたまま。石は rockHit でよける */
   {const KL=[[],[],[],[]],crypt=(x,z,H)=>{for(let t=0;t<20&&rockHit(x,z,.03);t++)z+=.03;if(z>-.07||Math.abs(x)>hw-.06||onPath(x,z))return;const y=Math.max(ground(x,z),mossY(x,z))-.008,n=19+Math.floor(q()*8),a0=q()*6.283;
