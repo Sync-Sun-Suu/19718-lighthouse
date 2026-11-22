@@ -49,7 +49,7 @@
 <button id="go" data-k="go">進む</button>
 <button id="edit">流木を動かす</button>
 <svg id="edsvg"></svg>
-<div id="edbar"><span id="edmsg">点を指でつまんで動かす</span><button id="edwhole">一本まるごと</button><button id="edback">奥へ</button><button id="edfront">手前へ</button><button id="edthin">細く</button><button id="edthick">太く</button><button id="edreset">もどす</button><button id="edcopy">数字をコピー</button></div>
+<div id="edbar"><span id="edmsg">点を指でつまんで動かす</span><button id="edwhole">一本まるごと</button><button id="edback">奥へ</button><button id="edfront">手前へ</button><button id="edthin">細く</button><button id="edthick">太く</button><button id="edfrontlogs">前の二本をかくす</button><button id="edreset">もどす</button><button id="edcopy">数字をコピー</button></div>
 <textarea id="edout" readonly></textarea>
 <div id="tip">指でなぞると、のぞく角度が変わる</div>
 <div id="load">水を張っています</div>
@@ -153,7 +153,7 @@ const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 let blades=[];
 /* 流木を動かす道具（仮、11/23）：718 が指で動かした流木の点。ここに入っている間は、下の決め打ちの点よりこっちを使う。
    19 が数字を下に焼きこんだら、EDREV を変える（古い手直しは捨てられる） */
-const EDREV='1123a',LOGCV={};let EDIT={};try{const s0=JSON.parse(localStorage.getItem('tf-logs')||'null');if(s0&&s0.rev===EDREV&&s0.e)EDIT=s0.e;}catch(err){}
+const EDREV='1123b',LOGCV={};let EDIT={};try{const s0=JSON.parse(localStorage.getItem('tf-logs')||'null');if(s0&&s0.rev===EDREV&&s0.e)EDIT=s0.e;}catch(err){}
 const EP=(id,def)=>EDIT[id]&&EDIT[id].p?EDIT[id].p.map(a=>V(a[0],a[1],a[2])):def,EK=id=>(EDIT[id]&&EDIT[id].k)||1;
 function build(){
  {const seen=new Set();box.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms){if(seen.has(m))continue;seen.add(m);for(const k of ['map','bumpMap','normalMap','alphaMap'])if(m[k]&&m[k].dispose)m[k].dispose();m.dispose();}});}
@@ -264,17 +264,20 @@ function build(){
   // 先っぽ：小枝はつけない（718、11/22）。まっすぐな棒にしない。ゆるい S の字のカーブで終わらせる
   const up=(x,z,y,m)=>Math.max(g(x,z)+m,y);
   // 左：奥。上の角から少し下りて、大きい石の上をなだらかに渡り、また下りて、足もとは小道のきわへ流れる（718 の赤い線）
+  // （11/23 朝に 718 がスマホの指で置いた数字は、大きい石の中を突き抜けたので、焼きこんでいない。棚 1.28 に数字がある）
   {const cv=LOGCV.ml=log(EP('ml',[V(-.46,g(-.46,-1.1)-.05,-1.1),V(-.62,up(-.62,-1.1,B+.21,.1),-1.1),V(-.78,up(-.78,-1.1,B+.33,.12),-1.1),V(-.9,up(-.9,-1.1,B+.5,.14),-1.1),V(-.96,B+.74,-1.1),V(-.99,B+1.0,-1.1),V(-1.08,B+1.24,-1.11),V(-1.22,B+1.39,-1.12),V(-1.38,B+1.5,-1.14),V(-1.58,B+1.55,-1.17),V(-1.76,B+1.6,-1.19),V(-1.87,B+1.68,-1.18),V(-1.92,B+1.8,-1.14)]),.105*EK('ml'),.022*EK('ml'),.45,{spindle:true,skew:.78,flare:0});
    spot(cv,.45,.9);}
   // 右：手前の列。斜めに外へ上がって、肩で少し寝て、先は右上へ立つ（718 の赤い線）
   {const cv=LOGCV.mr=log(EP('mr',[V(.30,g(.30,-.45)-.05,-.45),V(.48,g(.48,-.46)+.13,-.46),V(.75,B+.44,-.47),V(1.05,B+.58,-.44),V(1.3,B+.82,-.55),V(1.5,B+1.12,-.66),V(1.72,B+1.4,-.72),V(1.84,B+1.5,-.72),V(1.895,B+1.66,-.72),V(1.925,B+1.84,-.7)]),.11*EK('mr'),.022*EK('mr'),.45,{spindle:true,skew:.86,flare:0});
    spot(cv,.45,.9);}
+  // 手前の二本は、かくせる（718「流木は素材として残しつつ、前の2本を外そうかな」）。消さずに取っておく
+  delete LOGCV.fl;delete LOGCV.fr;if(!EDIT._nofront){
   // 手前・左：細い先が小道のきわ。太い方は左の高い所で、折れた口を見せる
   {const tx=-.24*hw,tz=-.19,cv=LOGCV.fl=log(EP('fl',[V(tx,g(tx,tz)-.03,tz),V(-.34*hw,g(-.34*hw,-.22)+.13,-.22),V(-.5*hw,B+.44,-.28),V(-.66*hw,B+.6,-.36),V(-.8*hw,B+.84,-.45),V(-.9*hw,B+.96,-.52)]),.055*EK('fl'),.175*EK('fl'),.45,{big:true,flare:0});
    frontLogs.push([cv,[.18,.34,.5,.66]]);stub(cv,.55,.05,.24,-.1,.055);stub(cv,.8,.12,.1,.16,.05);}
   // 手前・右：太い方が地面に寝る（こぶつき）。細い先は右の壁の方へ上がる
   {const bx=.4*hw,bz=-.21,cv=LOGCV.fr=log(EP('fr',[V(hw+.06,B+1.0,-.2),V(.9*hw,B+.84,-.18),V(.76*hw,B+.6,-.17),V(.6*hw,B+.42,-.18),V(.48*hw,g(.48*hw,-.2)+.2,-.2),V(bx,g(bx,bz)+.15,bz)]),.05*EK('fr'),.172*EK('fr'),.45,{big:true,flare:0});
-   frontLogs.push([cv,[.6,.74,.86,.96]]);stub(cv,.7,-.04,.2,.06,.06);}}
+   frontLogs.push([cv,[.6,.74,.86,.96]]);stub(cv,.7,-.04,.2,.06,.06);}}}
  for(let i=0;i<4;i++){const z=-.14-R()*(DP*.6),x0=pathX(z)+(R()-.5)*pathW(z),a=R()*6.283,l=.22+R()*.3,pts=[];for(let k=0;k<5;k++){const t=k/4,px=x0+Math.cos(a)*l*(t-.5)+Math.sin(t*6+i*2)*.05,pz=z+Math.sin(a)*l*(t-.5)*.6+Math.cos(t*5+i)*.04;pts.push(V(px,ground(px,pz)+.008+Math.sin(t*3.14)*.012,pz));}limb(pts,.0055,.002,bark,16,5);}
  /* 苔：もこもこ */
  {const blobs=[]; // 石の上の苔のかたまり（rockMoss）は、苔を話し合ってから
@@ -533,6 +536,7 @@ mb.addEventListener('click',async()=>{if(!tilt){try{if(typeof DeviceOrientationE
  else{tilt=false;removeEventListener('deviceorientation',onTilt);mb.textContent='のぞき方：指';tip.textContent='指でなぞると、のぞく角度が変わる';tip.style.opacity=.85;setTimeout(()=>tip.style.opacity=0,3500);}});
 const q=new URLSearchParams(location.search);if(q.get('x'))tx=+q.get('x');if(q.get('y'))ty=+q.get('y');const fixed=q.has('x')||q.has('y');let fishStart=q.get('fish');if(q.get('zoom')){zm=zt=Math.max(1,+q.get('zoom'));fx=ftx=(+q.get('fx')||0)*2;fy=fty=(+q.get('fy')||0);}
 try{const t=+q.get('tank');if(SIZES[t])tank=t;}catch(err){}
+if(q.get('front')==='0')EDIT._nofront=1;
 if(innerHeight>innerWidth)tip.textContent='横にすると、水槽が大きくなる';
 /* 流木を動かす道具（仮）。点を指でつまんで動かす。指を離すと、その流木を組み直す。「数字をコピー」で 19 に渡す */
 const ED={on:false,sel:null,drag:null,whole:false,h:{},el:{},t:0,names:{ml:'左のまんなか',mr:'右のまんなか',fl:'左の手前',fr:'右の手前'},n:{ml:7,mr:6,fl:5,fr:5},col:{ml:'#ffd76a',mr:'#7fe3ff',fl:'#ff9db1',fr:'#b6ff9a'}};
@@ -548,9 +552,10 @@ const ED={on:false,sel:null,drag:null,whole:false,h:{},el:{},t:0,names:{ml:'左�
   const nx=cl(_v.x,-hw-.2,hw+.2),ny=cl(_v.y,BOT-.05,TOPY+.15),dx=nx-a[0],dy=ny-a[1];if(ED.whole)for(const b of H){b[0]+=dx;b[1]+=dy;}else{a[0]=nx;a[1]=ny;}d.moved=true;};
  const up=e=>{const d=ED.drag;if(!d||e.pointerId!==d.pid)return;e.stopPropagation();ED.drag=null;if(d.moved)commit(d.id);};
  const dom=()=>{esvg.innerHTML='';ED.el={};for(const id in ED.h){const pl=document.createElementNS(NS,'polyline');pl.setAttribute('fill','none');pl.setAttribute('stroke',ED.col[id]);pl.setAttribute('stroke-width','2');pl.setAttribute('stroke-dasharray','6 6');pl.setAttribute('opacity','.9');esvg.appendChild(pl);
-   const cs=ED.h[id].map((_,i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('fill',ED.col[id]);c.setAttribute('fill-opacity','.4');c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','1.5');c.style.pointerEvents='auto';c.style.touchAction='none';c.style.cursor='grab';
-    c.addEventListener('pointerdown',e=>down(e,id,i,c));c.addEventListener('pointermove',move);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);esvg.appendChild(c);return c;});ED.el[id]={pl,cs};}};
- ED.draw=()=>{const r=cv.getBoundingClientRect();for(const id in ED.h){const H=ED.h[id],el=ED.el[id];if(!el)continue;H.forEach((a,i)=>{const s=scr(a,r),on=ED.sel&&ED.sel[0]===id&&ED.sel[1]===i;el.cs[i].setAttribute('cx',s[0]);el.cs[i].setAttribute('cy',s[1]);el.cs[i].setAttribute('r',on?20:15);el.cs[i].setAttribute('fill-opacity',on?'.75':'.4');});
+   const vs=[],cs=ED.h[id].map((_,i)=>{const v=document.createElementNS(NS,'circle');v.setAttribute('fill',ED.col[id]);v.setAttribute('stroke','#fff');v.setAttribute('stroke-width','1.2');esvg.appendChild(v);vs.push(v);
+    const c=document.createElementNS(NS,'circle');c.setAttribute('fill','transparent');c.style.pointerEvents='all';c.style.touchAction='none';c.style.cursor='grab';
+    c.addEventListener('pointerdown',e=>down(e,id,i,c));c.addEventListener('pointermove',move);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);esvg.appendChild(c);return c;});ED.el[id]={pl,cs,vs};}};
+ ED.draw=()=>{const r=cv.getBoundingClientRect(),vr=cl(r.width/110,4,10),hr=cl(r.width/50,9,22);for(const id in ED.h){const H=ED.h[id],el=ED.el[id];if(!el)continue;el.pl.setAttribute('stroke-width',vr>6?2:1.2);H.forEach((a,i)=>{const s=scr(a,r),on=ED.sel&&ED.sel[0]===id&&ED.sel[1]===i;el.cs[i].setAttribute('cx',s[0]);el.cs[i].setAttribute('cy',s[1]);el.cs[i].setAttribute('r',hr);el.vs[i].setAttribute('cx',s[0]);el.vs[i].setAttribute('cy',s[1]);el.vs[i].setAttribute('r',on?vr*1.5:vr);el.vs[i].setAttribute('fill-opacity',on?'.95':'.6');});
    const c=new THREE.CatmullRomCurve3(H.map(a=>V(a[0],a[1],a[2]))),n=28;let t='';for(let i=0;i<=n;i++){const p=c.getPoint(i/n),s=scr([p.x,p.y,p.z],r);t+=s[0].toFixed(1)+','+s[1].toFixed(1)+' ';}el.pl.setAttribute('points',t);}};
  eb.addEventListener('click',()=>{ED.on=!ED.on;document.body.classList.toggle('edit',ED.on);eb.textContent=ED.on?'動かすのをやめる':'流木を動かす';eout.style.display='none';if(ED.on){load();dom();say('色のついた点を、指でつまんで動かす。離すと流木が組み直る');}});
  ebar.addEventListener('pointerdown',e=>e.stopPropagation());eout.addEventListener('pointerdown',e=>e.stopPropagation());
@@ -559,7 +564,10 @@ const ED={on:false,sel:null,drag:null,whole:false,h:{},el:{},t:0,names:{ml:'左�
  $('edback').addEventListener('click',()=>zmove(-.06));$('edfront').addEventListener('click',()=>zmove(.06));
  const kmul=m=>{if(!ED.sel){say('先に、太さを変えたい流木の点をさわってね');return;}const id=ED.sel[0];EDIT[id]=EDIT[id]||{};EDIT[id].k=r3(cl((EDIT[id].k||1)*m,.4,2.2));commit(id,'k');};
  $('edthin').addEventListener('click',()=>kmul(.92));$('edthick').addEventListener('click',()=>kmul(1.09));
- $('edreset').addEventListener('click',()=>{EDIT={};try{localStorage.removeItem('tf-logs');}catch(err){}ED.sel=null;say('もどしてる…');setTimeout(()=>{build();load();dom();say('はじめの形にもどした');},40);});
+ const fl=$('edfrontlogs'),flT=()=>{fl.textContent=EDIT._nofront?'前の二本をもどす':'前の二本をかくす';fl.classList.toggle('on',!!EDIT._nofront);};
+ fl.addEventListener('click',()=>{if(EDIT._nofront)delete EDIT._nofront;else EDIT._nofront=1;save();flT();ED.sel=null;say('組み直してる…');setTimeout(()=>{build();load();dom();say(EDIT._nofront?'前の二本をかくした（消してはいない）':'前の二本をもどした');},40);});
+ eb.addEventListener('click',flT);
+ $('edreset').addEventListener('click',()=>{EDIT={};flT();try{localStorage.removeItem('tf-logs');}catch(err){}ED.sel=null;say('もどしてる…');setTimeout(()=>{build();load();dom();say('はじめの形にもどした');},40);});
  $('edcopy').addEventListener('click',async()=>{if(!Object.keys(EDIT).length){say('まだ何も動かしてない');return;}const t='流木の数字 '+EDREV+' '+JSON.stringify(EDIT);let ok=false;try{await navigator.clipboard.writeText(t);ok=true;}catch(err){}
   if(ok)say('コピーした。19 にそのまま貼ってね');else{eout.value=t;eout.style.display='block';eout.focus();eout.select();say('下の字をぜんぶ選んでコピーして、19 に貼ってね');}});}
 const edDraw=()=>ED.draw();
