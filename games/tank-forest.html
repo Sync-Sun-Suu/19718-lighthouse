@@ -413,15 +413,26 @@ function build(){
    PL.forEach((list,vi)=>{const pm=new THREE.InstancedMesh(makePogo(701+vi*29),pmat,list.length);
     list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);const ln=.03+b[5]*.18;d.rotation.set(-Math.sin(b[4])*ln+(q()-.5)*.1,q()*6.283,Math.cos(b[4])*ln+(q()-.5)*.1);const w=.85+q()*.4;d.scale.set(w,b[3],w);d.updateMatrix();pm.setMatrixAt(i,d.matrix);c.setRGB(.85+q()*.3,.9+q()*.2,.6+q()*.5);pm.setColorAt(i,c);});pm.castShadow=true;pm.receiveShadow=true;box.add(pm);});
    /* ぎざぎざの葉（ハイグロフィラ・ピンナティフィダふう）：大きい石の顔に着ける。土ではなく石に着く草。葉のふちが深く切れこむ。石を少し隠して、時間がたった感じに */
-   const mkP=sd=>{const g=mul(sd),P=[],C=[],I=[],M=28,ph=g()*3,dr=.25+g()*.5,wm=.11+g()*.04,p2=g()*6;
-     for(let i=0;i<=M;i++){const u=i/M,env=wm*Math.pow(Math.sin(Math.PI*Math.pow(u,.7)),.8),lob=.5+.5*Math.abs(Math.sin(u*Math.PI*6.5+ph)),hwd=i===M?0:env*(.3+.7*lob)+.006,bb=1+dr,y=Math.sin(bb*u)/bb,zo=(1-Math.cos(bb*u))/bb,xo=Math.sin(u*4+p2)*.03*u;
-      P.push(xo-hwd,y,zo+hwd*.25, xo,y,zo, xo+hwd,y,zo+hwd*.25);const e=.7+.2*u;C.push(e,e*.95,e*.75, 1.15,1.15,.9, e,e*.95,e*.75);if(i<M){const a=i*3;I.push(a,a+3,a+1,a+1,a+3,a+4,a+1,a+4,a+2,a+2,a+4,a+5);}}
+   const mkP=(sd,bbo,lng)=>{const g=mul(sd),P=[],C=[],I=[],M=lng?44:28,ph=g()*3,dr=.25+g()*.5,wm=lng?.07+g()*.03:.11+g()*.04,p2=g()*6;
+     for(let i=0;i<=M;i++){const u=i/M,env=wm*Math.pow(Math.sin(Math.PI*Math.pow(u,lng?.55:.7)),lng?.7:.8),lob=.5+.5*Math.abs(Math.sin(u*Math.PI*(lng?10:6.5)+ph)),hwd=i===M?0:env*(lng?.55+.45*lob:.3+.7*lob)+.006,bb=bbo||1+dr,rf=lng?Math.sin(u*24+p2)*hwd*.4:0,y=Math.sin(bb*u)/bb,zo=(1-Math.cos(bb*u))/bb,xo=Math.sin(u*4+p2)*.03*u;
+      P.push(xo-hwd,y,zo+hwd*.25+rf, xo,y,zo, xo+hwd,y,zo+hwd*.25-rf);const e=.7+.2*u;C.push(e,e*.95,e*.75, 1.15,1.15,.9, e,e*.95,e*.75);if(i<M){const a=i*3;I.push(a,a+3,a+1,a+1,a+3,a+4,a+1,a+4,a+2,a+2,a+4,a+5);}}
      const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));bg.setIndex(I);bg.computeVertexNormals();return bg;};
    const big=rocks.reduce((a,k)=>k[2]>a[2]?k:a,rocks[0]),HL=[[],[],[]];
    for(const [a,f] of[[1.6,.5],[2.0,.68],[2.4,.45],[1.3,.75],[2.2,.28]]){const bi=Math.floor((a+Math.PI)/6.2832*32)%32,g0=ground(big[0],big[1]),rr=big[4][bi]*Math.sqrt(1-f*f)*.92,x=big[0]+Math.cos(a)*rr,z=big[1]+Math.sin(a)*rr,y=g0+(big[3]-g0)*f,n=7+Math.floor(q()*4),out=Math.atan2(Math.cos(a),Math.sin(a));
     for(let k=0;k<n;k++)HL[Math.floor(q()*3)].push([x+(q()-.5)*.04,y+(q()-.5)*.05,z+(q()-.5)*.03,out+(q()-.5)*2.6,.5+q()*.8,.2+q()*.16]);}
    const hmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x14260a,emissiveIntensity:.3}),.012);
-   HL.forEach((list,vi)=>{const hm=new THREE.InstancedMesh(mkP(811+vi*23),hmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.6,'YXZ');d.scale.set(b[5]*(.9+q()*.4),b[5],b[5]);d.updateMatrix();hm.setMatrixAt(i,d.matrix);if(q()<.3)c.setHSL(.1+q()*.04,.5,.085+q()*.035);else c.setHSL(.22+q()*.06,.5+q()*.1,.085+q()*.05);hm.setColorAt(i,c);});hm.castShadow=true;hm.receiveShadow=true;box.add(hm);});}}
+   HL.forEach((list,vi)=>{const hm=new THREE.InstancedMesh(mkP(811+vi*23),hmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.6,'YXZ');d.scale.set(b[5]*(.9+q()*.4),b[5],b[5]);d.updateMatrix();hm.setMatrixAt(i,d.matrix);if(q()<.3)c.setHSL(.1+q()*.04,.5,.085+q()*.035);else c.setHSL(.22+q()*.06,.5+q()*.1,.085+q()*.05);hm.setColorAt(i,c);});hm.castShadow=true;hm.receiveShadow=true;box.add(hm);});
+   /* ふぁっと広がる長い葉（11/23、718「以前作ったこれ（石のぎざぎざの葉）の長い版みたいに」「もっとふぁって感じ」。白い線の絵）：
+      株もとから噴水みたいに上へ出て、外へしなだれる。内の葉は立ち、外の葉ほど大きく弧を描く。ふちはやわらかく波打つ。
+      大きい株：右の流木と壁の間、左の大きい石の前。小さい株：718 の白い丸の三か所（左下に一つ、右下に二つ） */
+   {const q4=mul(8469),FL=[[],[],[],[]],BB=[.45,.8,1.1,1.4],fount=(bx,bz,br,H,nc)=>{let made=0;for(let t=0;t<90&&made<nc;t++){const a=q4()*6.283,dd=Math.sqrt(q4())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.08||z>-.1||z<-DP+.08||onPath(x,z)||rockHit(x,z,.05))continue;made++;
+      const y=Math.max(ground(x,z),mossY(x,z))-.01,n=11+Math.floor(q4()*6),hh=H*(.75+q4()*.4),a0=q4()*6.283;
+      for(let k=0;k<n;k++){const vi=Math.min(3,Math.floor(k/n*4+q4()*.8)),az=a0+k*2.4+(q4()-.5)*.6,L=Math.min((TOPY-.04-y)*1.15,hh*(.7+q4()*.4)*(1+.12*vi));FL[vi].push([x+Math.sin(az)*.02,y,z+Math.cos(az)*.02,az,.05+vi*.07+q4()*.12,L,q4()<.22]);}}};
+    fount(.9*hw,-1.02,.22,.95,4);fount(.94*hw,-.66,.12,.7,2);fount(-.84*hw,-.8,.18,.85,3);
+    fount(-.68*hw,-.5,.1,.42,1);fount(.6*hw,-.42,.1,.4,1);fount(.78*hw,-.5,.1,.46,1);
+    const fmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1f4410,emissiveIntensity:.4}),.04);
+    FL.forEach((list,vi)=>{const fm=new THREE.InstancedMesh(mkP(911+vi*31,BB[vi],1),fmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q4()-.5)*.5,'YXZ');d.scale.set(b[5]*(.85+q4()*.35),b[5],b[5]);d.updateMatrix();fm.setMatrixAt(i,d.matrix);
+      if(b[6])c.setHSL(.13+q4()*.04,.45,.2+q4()*.06);else c.setHSL(.24+q4()*.06,.55+q4()*.12,.24+q4()*.12);fm.setColorAt(i,c);});fm.castShadow=true;fm.receiveShadow=true;box.add(fm);});}}}
  /* 濃くて広い葉（アヌビアス・ナナふう）：石のきわと木の根もとに。這う短い茎から、柄が立ち上がって、その先で葉が外へ倒れる。葉の表が上を向く。
     厚くて硬くて、つやがある（揺れない）。一株の中で、葉の大きさがばらばら */
  {const P=[],C=[],I=[],PT=.42,BL=.72,be=.62,dy=Math.cos(be),dz=Math.sin(be),ny=Math.sin(be),nz=-Math.cos(be),pz=y=>Math.pow(y/PT,2)*.06;
@@ -459,7 +470,7 @@ function build(){
      同じ「ほうれん草」の葉を、大きく、立てて、束で。高さはそろえない */
   const TL=[[],[],[],[]];{const q2=mul(8451),tall=(bx,bz,br,H,n)=>{for(let k=0;k<n;k++){const a=q2()*6.283,dd=Math.sqrt(q2())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.05||z>-.07||z<-DP+.05||rockHit(x,z,.015))continue;
      const y=Math.max(ground(x,z),mossY(x,z))-.01,L=Math.min(TOPY-.05-y,H*(.45+.55*Math.sqrt(Math.max(0,1-dd*dd/(br*br*1.2))))*(.7+q2()*.45));TL[Math.floor(q2()*4)].push([x,y,z,a+(q2()-.5)*2,.03+q2()*.12+dd/br*.12,L,q2()<.2]);}};
-   tall(.9*hw,-1.02,.22,1.15,230);tall(.94*hw,-.66,.12,.8,70);tall(-.84*hw,-.8,.18,1.0,170);}
+   /* 剣みたいに硬かったので、植えていない（718「もっとふぁって感じ」）。かわりは上の「ふぁっと広がる長い葉」 */}
   const jm=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1c3a12,emissiveIntensity:.3}),.035),d=new THREE.Object3D(),c=new THREE.Color();
   JL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(77+vi*13),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.9,'YXZ');d.scale.set(b[5]*(.8+q()*.5),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.24+q()*.03,.6,.36+q()*.08);else c.setHSL(.27+q()*.05,.55+q()*.15,.17+q()*.12);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});
   {const q3=mul(8452);TL.forEach((list,vi)=>{const im=new THREE.InstancedMesh(mk(177+vi*19,1),jm,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q3()-.5)*.5,'YXZ');d.scale.set(b[5]*(.8+q3()*.45),b[5],b[5]);d.updateMatrix();im.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.25+q3()*.03,.6,.34+q3()*.08);else c.setHSL(.28+q3()*.05,.55+q3()*.15,.16+q3()*.11);im.setColorAt(i,c);});im.castShadow=true;im.receiveShadow=true;box.add(im);});}
