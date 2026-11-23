@@ -428,10 +428,12 @@ function build(){
    {const q4=mul(8469),FL=[[],[],[],[]],BB=[.45,.8,1.1,1.4],fount=(bx,bz,br,H,nc)=>{let made=0;for(let t=0;t<90&&made<nc;t++){const a=q4()*6.283,dd=Math.sqrt(q4())*br,x=bx+Math.cos(a)*dd,z=bz+Math.sin(a)*dd*.8;if(Math.abs(x)>hw-.08||z>-.1||z<-DP+.08||onPath(x,z)||rockHit(x,z,.05))continue;made++;
       const y=Math.max(ground(x,z),mossY(x,z))-.01,n=11+Math.floor(q4()*6),hh=H*(.75+q4()*.4),a0=q4()*6.283;
       for(let k=0;k<n;k++){const vi=Math.min(3,Math.floor(k/n*4+q4()*.8)),az=a0+k*2.4+(q4()-.5)*.6,L=Math.min((TOPY-.04-y)*1.15,hh*(.7+q4()*.4)*(1+.12*vi));FL[vi].push([x+Math.sin(az)*.02,y,z+Math.cos(az)*.02,az,.05+vi*.07+q4()*.12,L,q4()<.22]);}}};
-    fount(.9*hw,-1.02,.22,.95,4);fount(.94*hw,-.66,.12,.7,2);fount(-.84*hw,-.8,.18,.85,3);
-    fount(-.68*hw,-.5,.1,.42,1);fount(.6*hw,-.42,.1,.4,1);fount(.78*hw,-.5,.1,.46,1);
+    // 左の大きい株。右は、左と同じ大きさで（718、11/23「ここのスペースに、左に作った長い葉っぱ同じ規模感でほしい」）：流木のうしろに高い株、流木の手前の壁ぎわにも
+    fount(-.84*hw,-.8,.18,.85,3);fount(.9*hw,-.95,.18,1.15,4);fount(.93*hw,-.74,.1,.9,2);
+    // 白い丸の三か所：丸の大きさくらいのかさに（718「白丸の丸の大きさくらいのボリュームにして欲しい」）
+    fount(-.68*hw,-.5,.13,.78,3);fount(.59*hw,-.42,.14,.62,3);fount(.78*hw,-.5,.11,.88,2);
     const fmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.5,emissive:0x1f4410,emissiveIntensity:.4}),.04);
-    FL.forEach((list,vi)=>{const fm=new THREE.InstancedMesh(mkP(911+vi*31,BB[vi],1),fmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q4()-.5)*.5,'YXZ');d.scale.set(b[5]*(.85+q4()*.35),b[5],b[5]);d.updateMatrix();fm.setMatrixAt(i,d.matrix);
+    FL.forEach((list,vi)=>{const fm=new THREE.InstancedMesh(mkP(911+vi*31,BB[vi],1),fmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q4()-.5)*.5,'YXZ');d.scale.set(Math.min(b[5],.5+.22*b[5])*(.85+q4()*.35),b[5],b[5]);d.updateMatrix();fm.setMatrixAt(i,d.matrix);
       if(b[6])c.setHSL(.13+q4()*.04,.45,.2+q4()*.06);else c.setHSL(.24+q4()*.06,.55+q4()*.12,.24+q4()*.12);fm.setColorAt(i,c);});fm.castShadow=true;fm.receiveShadow=true;box.add(fm);});}}}
  /* 濃くて広い葉（アヌビアス・ナナふう）：石のきわと木の根もとに。這う短い茎から、柄が立ち上がって、その先で葉が外へ倒れる。葉の表が上を向く。
     厚くて硬くて、つやがある（揺れない）。一株の中で、葉の大きさがばらばら */
