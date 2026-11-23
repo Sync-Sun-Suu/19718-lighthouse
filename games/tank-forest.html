@@ -278,6 +278,8 @@ function build(){
   // 手前・右：太い方が地面に寝る（こぶつき）。細い先は右の壁の方へ上がる
   {const bx=.4*hw,bz=-.21,cv=LOGCV.fr=log(EP('fr',[V(hw+.06,B+1.0,-.2),V(.9*hw,B+.84,-.18),V(.76*hw,B+.6,-.17),V(.6*hw,B+.42,-.18),V(.48*hw,g(.48*hw,-.2)+.2,-.2),V(bx,g(bx,bz)+.15,bz)]),.05*EK('fr'),.172*EK('fr'),.45,{big:true,flare:0});
    frontLogs.push([cv,[.6,.74,.86,.96]]);stub(cv,.7,-.04,.2,.06,.06);}}}
+ // 718 が絵に描いた印（画面の上の点 u,v：左右 -1〜1、上下 -1〜1）から、その下にある流木の点をさがす。印の絵は少し右からのぞいた角度だった（MEX, MEY）
+ const MEX=.45,MEY=.1,woodAt=(u,v)=>{let best=null,bs=1e9;for(const [cv2] of woodCurves)for(let i=2;i<=58;i++){const t=i/60,p=cv2.getPointAt(t),f=EZ/(EZ-p.z*ZS),X=MEX+(p.x-MEX)*f,Yy=MEY+(p.y-MEY)*f,dd=Math.hypot(X-u*hw,Yy-v),sc=dd-p.z*.03;if(sc<bs){bs=sc;best={p,t,cv:cv2,r:cv2.radAt(t),d:dd};}}return best;};
  for(let i=0;i<4;i++){const z=-.14-R()*(DP*.6),x0=pathX(z)+(R()-.5)*pathW(z),a=R()*6.283,l=.22+R()*.3,pts=[];for(let k=0;k<5;k++){const t=k/4,px=x0+Math.cos(a)*l*(t-.5)+Math.sin(t*6+i*2)*.05,pz=z+Math.sin(a)*l*(t-.5)*.6+Math.cos(t*5+i)*.04;pts.push(V(px,ground(px,pz)+.008+Math.sin(t*3.14)*.012,pz));}limb(pts,.0055,.002,bark,16,5);}
  /* 苔：もこもこ */
  {const blobs=[]; // 石の上の苔のかたまり（rockMoss）は、苔を話し合ってから
@@ -329,6 +331,22 @@ function build(){
       if(patch>.56&&nl>=.62&&R()<.03*(1+2.6*sst(BOT+.95,BOT+1.5,p.y)))fernSpots.push([V(p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9),T.clone(),.75]);
       WC.push([p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9,cr,cr*(.2+R()*.13),n.x,n.y,n.z,patch]);
       if(dens===1&&Math.abs(T.y)<.55&&t>.3&&R()<.035)HP.push([p.x,p.y-rr*.85,p.z,rr]);}}
+    // 718 の赤い印（オレンジとピンク、11/23）：そこだけ、いまの苔を広げる。幹の見える側を包むように
+    const Rm=mul(1123),around=(cv2,t,spread)=>{const p=cv2.getPointAt(t);cv2.getTangentAt(t,T);n.copy(up).addScaledVector(T,-up.dot(T));if(n.length()<.35)n.set(0,0,1).addScaledVector(T,-T.z);n.normalize();bn.crossVectors(T,n);const a=(Rm()-.5)*spread;n.multiplyScalar(Math.cos(a)).addScaledVector(bn,Math.sin(a)).normalize();if(n.z<-.4)n.z=-n.z;return p;};
+    for(const [u,v,rad] of[[-.606,-.287,.16],[-.296,-.043,.09],[-.33,-.064,.09],[.303,-.043,.15],[.399,-.064,.11],[.766,.404,.16],[.713,.277,.14],[.681,.149,.12],[.564,-.064,.15],[.521,-.255,.14],[.809,-.17,.12]]){const w=woodAt(u,v);if(!w||w.d>.3)continue;const len=w.cv.getLength(),m=Math.round(rad*520);
+     for(let i=0;i<m;i++){const t=Math.max(.02,Math.min(.98,w.t+(Rm()-.5)*2*rad/len)),p=around(w.cv,t,3.4),rr=w.cv.radAt(t),patch=.6+Rm()*.32,cr=Math.max(.018,Math.min(.07,rr*(.6+Rm()*.6)));
+      WC.push([p.x+n.x*rr*.9,p.y+n.y*rr*.9,p.z+n.z*rr*.9,cr,cr*(.2+Rm()*.13),n.x,n.y,n.z,patch]);}}
+    /* ちりちりの苔（新しい苔。718 の黄色の印、11/23「チリチリしたやつ」）：流木の肌から、細くてちぢれた枝がわさっと出て、下へ垂れる。明るい黄緑 */
+    {const CH=[],dir=new THREE.Vector3();
+     for(const [u,v,rad] of[[-.638,.521,.15],[-.532,.479,.14],[-.298,.17,.13],[-.223,.277,.13],[-.176,.34,.11],[-.441,-.074,.11],[.223,.351,.12],[.298,.277,.12],[.351,.213,.11],[.713,.064,.13],[.553,-.149,.14],[.798,-.128,.12]]){const w=woodAt(u,v);if(!w||w.d>.3)continue;const len=w.cv.getLength(),m=Math.round(rad*3000);
+      for(let i=0;i<m;i++){const g1=Rm()+Rm()-1,t=Math.max(.02,Math.min(.98,w.t+g1*rad*1.5/len)),p=around(w.cv,t,4.6),rr=w.cv.radAt(t);
+       const hang=Rm()<.35;dir.set(n.x*.45+T.x*(Rm()-.5)*1.4+(Rm()-.5)*.4,n.y*.45+T.y*(Rm()-.5)*1.4-(hang?1.3+Rm():.25+Rm()*.5),n.z*.45+T.z*(Rm()-.5)*1.4+.15).normalize();CH.push([p.x+n.x*rr*.86,p.y+n.y*rr*.86,p.z+n.z*rr*.86,dir.x,dir.y,dir.z,(hang?.06+Rm()*.1:.03+Rm()*.045)*(1-.35*Math.abs(g1))]);}}
+     const mkF=sd=>{const g=mul(sd),P=[],C=[],I=[],M=9,w=.03,px=[],pz=[];for(let i=0;i<=M;i++){px.push((i%2?1:-1)*(.035+g()*.04)*(i?1:0)+(g()-.5)*.03);pz.push((g()-.5)*.09*i/M);}
+       for(let i=0;i<=M;i++){const yy=i/M,ww=i===M?0:w*(1-.5*yy),e=.55+.6*yy;P.push(px[i]-ww,yy,pz[i],px[i]+ww,yy,pz[i]);C.push(e,e,e*.8,e,e,e*.8);if(i<M){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2);}}
+       for(let i=1;i<M;i++){const sg=i%2?1:-1,L=.1+g()*.14,o=P.length/3,yy=i/M,e=.7+.5*yy;P.push(px[i],yy-.02,pz[i], px[i],yy+.03,pz[i], px[i]+sg*L,yy+.02+g()*.08,pz[i]+(g()-.5)*.1);C.push(e*.8,e*.8,e*.6,e*.8,e*.8,e*.6,e*1.1,e*1.1,e*.8);I.push(o,o+1,o+2);}
+       const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));fg.setAttribute('color',new THREE.Float32BufferAttribute(C,3));fg.setIndex(I);fg.computeVertexNormals();return fg;};
+     const cmat=sway(new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.85,emissive:0x1c3a0a,emissiveIntensity:.3}),.006),CL=[[],[],[]];CH.forEach(b=>CL[Math.floor(Rm()*3)].push(b));
+     CL.forEach((list,vi)=>{const fm2=new THREE.InstancedMesh(mkF(61+vi*7),cmat,list.length);list.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);nv.set(b[3],b[4],b[5]);d.quaternion.setFromUnitVectors(Y,nv);q2.setFromAxisAngle(Y,Rm()*6.283);d.quaternion.multiply(q2);d.scale.set(b[6]*(1+Rm()*.5),b[6],b[6]*(1+Rm()*.5));d.updateMatrix();fm2.setMatrixAt(i,d.matrix);c.setHSL(.24+Rm()*.06,.7+Rm()*.15,.17+Rm()*.15);fm2.setColorAt(i,c);});fm2.castShadow=true;box.add(fm2);});}
     // 木の上のかたまりは、すそ無し（下から見た時に、枝の下へはみ出さない）
     const wg=new THREE.SphereGeometry(1,10,7),wp=wg.attributes.position,wc=[];for(let i=0;i<wp.count;i++){const a=wp.getX(i),b=wp.getY(i),e=wp.getZ(i),k=1+(vn(a*2.3+3,b*2.3,e*2.3)-.5)*.55;wp.setXYZ(i,a*k,Math.max(-.3,b*k),e*k);const v=.42+.8*sst(-.3,1,b);wc.push(v,v,v);}wg.setAttribute('color',new THREE.Float32BufferAttribute(wc,3));wg.computeVertexNormals();
     const wm=new THREE.InstancedMesh(wg,cm.material,WC.length);
@@ -459,6 +477,10 @@ function build(){
   for(const k of rocks){if(k[2]<.15||q()<.12)continue;const n=k[2]>.3?5:k[2]>.2?3:(q()<.5?3:1);for(let j=0;j<n;j++){const a=1.5708+(q()-.5)*3.4,ca=Math.cos(a),sa=Math.sin(a);let d=k[2]*.7,x=k[0]+ca*d,z=k[1]+sa*d,t=0;for(;t<30&&rockHit(x,z,.035);t++){d+=.025;x=k[0]+ca*d;z=k[1]+sa*d;}if(t>=30)continue;clump(x,z,(.13+q()*.07)*(k[2]>.3?1.15:1),Math.atan2(ca,sa));}}
   // 木の根もと
   {const zs=DP/2.3;for(const [tx,tz] of[[-.62*hw,-.95*zs],[.66*hw,-1.35*zs],[.9*hw,-.55*zs]]){{let x=tx+(q()-.5)*.2,z=tz+.17+q()*.08;for(let t=0;t<20&&rockHit(x,z,.035);t++)z+=.03;if(!rockHit(x,z,.035))clump(x,z,.15+q()*.05,0);}if(q()<.6){const sg=q()<.5?-1:1;let x=tx+sg*.2,z=tz+.05;for(let t=0;t<20&&rockHit(x,z,.035);t++)x+=sg*.03;if(!rockHit(x,z,.035))clump(x,z,.12+q()*.04,sg*1.2);}}}
+  // 流木の上にも着ける（718 の黄緑の印、11/23「流木の上につけたい。同じようなサイズ感で」）。この草は木に着く
+  {const qa=mul(1724);for(const [u,v,sz] of[[-.457,.415,.17],[-.553,-.011,.15],[-.399,.064,.2],[-.319,-.234,.16],[-.309,-.436,.15],[-.532,-.415,.15],[.819,0,.21],[.862,-.33,.16],[.351,-.489,.2]]){const w=woodAt(u,v);if(!w||w.d>.3)continue;
+    const n=20+Math.floor(qa()*12),x=w.p.x,y=w.p.y+w.r*.6,z=w.p.z+w.r*.75,a0=qa()*6.283;
+    for(let k=0;k<n;k++){const young=k<3&&qa()<.6,az=a0+k*2.4+(qa()-.5)*.9,L=sz*1.2*(young?.4+qa()*.2:.6+Math.pow(qa(),1.7)*1.1);AL.push([x+Math.sin(az)*w.r*.4,y,z+Math.cos(az)*w.r*.4,az,young?qa()*.15:Math.pow(qa(),.7)*.6,L,young,.5+qa()*.55,.85+qa()*.45]);}}}
   const am=new THREE.InstancedMesh(ag,new THREE.MeshStandardMaterial({vertexColors:true,side:THREE.DoubleSide,roughness:.26,metalness:.08}),AL.length),d=new THREE.Object3D(),c=new THREE.Color();
   AL.forEach((b,i)=>{d.position.set(b[0],b[1],b[2]);d.rotation.set(b[4],b[3],(q()-.5)*.5,'YXZ');d.scale.set(b[5]*b[8],b[5]*b[7],b[5]);d.updateMatrix();am.setMatrixAt(i,d.matrix);if(b[6])c.setHSL(.25+q()*.03,.55,.3+q()*.07);else c.setHSL(.275+q()*.04,.5+q()*.15,.1+q()*.08);am.setColorAt(i,c);});am.castShadow=true;am.receiveShadow=true;box.add(am);}
  /* 「ほうれん草」（ミクロソリウムふう）：岩と木の根もとに着く。細長い葉。ふちが波打って、葉そのものもくねくねうねる。向きも長さもばらばらで、倒れているのもある（整いすぎを崩す） */
